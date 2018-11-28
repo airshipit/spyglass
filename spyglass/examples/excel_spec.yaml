@@ -1,0 +1,63 @@
+# Copyright 2018 The Openstack-Helm Authors.
+# Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Important: Please modify the dictionary with appropriate
+# design spec file.
+---
+specs:
+    # Design Spec file name: SiteDesignSpec_v0.1.xlsx
+    xl_spec:
+        ipmi_sheet_name: 'Site-Information'
+        start_row: 4
+        end_row: 15
+        hostname_col: 2
+        ipmi_address_col: 3
+        host_profile_col: 5
+        ipmi_gateway_col: 4
+        private_ip_sheet: 'Site-Information'
+        net_type_col: 1
+        vlan_col: 2
+        vlan_start_row: 19 
+        vlan_end_row: 30
+        net_start_row: 33
+        net_end_row: 40
+        net_col: 2
+        net_vlan_col: 1
+        public_ip_sheet: 'Site-Information'
+        oam_vlan_col: 1
+        oam_ip_row: 43
+        oam_ip_col: 2
+        oob_net_row: 48
+        oob_net_start_col: 2
+        oob_net_end_col: 5
+        ingress_ip_row: 45
+        dns_ntp_ldap_sheet: 'Site-Information'
+        login_domain_row: 52
+        ldap_col: 2
+        global_group: 53
+        ldap_search_url_row: 54
+        ntp_row: 55
+        ntp_col: 2
+        dns_row: 56
+        dns_col: 2
+        domain_row: 51
+        domain_col: 2
+        location_sheet: 'Site-Information'
+        column: 2
+        corridor_row: 59 
+        site_name_row: 58
+        state_name_row: 60
+        country_name_row: 61
+        clli_name_row: 62

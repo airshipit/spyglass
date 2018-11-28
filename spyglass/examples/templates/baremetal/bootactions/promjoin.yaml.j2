@@ -1,0 +1,26 @@
+---
+schema: 'drydock/BootAction/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: promjoin
+  storagePolicy: 'cleartext'
+  layeringDefinition:
+    abstract: false
+    layer: site
+  labels:
+    application: 'drydock'
+data:
+  signaling: false
+  assets:
+    - path: /opt/promjoin.sh
+      type: file
+      permissions: '555'
+{% raw %}
+      location: promenade+http://promenade-api.ucp.svc.cluster.local/api/v1.0/join-scripts?design_ref={{ action.design_ref | urlencode }}&hostname={{ node.hostname }}&ip={{ node.network.calico.ip }}{% endif %}{% for k, v in node.labels.items() %}&labels.dynamic={{ k }}={{ v }}{% endfor %}
+
+{% endraw %}
+      location_pipeline:
+        - template
+      data_pipeline:
+        - utf8_decode
+...

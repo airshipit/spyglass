@@ -1,0 +1,35 @@
+---
+schema: 'drydock/Region/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: {{ data['region_name'] }}
+  layeringDefinition:
+    abstract: false
+    layer: site
+  storagePolicy: cleartext
+  substitutions:
+    - dest:
+        path: .authorized_keys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: jenkins_ssh_public_key
+        path: .
+    - dest:
+        path: .authorized_keys[1]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: {{ data['region_name'] }}_ssh_public_key
+        path: .
+    - dest:
+        path: .repositories.main_archive
+      src:
+        schema: pegleg/SoftwareVersions/v1
+        name: software-versions
+        path: .packages.repositories.main_archive
+data:
+  tag_definitions: []
+  authorized_keys: []
+  repositories:
+      remove_unlisted: true
+...
+

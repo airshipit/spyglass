@@ -433,8 +433,8 @@ class FormationPlugin(BaseDataSourcePlugin):
             name_pattern = "(?i)({})".format(name)
             if re.search(name_pattern, vlan_name):
                 return network_names[name]
-
-        return ("")
+        # Return empty string is vlan_name is not matched with network_names
+        return ""
 
     def get_dns_servers(self, region):
         try:

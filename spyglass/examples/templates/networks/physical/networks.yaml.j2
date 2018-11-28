@@ -1,0 +1,251 @@
+---
+schema: 'drydock/NetworkLink/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: oob
+  layeringDefinition:
+    abstract: false
+    layer: site
+  storagePolicy: cleartext
+data:
+  # MaaS doesnt own this network like it does the others, so the noconfig label
+  # is specified.
+  labels:
+    noconfig: enabled
+  bonding:
+    mode: disabled
+  mtu: 1500
+  linkspeed: auto
+  trunking:
+    mode: disabled
+    default_network: oob
+  allowed_networks:
+    - oob
+...
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: oob
+  layeringDefinition:
+    abstract: false
+    layer: site
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['oob']['subnet'] }}
+  routes:
+    - subnet: '0.0.0.0/0'
+      gateway: {{ data['network']['vlan_network_data']['oob']['gateway'] }}
+      metric: 100
+  ranges:
+    - type: static
+      start: {{ data['network']['vlan_network_data']['oob']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['oob']['static_end'] }}
+...
+
+---
+schema: 'drydock/NetworkLink/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: pxe
+  layeringDefinition:
+    abstract: false
+    layer: site
+  storagePolicy: cleartext
+data:
+  bonding:
+    mode: disabled
+  mtu: 1500
+  linkspeed: auto
+  trunking:
+    mode: disabled
+    default_network: pxe
+  allowed_networks:
+    - pxe
+...
+
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: pxe
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      network_role: pxe
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['pxe']['subnet'] }}
+  routes:
+{% for other_subnet in data['network']['vlan_network_data']['pxe']['routes'] %}
+    - subnet: {{ other_subnet }}
+      gateway: {{ data['network']['vlan_network_data']['pxe']['gateway'] }}
+      metric: 100
+{% endfor %}
+  ranges:
+    - type: reserved
+      start: {{ data['network']['vlan_network_data']['pxe']['reserved_start'] }}
+      end: {{ data['network']['vlan_network_data']['pxe']['reserved_end'] }}
+    - type: static
+      start: {{ data['network']['vlan_network_data']['pxe']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['pxe']['static_end'] }}
+    - type: dhcp
+      start: {{ data['network']['vlan_network_data']['pxe']['dhcp_start'] }}
+      end: {{ data['network']['vlan_network_data']['pxe']['dhcp_end'] }}
+...
+
+---
+schema: 'drydock/NetworkLink/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: data
+  layeringDefinition:
+    abstract: false
+    layer: site
+  storagePolicy: cleartext
+data:
+  bonding:
+    mode: 802.3ad
+    hash: layer3+4
+    peer_rate: fast
+    mon_rate: 100
+    up_delay: 1000
+    down_delay: 3000
+  # NEWSITE-CHANGEME: Ensure the network switches in the environment are
+  # configured for this MTU or greater. Even if switches are configured for or
+  # can support a slightly higher MTU, there is no need (and negliable benefit)
+  # to squeeze every last byte into the MTU (e.g., 9216 vs 9100). Leave MTU at
+  # 9100 for maximum compatibility.
+  mtu: 9100
+  linkspeed: auto
+  trunking:
+    mode: 802.1q
+  allowed_networks:
+    - oam
+    - storage
+    - overlay
+    - calico
+...
+
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: oam
+  layeringDefinition:
+    abstract: false
+    layer: 'site'
+    parentSelector:
+      network_role: oam
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['oam']['subnet'] }}
+{% set flag = [0] %}
+{% for route in data['network']['vlan_network_data']['oam']['routes'] %}
+{% if flag[0] == 0 %}
+  routes:
+{% endif %}
+{% if flag.append(flag.pop() + 1) %} {% endif %}
+    - subnet: {{ route }}
+      gateway: {{ data['network']['vlan_network_data']['oam']['gateway'] }}
+      metric: 100
+{% endfor %}
+{% if flag[0] == 0 %}
+  routes:[]
+{% endif %}
+  ranges:
+    - type: reserved
+      start: {{ data['network']['vlan_network_data']['oam']['reserved_start'] }}
+      end: {{ data['network']['vlan_network_data']['oam']['reserved_end'] }}
+    - type: static
+      start: {{ data['network']['vlan_network_data']['oam']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['oam']['static_end'] }}
+...
+
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: storage
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      network_role: storage
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['storage']['subnet'] }}
+  ranges:
+    - type: reserved
+      start: {{ data['network']['vlan_network_data']['storage']['reserved_start'] }}
+      end: {{ data['network']['vlan_network_data']['storage']['reserved_end'] }}
+    - type: static
+      start: {{ data['network']['vlan_network_data']['storage']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['storage']['static_end'] }}
+...
+
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: overlay
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      network_role: os-overlay
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['overlay']['subnet'] }}
+  ranges:
+    - type: reserved
+      start: {{ data['network']['vlan_network_data']['overlay']['reserved_start'] }}
+      end: {{ data['network']['vlan_network_data']['overlay']['reserved_end'] }}
+    - type: static
+      start: {{ data['network']['vlan_network_data']['overlay']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['overlay']['static_end'] }}
+...
+
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: calico
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      network_role: calico
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data['network']['vlan_network_data']['calico']['subnet'] }}
+  ranges:
+    - type: reserved
+      start: {{ data['network']['vlan_network_data']['calico']['reserved_start'] }}
+      end: {{ data['network']['vlan_network_data']['calico']['reserved_end'] }}
+    - type: static
+      start: {{ data['network']['vlan_network_data']['calico']['static_start'] }}
+      end: {{ data['network']['vlan_network_data']['calico']['static_end'] }}
+...
+

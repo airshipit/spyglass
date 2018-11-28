@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import pkg_resources
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -27,7 +26,7 @@ class SiteProcessor(BaseProcessor):
         self.yaml_data = intermediary_yaml
         self.manifest_dir = manifest_dir
 
-    def render_template(self):
+    def render_template(self, template_dir):
         """ The method  renders network config yaml from j2 templates.
 
 
@@ -42,8 +41,7 @@ class SiteProcessor(BaseProcessor):
             site_manifest_dir = 'pegleg_manifests/site/'
         LOG.info("Site manifest output dir:{}".format(site_manifest_dir))
 
-        template_software_dir = pkg_resources.resource_filename(
-            'spyglass', 'templates/')
+        template_software_dir = template_dir + '/'
         template_dir_abspath = os.path.dirname(template_software_dir)
         LOG.debug("Template Path:%s", template_dir_abspath)
 

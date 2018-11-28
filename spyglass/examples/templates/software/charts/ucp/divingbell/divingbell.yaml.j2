@@ -1,0 +1,603 @@
+---
+# The purpose of this file is to define site-specific parameters to the
+# UAM-lite portion of the divingbell chart:
+# 1. User accounts to create on bare metal
+# 2. SSH public key for operationg system access to the bare metal
+# 3. Passwords for operating system access via iDrac/iLo console. SSH password-
+#    based auth is disabled.
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: ucp-divingbell
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      name: ucp-divingbell-global
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+  substitutions:
+    - dest:
+        path: .values.conf.uamlite.users[0].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: jenkins_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[0].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: ubuntu_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[1].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: am240k_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[1].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: am240k_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[2].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: dd118r_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[2].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: dd118r_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[3].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ks3019_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[3].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: ks3019_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[4].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: pb269f_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[4].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: pb269f_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[5].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sf5715_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[5].user_crypt_passwd
+      src:
+        schema: deckhand/Passphrase/v1
+        name: sf5715_crypt_password
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[6].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ds6901_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[7].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: jenkins_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[8].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: kr336r_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[9].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ol7435_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[10].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: mm9745_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[11].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sm108f_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[12].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: bp4242_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[13].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sm028h_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[14].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: go4243_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[15].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: vg763v_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[16].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: jb654e_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[17].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: dy270k_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[18].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: dn5242_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[19].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: aw4825_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[20].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ak2685_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[21].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sd592v_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[22].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: dl2017_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[23].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: kv289f_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[24].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: kp648d_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[25].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: mw145n_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[26].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: mm4762_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[27].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: mk721p_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[28].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ns707e_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[29].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: pk5294_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[30].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: rg9968_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[31].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: rk646r_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[32].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sy825r_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[33].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: bj2343_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[34].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: bd006h_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[35].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: nw288p_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[36].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ja5277_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[37].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ds9665_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[38].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: vp8178_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[39].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ag073n_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[40].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ab4543_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[41].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ar074s_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[42].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: bg809e_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[43].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sq074s_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[44].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: rg4437_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[45].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: gb458m_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[46].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ss254n_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[47].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sd069y_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[48].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sk559p_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[49].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sp781b_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[50].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sc842d_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[51].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ml844w_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[52].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: as487m_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[53].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ms8227_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[54].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ag073n_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[55].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: vv8334_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[56].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ar074s_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[57].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sy336r_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[58].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: sk562s_ssh_public_key
+        path: .
+    - dest:
+        path: .values.conf.uamlite.users[59].user_sshkeys[0]
+      src:
+        schema: deckhand/PublicKey/v1
+        name: ag878f_ssh_public_key
+        path: .
+data:
+  values:
+    conf:
+      uamlite:
+        users:
+          - user_name: ubuntu
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: am240k
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: dd118r
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ks3019
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: pb269f
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sf5715
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ds6901
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: jenkins
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: kr336r
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ol7435
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: mm9745
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sm108f
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: bp4242
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sm028h
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: go4243
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: vg763v
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: jb654e
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: dy270k
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: dn5242
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: aw4825
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ak2685
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sd592v
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: dl2017
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: kv289f
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: kp648d
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: mw145n
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: mm4762
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: mk721p
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ns707e
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: pk5294
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: rg9968
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: rk646r
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sy825r
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: bj2343
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: bd006h
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: nw288p
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ja5277
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ds9665
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: vp8178
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ag073n
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ab4543
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ar074s
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: bg809e
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sq074s
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: rg4437
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: gb458m
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ss254n
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sd069n
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sk559p
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sp781b
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sc842d
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ml844w
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: as487m
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ms8227
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ag073n
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: vv8334
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ar074s
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sy336r
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: sk562s
+            user_sudo: true
+            user_sshkeys: []
+          - user_name: ag878f
+            user_sudo: true
+            user_sshkeys: []
+...
