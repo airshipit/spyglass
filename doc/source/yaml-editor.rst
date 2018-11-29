@@ -32,10 +32,10 @@ could not be fetched via :ref:`tugboatinfo` plugin.
 Yaml Editor Utility Inputs
 --------------------------
 
-a) Yaml File: Yaml file required to be edited (This is required field)
-b) Port: Port on which app shall be running
-c) Host: This is only used to form URL which can be followed to open file in browser
-d) String: String which is required to be updated in the file (default is '#CHANGE_ME')
+    a) Yaml File: Yaml file required to be edited (This is required field)
+    b) Port: Port on which app shall be running
+    c) Host: This is only used to form URL which can be followed to open file in browser
+    d) String: String which is required to be updated in the file (default is '#CHANGE_ME')
 
 Yaml Editor Utility Usage
 -------------------------

@@ -85,13 +85,16 @@ Below is the definition for each key in the Excel spec
 
 Example: Tugboat Plugin Usage
 -----------------------------
+
 1. Required Input(Refer to 'spyglass/examples' folder to get these inputs)
-   a) Excel File: SiteDesignSpec_v0.1.xlsx
-   b) Excel Spec: excel_spec_upstream.yaml
-   c) Site Config: site_config.yaml
-   d) Template_dir: '../examples/templates'
-   e) Site name: airship-seaworthy
+
+    a) Excel File: SiteDesignSpec_v0.1.xlsx
+    b) Excel Spec: excel_spec_upstream.yaml
+    c) Site Config: site_config.yaml
+    d) Template_dir: '../examples/templates'
+    e) Site name: airship-seaworthy
 
 2. Spyglass CLI Command:
-   spyglass -mg -t tugboat -x SiteDesignSpec_v0.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<relative path to '../examples/templates'
+::
 
+    spyglass -mg -t tugboat -x SiteDesignSpec_v0.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<relative path to '../examples/templates'

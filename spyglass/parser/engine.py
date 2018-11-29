@@ -121,8 +121,8 @@ class ProcessDataSource():
             json_schema = json.load(f)
         try:
             # Suppressing writing of data2.json. Can use it for debugging
-            with open('data2.json', 'w') as outfile:
-                json.dump(temp_data, outfile, sort_keys=True, indent=4)
+            # with open('data2.json', 'w') as outfile:
+            #     json.dump(temp_data, outfile, sort_keys=True, indent=4)
             jsonschema.validate(json_data, json_schema)
         except jsonschema.exceptions.ValidationError as e:
             LOG.error("Validation Error")
@@ -336,11 +336,12 @@ class ProcessDataSource():
         self.data = extracted_data
         LOG.debug("Extracted data from plugin:\n{}".format(
             pprint.pformat(extracted_data)))
-        extracted_file = "extracted_file.yaml"
-        yaml_file = yaml.dump(extracted_data, default_flow_style=False)
-        with open(extracted_file, 'w') as f:
-            f.write(yaml_file)
-        f.close()
+        # Uncommeent following segment for debugging purpose.
+        # extracted_file = "extracted_file.yaml"
+        # yaml_file = yaml.dump(extracted_data, default_flow_style=False)
+        # with open(extracted_file, 'w') as f:
+        #     f.write(yaml_file)
+        # f.close()
 
         # Append region_data supplied from CLI to self.data
         self.data['region_name'] = self.region_name
