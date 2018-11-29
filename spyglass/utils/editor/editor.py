@@ -105,7 +105,7 @@ def run(*args, **kwargs):
     default='0.0.0.0',
     type=click.STRING,
     multiple=False,
-    help="Optional port parameter to run Flask on."
+    help="Optional host parameter to run Flask on."
 )
 @click.option(
     '--port',

@@ -73,7 +73,7 @@ Supported Features
    endpoint.
 
 3. YAML Editor for Intermediary YAML: Support runtime editing of missing
-   site parameters
+   site parameters, see :ref:`yaml-editor-info`
 
 Future Work
 -----------

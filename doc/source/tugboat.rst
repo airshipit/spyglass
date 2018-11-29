@@ -1,4 +1,4 @@
-
+..
       Copyright 2018 AT&T Intellectual Property.
       All Rights Reserved.
 
@@ -90,7 +90,7 @@ Example: Tugboat Plugin Usage
    b) Excel Spec: excel_spec_upstream.yaml
    c) Site Config: site_config.yaml
    d) Template_dir: '../examples/templates'
-   c) Site name: airship-seaworthy
+   e) Site name: airship-seaworthy
 
 2. Spyglass CLI Command:
    spyglass -mg -t tugboat -x SiteDesignSpec_v0.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<relative path to '../examples/templates'
