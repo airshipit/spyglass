@@ -58,6 +58,11 @@ LOG = logging.getLogger('spyglass')
     type=click.Path(exists=True),
     help='The path where intermediary file needs to be generated')
 @click.option(
+    '--edit_intermediary/--no_edit_intermediary',
+    '-e/-nedit',
+    default=True,
+    help='Flag to let user edit intermediary')
+@click.option(
     '--generate_manifests',
     '-m',
     is_flag=True,
@@ -96,6 +101,7 @@ def main(*args, **kwargs):
     # Extract user provided inputs
     generate_intermediary = kwargs['generate_intermediary']
     intermediary_dir = kwargs['intermediary_dir']
+    edit_intermediary = kwargs['edit_intermediary']
     generate_manifests = kwargs['generate_manifests']
     manifest_dir = kwargs['manifest_dir']
     intermediary = kwargs['intermediary']
@@ -176,7 +182,8 @@ def main(*args, **kwargs):
             data_extractor.site_data)
 
         LOG.info("Generate intermediary yaml")
-        intermediary_yaml = process_input_ob.generate_intermediary_yaml()
+        intermediary_yaml = process_input_ob.generate_intermediary_yaml(
+            edit_intermediary)
     else:
         LOG.info("Loading intermediary from user provided input")
         with open(intermediary, 'r') as intermediary_file:
