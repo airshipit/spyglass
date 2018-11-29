@@ -26,6 +26,15 @@ class BaseError(Exception):
         sys.exit(1)
 
 
+class NoSpecMatched(BaseError):
+    def __init__(self, excel_specs):
+        self.specs = excel_specs
+
+    def display_error(self):
+        print('No spec matched. Following are the available specs:\n'.format(
+            self.specs))
+        sys.exit(1)
+
 class MissingAttributeError(BaseError):
     pass
 
