@@ -39,6 +39,7 @@ setup(
         ],
         'data_extractor_plugins':
         ['formation=spyglass.data_extractor.plugins.formation:FormationPlugin',
+        'tugboat=spyglass.data_extractor.plugins.tugboat.tugboat:TugboatPlugin',
         ]
     },
     include_package_data=True,
