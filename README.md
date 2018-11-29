@@ -23,7 +23,10 @@ all the information that will be rendered to generate Airship site
 manifests. This optional step will help the deployment engineer to
 modify any data if required.
 
-Basic Usage
------------
+Getting Started
+---------------
+For more detailed installation and setup information, please refer to the
+`Getting Started`_ guide.
 
-TODO
+
+.. _`Getting Started`: ./doc/source/getting_started.rst
