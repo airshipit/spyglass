@@ -19,7 +19,7 @@ Getting Started
 ===============
 
 What is Spyglass?
-----------------
+-----------------
 
 Spyglass is a data extraction tool which can interface with
 different input data sources to generate site manifest YAML files.
@@ -28,6 +28,7 @@ for a site deployment. These site manifest YAML files generated
 by spyglass will be saved in a Git repository, from where Pegleg
 can access and aggregate them. This aggregated file can then be
 fed to Shipyard for site deployment / updates.
+Reference: https://review.openstack.org/#/c/605227
 
 Architecture
 ------------
@@ -62,6 +63,65 @@ Architecture
 
 --
 
+Supported Features
+------------------
+1. Tugboat Plugin: Supports extracting site data from Excel files and
+   then generate site manifests for sitetype:airship-seaworthy.
+   Find more documentation for Tugboat, see :ref:`tugboatinfo`.
+
+2. Remote Data Source Plugin: Supports extracting site data from a REST
+   endpoint.
+
+3. YAML Editor for Intermediary YAML: Support runtime editing of missing
+   site parameters
+
+Future Work
+-----------
+1) Schema based manifest generation instead of Jinja2 templates. It shall
+be possible to cleanly transition to this schema based generation keeping a unique
+mapping between schema and generated manifests. Currently this is managed by
+considering a mapping of j2 templates with schemas and site type.
+
+List of Generated Site Manifests:
+---------------------------------
+The spyglass uses the plugin data source to generate the following site
+manifests:
+
+- site-definition.yaml
+- profile/
+- profile/region.yaml
+- baremetal/
+- baremetal/nodes.yaml
+- networks/
+- networks/common_addresses.yaml
+- networks/control-plane-addresses.yaml
+- networks/physical/
+- networks/physical/networks.yaml
+- software/
+- software/charts/
+- software/charts/osh/
+- software/charts/osh/openstack-tenant-ceph/
+- software/charts/osh/openstack-tenant-ceph/ceph-client.yaml
+- software/charts/ucp/
+- software/charts/ucp/divingbell/
+- software/charts/ucp/divingbell/divingbell.yaml
+- software/config/
+- software/config/corridor.yaml
+- software/config/common-software-config.yaml
+- deployment/
+- deployment/deployment-strategy.yaml
+- pki/
+- pki/kubelet-node-pkicatalog.yaml
+
+Spyglass maintains corresponding J2 templates for these files
+and then those are processed with site information obtained
+from plugin data source.
+
+In some cases, the site might require additional site
+manifests containing static information independent of the
+plugin data received. In such cases one can just place the
+corresponding J2 templates in the appropriate folder.
+
 Basic Usage
 -----------
 
@@ -72,7 +132,7 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-    git clone https://github.com/att-comdev/tugboat/tree/spyglass
+    git clone https://github.com/att-comdev/spyglass
 
 2. Install the required packages in spyglass:
 
@@ -100,8 +160,7 @@ Options:
                                   excel spec
   -idir, --intermediary_dir PATH  The path where intermediary file needs to be
                                   generated
-  -e, --edit_intermediary / -nedit, --no_edit_intermediary
-                                  Flag to let user edit intermediary
+  -e, --edit_intermediary         Flag to let user edit intermediary
   -m, --generate_manifests        Generate manifests from the generated
                                   intermediary file
   -mdir, --manifest_dir PATH      The path where manifest files needs to be
@@ -115,6 +174,9 @@ Options:
                                   20]
   --help                          Show this message and exit.
 
+--------
+Examples
+--------
 
 1. Running Spyglass with  Remote Data Source Plugin
 
@@ -125,8 +187,8 @@ spyglass -mg --type formation -f <URL> -u <user_id> -p <password> -d <site_confi
 spyglass -mg --type tugboat -x <Excel File> -e <Excel Spec> -d <Site Config> -s <Region> --template_dir=<j2 template dir>
 
 for example:
-spyglass -mg -t tugboat -x SiteDesignSpec_v0.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
+spyglass -mg -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
+
 Where sample 'excel_spec_upstream.yaml', 'SiteDesignSpec_v0.1.xlsx'
 'site_config.yaml' and J2 templates can be found under 'spyglass/examples'
 folder
-

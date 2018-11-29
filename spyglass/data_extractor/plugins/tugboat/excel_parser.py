@@ -19,8 +19,7 @@ import sys
 import yaml
 from openpyxl import load_workbook
 from openpyxl import Workbook
-from spyglass.data_extractor.custom_exceptions import
-    NoSpecMatched, )
+from spyglass.data_extractor.custom_exceptions import NoSpecMatched
 # from spyglass.data_extractor.custom_exceptions
 
 LOG = logging.getLogger(__name__)
