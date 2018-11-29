@@ -35,6 +35,7 @@ class NoSpecMatched(BaseError):
             self.specs))
         sys.exit(1)
 
+
 class MissingAttributeError(BaseError):
     pass
 

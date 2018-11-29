@@ -36,6 +36,7 @@ setup(
     entry_points={
         'console_scripts': [
             'spyglass=spyglass.spyglass:main',
+            'yaml-editor=spyglass.utils.editor.editor:main',
         ],
         'data_extractor_plugins':
         ['formation=spyglass.data_extractor.plugins.formation:FormationPlugin',
