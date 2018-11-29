@@ -33,3 +33,4 @@ fed to Shipyard for site deployment / updates.
 
    getting_started
    tugboat
+   yaml-editor
