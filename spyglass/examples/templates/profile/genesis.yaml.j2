@@ -1,0 +1,40 @@
+---
+schema: promenade/Genesis/v1
+metadata:
+  schema: metadata/Document/v1
+  name: genesis-site
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      name: genesis-global
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  labels:
+    dynamic:
+      - beta.kubernetes.io/fluentd-ds-ready=true
+      - calico-etcd=enabled
+      - ceph-mds=enabled
+      - ceph-mon=enabled
+      - ceph-osd=enabled
+      - ceph-rgw=enabled
+      - ceph-mgr=enabled
+      - ceph-bootstrap=enabled
+      - kube-dns=enabled
+      - kube-ingress=enabled
+      - kubernetes-apiserver=enabled
+      - kubernetes-controller-manager=enabled
+      - kubernetes-etcd=enabled
+      - kubernetes-scheduler=enabled
+      - promenade-genesis=enabled
+      - ucp-control-plane=enabled
+      - maas-control-plane=enabled
+      - ceph-osd-bootstrap=enabled
+      - openstack-control-plane=enabled
+      - openvswitch=enabled
+      - openstack-l3-agent=enabled
+      - node-exporter=enabled
+...

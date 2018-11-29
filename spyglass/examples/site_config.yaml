@@ -1,0 +1,33 @@
+##################################
+# Site Specific Tugboat Settings #
+##################################
+---
+site_info:
+  ldap:
+    common_name: test
+    url: ldap://ldap.example.com
+    subdomain: test
+  ntp:
+    servers: 10.10.10.10,20.20.20.20,30.30.30.30
+  sitetype: foundry
+  domain: atlantafoundry.com
+  dns:
+    servers: 8.8.8.8,8.8.4.4,208.67.222.222
+network:
+  vlan_network_data:
+    ingress:
+        subnet:
+        - 132.68.226.72/29
+  bgp :
+    peers:
+    - '172.29.0.2'
+    - '172.29.0.3'
+    asnumber: 64671
+    peer_asnumber: 64688
+storage:
+  ceph:
+    controller:
+      osd_count: 6
+...
+
+

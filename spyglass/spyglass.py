@@ -68,6 +68,23 @@ LOG = logging.getLogger('spyglass')
     type=click.Path(exists=True),
     help='The path where manifest files needs to be generated')
 @click.option(
+    '--template_dir',
+    '-tdir',
+    type=click.Path(exists=True),
+    help='The path where J2 templates are available')
+@click.option(
+    '--excel',
+    '-x',
+    multiple=True,
+    type=click.Path(exists=True),
+    help=
+    'Path to engineering excel file, to be passed with generate_intermediary')
+@click.option(
+    '--excel_spec',
+    '-e',
+    type=click.Path(exists=True),
+    help='Path to excel spec, to be passed with generate_intermediary')
+@click.option(
     '--loglevel',
     '-l',
     default=20,
@@ -83,6 +100,7 @@ def main(*args, **kwargs):
     manifest_dir = kwargs['manifest_dir']
     intermediary = kwargs['intermediary']
     site = kwargs['site']
+    template_dir = kwargs['template_dir']
     loglevel = kwargs['loglevel']
 
     # Set Logging format
@@ -94,13 +112,21 @@ def main(*args, **kwargs):
     LOG.addHandler(stream_handle)
 
     LOG.info("Spyglass start")
-    LOG.debug("CLI Parameters passed:\n{}".format(kwargs))
+    LOG.info("CLI Parameters passed:\n{}".format(kwargs))
 
     if not (generate_intermediary or generate_manifests):
         LOG.error("Invalid CLI parameters passed!! Spyglass exited")
         LOG.error("One of the options -m/-g is mandatory")
         LOG.info("CLI Parameters:\n{}".format(kwargs))
         exit()
+
+    if generate_manifests:
+        if template_dir is None:
+            LOG.error("Template directory not specified!! Spyglass exited")
+            LOG.error(
+                "It is mandatory to provide it when generate_manifests is true"
+            )
+            exit()
 
     # Generate Intermediary yaml and manifests extracting data
     # from data source specified by plugin type
@@ -163,7 +189,7 @@ def main(*args, **kwargs):
     if generate_manifests:
         LOG.info("Generating site Manifests")
         processor_engine = SiteProcessor(intermediary_yaml, manifest_dir)
-        processor_engine.render_template()
+        processor_engine.render_template(template_dir)
 
     LOG.info("Spyglass Execution Completed")
 
