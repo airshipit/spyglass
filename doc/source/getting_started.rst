@@ -187,7 +187,17 @@ spyglass -mg --type formation -f <URL> -u <user_id> -p <password> -d <site_confi
 spyglass -mg --type tugboat -x <Excel File> -e <Excel Spec> -d <Site Config> -s <Region> --template_dir=<j2 template dir>
 
 for example:
-spyglass -mg -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
+  2.1 Generating intermediary and manifests
+    spyglass -mg -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
+
+  2.2 Generating intermediary without manifests
+    spyglass -g -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy
+
+  2.3 Generating manifests without intermediary
+    spyglass -m -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
+
+  2.4 Generating manifests using intermediary
+    spyglass -mi <intermediary.yaml> --template_dir=<j2 template dir>
 
 Where sample 'excel_spec_upstream.yaml', 'SiteDesignSpec_v0.1.xlsx'
 'site_config.yaml' and J2 templates can be found under 'spyglass/examples'
