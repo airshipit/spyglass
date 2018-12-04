@@ -132,13 +132,13 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-    git clone https://github.com/att-comdev/spyglass
+    git clone https://github.com/openstack/airship-spyglass
 
 2. Install the required packages in spyglass:
 
    .. code-block:: console
 
-     pip3 install -r tugboat/requirements.txt
+     pip3 install -r airship-spyglass/requirements.txt
 
 
 CLI Options

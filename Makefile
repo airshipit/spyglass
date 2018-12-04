@@ -14,7 +14,7 @@
 
 SPYGLASS_BUILD_CTX  ?= .
 IMAGE_NAME        ?= spyglass
-IMAGE_PREFIX      ?= att-comdev
+IMAGE_PREFIX      ?= airshipit
 DOCKER_REGISTRY   ?= quay.io
 IMAGE_TAG         ?= latest
 PROXY             ?= http://proxy.foo.com:8000

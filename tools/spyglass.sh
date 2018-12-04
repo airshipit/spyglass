@@ -3,7 +3,7 @@
 set -e
 
 : ${WORKSPACE:=$(pwd)}
-: ${IMAGE:=quay.io/att-comdev/spyglass:latest}
+: ${IMAGE:=quay.io/airshipit/spyglass:latest}
 
 echo
 echo "== NOTE: Workspace $WORKSPACE is the execution directory in the container =="
