@@ -42,7 +42,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
 
     def set_config_opts(self, conf):
         """
-        Placeholder to set confgiuration options
+        Placeholder to set configuration options
         specific to each plugin.
 
         :param dict conf: Configuration options as dict
