@@ -1,13 +1,13 @@
 # Copyright 2018 AT&T Intellectual Property.  All other rights reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -41,9 +41,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
         LOG.info("Initiated data extractor plugin:{}".format(self.source_name))
 
     def set_config_opts(self, conf):
-        """
-        Placeholder to set configuration options
-        specific to each plugin.
+        """Placeholder to set configuration options specific to each plugin.
 
         :param dict conf: Configuration options as dict
 
@@ -52,6 +50,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
 
         Each plugin will have their own config opts.
         """
+
         self.excel_path = conf["excel_path"]
         self.excel_spec = conf["excel_spec"]
 
@@ -61,8 +60,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return
 
     def get_plugin_conf(self, kwargs):
-        """ Validates the plugin param from CLI and return if correct
-
+        """Validates the plugin param from CLI and return if correct
 
         Ideally the CLICK module shall report an error if excel file
         and excel specs are not specified. The below code has been
@@ -84,6 +82,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
 
     def get_hosts(self, region, rack=None):
         """Return list of hosts in the region
+
         :param string region: Region name
         :param string rack: Rack name
         :returns: list of hosts information
@@ -100,6 +99,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
                          'host_profile': 'hp_02'}
                  ]
         """
+
         LOG.info("Get Host Information")
         ipmi_data = self.parsed_xl_data["ipmi_data"][0]
         rackwise_hosts = self._get_rackwise_hosts()
@@ -116,7 +116,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return host_list
 
     def get_networks(self, region):
-        """ Extracts vlan network info from raw network data from excel"""
+        """Extracts vlan network info from raw network data from excel"""
+
         vlan_list = []
         # Network data extracted from xl is formatted to have a predictable
         # data type. For e.g VlAN 45 extracted from xl is formatted as 45
@@ -162,6 +163,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
 
     def get_ips(self, region, host=None):
         """Return list of IPs on the host
+
         :param string region: Region name
         :param string host: Host name
         :returns: Dict of IPs per network on the host
@@ -186,7 +188,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return ip_
 
     def get_ldap_information(self, region):
-        """ Extract ldap information from excel"""
+        """Extract ldap information from excel"""
 
         ldap_raw_data = self.parsed_xl_data["site_info"]["ldap"]
         ldap_info = {}
@@ -206,7 +208,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return ldap_info
 
     def get_ntp_servers(self, region):
-        """ Returns a comma separated list of ntp ip addresses"""
+        """Returns a comma separated list of ntp ip addresses"""
 
         ntp_server_list = self._get_formatted_server_list(
             self.parsed_xl_data["site_info"]["ntp"]
@@ -214,22 +216,23 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return ntp_server_list
 
     def get_dns_servers(self, region):
-        """ Returns a comma separated list of dns ip addresses"""
+        """Returns a comma separated list of dns ip addresses"""
         dns_server_list = self._get_formatted_server_list(
             self.parsed_xl_data["site_info"]["dns"]
         )
         return dns_server_list
 
     def get_domain_name(self, region):
-        """ Returns domain name extracted from excel file"""
+        """Returns domain name extracted from excel file"""
 
         return self.parsed_xl_data["site_info"]["domain"]
 
     def get_location_information(self, region):
-        """
-        Prepare location data from information extracted
+        """Prepare location data from information extracted
+
         by ExcelParser(i.e raw data)
         """
+
         location_data = self.parsed_xl_data["site_info"]["location"]
 
         corridor_pattern = r"\d+"
@@ -255,20 +258,21 @@ class TugboatPlugin(BaseDataSourcePlugin):
         pass
 
     def _get_excel_obj(self):
-        """ Creation of an ExcelParser object to store site information.
+        """Creation of an ExcelParser object to store site information.
 
         The information is obtained based on a excel spec yaml file.
         This spec contains row, column and sheet information of
         the excel file from where site specific data can be extracted.
         """
+
         self.excel_obj = ExcelParser(self.excel_path, self.excel_spec)
 
     def _extract_raw_data_from_excel(self):
-        """ Extracts raw information from excel file based on excel spec"""
+        """Extracts raw information from excel file based on excel spec"""
         self.parsed_xl_data = self.excel_obj.get_data()
 
     def _get_network_name_from_vlan_name(self, vlan_name):
-        """ network names are ksn, oam, oob, overlay, storage, pxe
+        """Network names are ksn, oam, oob, overlay, storage, pxe
 
 
         This is a utility function to determine the vlan acceptable
@@ -282,6 +286,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
             vlan_name contains "oob" the network name is "oob"
             vlan_name contains "pxe" the network name is "pxe"
         """
+
         network_names = [
             "ksn|calico",
             "storage",
@@ -314,7 +319,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return ""
 
     def _get_formatted_server_list(self, server_list):
-        """ Format dns and ntp server list as comma separated string """
+        """Format dns and ntp server list as comma separated string"""
 
         # dns/ntp server info from excel is of the format
         # 'xxx.xxx.xxx.xxx, (aaa.bbb.ccc.com)'
@@ -327,10 +332,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return formatted_server_list
 
     def _get_rack(self, host):
-        """
-        Get rack id  from the rack string extracted
-        from xl
-        """
+        """Get rack id  from the rack string extracted from xl"""
+
         rack_pattern = r"\w.*(r\d+)\w.*"
         rack = re.findall(rack_pattern, host)[0]
         if not self.region:
@@ -338,7 +341,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return rack
 
     def _get_rackwise_hosts(self):
-        """ Mapping hosts with rack ids """
+        """Mapping hosts with rack ids"""
+
         rackwise_hosts = {}
         hostnames = self.parsed_xl_data["ipmi_data"][1]
         racks = self._get_rack_data()
@@ -352,7 +356,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return rackwise_hosts
 
     def _get_rack_data(self):
-        """ Format rack name """
+        """Format rack name"""
+
         LOG.info("Getting rack data")
         racks = {}
         hostnames = self.parsed_xl_data["ipmi_data"][1]

@@ -29,7 +29,7 @@ specs:
         private_ip_sheet: 'Site-Information'
         net_type_col: 1
         vlan_col: 2
-        vlan_start_row: 19 
+        vlan_start_row: 19
         vlan_end_row: 30
         net_start_row: 33
         net_end_row: 40
@@ -56,7 +56,7 @@ specs:
         domain_col: 2
         location_sheet: 'Site-Information'
         column: 2
-        corridor_row: 59 
+        corridor_row: 59
         site_name_row: 58
         state_name_row: 60
         country_name_row: 61

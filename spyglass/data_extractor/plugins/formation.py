@@ -1,32 +1,27 @@
 # Copyright 2018 AT&T Intellectual Property.  All other rights reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import formation_client
 import logging
 import pprint
 import re
 import requests
-import formation_client
 import urllib3
 
 from spyglass.data_extractor.base import BaseDataSourcePlugin
 
-from spyglass.data_extractor.custom_exceptions import (
-    ApiClientError,
-    ConnectionError,
-    MissingAttributeError,
-    TokenGenerationError,
-)
+import spyglass.data_extractor.custom_exceptions as exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -65,7 +60,8 @@ class FormationPlugin(BaseDataSourcePlugin):
         LOG.info("Initiated data extractor plugin:{}".format(self.source_name))
 
     def set_config_opts(self, conf):
-        """ Sets the config params passed by CLI"""
+        """Sets the config params passed by CLI"""
+
         LOG.info("Plugin params passed:\n{}".format(pprint.pformat(conf)))
         self._validate_config_options(conf)
         self.formation_api_url = conf["url"]
@@ -77,7 +73,7 @@ class FormationPlugin(BaseDataSourcePlugin):
         self._update_site_and_zone(self.region)
 
     def get_plugin_conf(self, kwargs):
-        """ Validates the plugin param and return if success"""
+        """Validates the plugin param and return if success"""
 
         if not kwargs["formation_url"]:
             LOG.error("formation_url not specified! Spyglass exited!")
@@ -116,10 +112,12 @@ class FormationPlugin(BaseDataSourcePlugin):
 
     def _generate_token(self):
         """Generate token for Formation
+
         Formation API does not provide separate resource to generate
         token. This is a workaround to call directly Formation API
         to get token instead of using Formation client.
         """
+
         # Create formation client config object
         self.client_config = formation_client.Configuration()
         self.client_config.host = self.formation_api_url
@@ -138,13 +136,13 @@ class FormationPlugin(BaseDataSourcePlugin):
                 auth=(self.user, self.password),
                 verify=self.client_config.verify_ssl,
             )
-        except requests.exceptions.ConnectionError:
-            raise ConnectionError("Incorrect URL: {}".format(url))
+        except requests.exceptions.exceptions.ConnectionError:
+            raise exceptions.ConnectionError("Incorrect URL: {}".format(url))
 
         if token_response.status_code == 200:
             self.token = token_response.json().get("X-Subject-Token", None)
         else:
-            raise TokenGenerationError(
+            raise exceptions.TokenGenerationError(
                 "Unable to generate token because {}".format(
                     token_response.reason
                 )
@@ -159,6 +157,7 @@ class FormationPlugin(BaseDataSourcePlugin):
         format "user|token".
         Generate the token and add it formation config object.
         """
+
         token = self._generate_token()
         self.client_config.api_key = {"X-Auth-Token": self.user + "|" + token}
         self.formation_api_client = formation_client.ApiClient(
@@ -428,7 +427,7 @@ class FormationPlugin(BaseDataSourcePlugin):
         return ip_
 
     def _get_network_name_from_vlan_name(self, vlan_name):
-        """ network names are ksn, oam, oob, overlay, storage, pxe
+        """Network names are ksn, oam, oob, overlay, storage, pxe
 
         The following mapping rules apply:
             vlan_name contains "ksn"  the network name is "calico"
@@ -437,6 +436,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             vlan_name contains "ovs"  the network name is "overlay"
             vlan_name contains "ILO" the network name is "oob"
         """
+
         network_names = {
             "ksn": "calico",
             "storage": "storage",
@@ -462,7 +462,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             zone_api = formation_client.ZonesApi(self.formation_api_client)
             zone_ = zone_api.zones_zone_id_get(zone_id)
         except formation_client.rest.ApiException as e:
-            raise ApiClientError(e.msg)
+            raise exceptions.ApiClientError(e.msg)
 
         if not zone_.ipv4_dns:
             LOG.warn("No dns server")
@@ -481,7 +481,8 @@ class FormationPlugin(BaseDataSourcePlugin):
         return {}
 
     def get_location_information(self, region):
-        """ get location information for a zone and return """
+        """Get location information for a zone and return"""
+
         site = self.region_zone_map[region]["site"]
         site_id = self._get_site_id_by_name(site)
         site_api = formation_client.SitesApi(self.formation_api_client)
@@ -496,7 +497,7 @@ class FormationPlugin(BaseDataSourcePlugin):
                 "physical_location_id": site_info.clli,
             }
         except AttributeError as e:
-            raise MissingAttributeError(
+            raise exceptions.MissingAttributeError(
                 "Missing {} information in {}".format(e, site_info.city)
             )
 
@@ -507,7 +508,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             zone_api = formation_client.ZonesApi(self.formation_api_client)
             zone_ = zone_api.zones_zone_id_get(zone_id)
         except formation_client.rest.ApiException as e:
-            raise ApiClientError(e.msg)
+            raise exceptions.ApiClientError(e.msg)
 
         if not zone_.dns:
             LOG.warn("Got None while running get domain name")

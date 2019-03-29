@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
-from .base import BaseProcessor
+import logging
+import os
+from spyglass.site_processors.base import BaseProcessor
 
 LOG = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class SiteProcessor(BaseProcessor):
         self.manifest_dir = manifest_dir
 
     def render_template(self, template_dir):
-        """ The method  renders network config yaml from j2 templates.
+        """The method  renders network config yaml from j2 templates.
 
 
         Network configs common to all racks (i.e oam, overlay, storage,

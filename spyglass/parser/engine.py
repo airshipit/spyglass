@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ import yaml
 LOG = logging.getLogger(__name__)
 
 
-class ProcessDataSource:
+class ProcessDataSource(object):
     def __init__(self, sitetype):
         # Initialize intermediary and save site type
         self._initialize_intermediary()
@@ -53,11 +53,12 @@ class ProcessDataSource:
         self.network_subnets = None
 
     def _get_network_subnets(self):
-        """ Extract subnet information for networks.
-
+        """Extract subnet information for networks.
 
         In some networks, there are multiple subnets, in that case
-        we assign only the first subnet """
+        we assign only the first subnet
+        """
+
         LOG.info("Extracting network subnets")
         network_subnets = {}
         for net_type in self.data["network"]["vlan_network_data"]:
@@ -89,7 +90,8 @@ class ProcessDataSource:
         )
 
     def _get_genesis_node_ip(self):
-        """ Returns the genesis node ip """
+        """Returns the genesis node ip"""
+
         ip = "0.0.0.0"
         LOG.info("Getting Genesis Node IP")
         if not self.genesis_node:
@@ -100,13 +102,13 @@ class ProcessDataSource:
         return ip
 
     def _validate_intermediary_data(self, data):
-        """ Validates the intermediary data before generating manifests.
-
+        """Validates the intermediary data before generating manifests.
 
         It checks wether the data types and data format are as expected.
         The method validates this with regex pattern defined for each
         data type.
         """
+
         LOG.info("Validating Intermediary data")
         temp_data = {}
         # Peforming a deep copy
@@ -147,14 +149,14 @@ class ProcessDataSource:
         LOG.info("Data validation Passed!")
 
     def _apply_design_rules(self):
-        """ Applies design rules from rules.yaml
-
+        """Applies design rules from rules.yaml
 
         These rules are used to determine ip address allocation ranges,
         host profile interfaces and also to create hardware profile
         information. The method calls corresponding rule hander function
         based on rule name and applies them to appropriate data objects.
         """
+
         LOG.info("Apply design rules")
         rules_dir = pkg_resources.resource_filename("spyglass", "config/")
         rules_file = rules_dir + "rules.yaml"
@@ -178,13 +180,14 @@ class ProcessDataSource:
         pass
 
     def _apply_rule_hardware_profile(self, rule_data):
-        """ Apply rules to define host type from hardware profile info.
-
+        """Apply rules to define host type from hardware profile info.
 
         Host profile will define host types as "controller, compute or
         genesis". The rule_data has pre-defined information to define
         compute or controller based on host_profile. For defining 'genesis'
-        the first controller host is defined as genesis."""
+        the first controller host is defined as genesis.
+        """
+
         is_genesis = False
         hardware_profile = rule_data[self.data["site_info"]["sitetype"]]
         # Getting individual racks. The racks are sorted to ensure that the
@@ -207,8 +210,10 @@ class ProcessDataSource:
                     host_info["type"] = "compute"
 
     def _apply_rule_ip_alloc_offset(self, rule_data):
-        """ Apply  offset rules to update baremetal host ip's and vlan network
-        data """
+        """Apply offset rules to update baremetal host
+
+        ip's and vlan network
+        """
 
         # Get network subnets
         self.network_subnets = self._get_network_subnets()
@@ -217,12 +222,12 @@ class ProcessDataSource:
         self._update_baremetal_host_ip_data(rule_data)
 
     def _update_baremetal_host_ip_data(self, rule_data):
-        """ Update baremetal host ip's for applicable networks.
-
+        """Update baremetal host ip's for applicable networks.
 
         The applicable networks are oob, oam, ksn, storage and overlay.
         These IPs are assigned based on network subnets ranges.
-        If a particular ip exists it is overridden."""
+        If a particular ip exists it is overridden.
+        """
 
         # Ger defult ip offset
         default_ip_offset = rule_data["default"]
@@ -245,12 +250,12 @@ class ProcessDataSource:
         )
 
     def _update_vlan_net_data(self, rule_data):
-        """ Offset allocation rules to determine ip address range(s)
-
+        """Offset allocation rules to determine ip address range(s)
 
         This rule is applied to incoming network data to determine
         network address, gateway ip and other address ranges
         """
+
         LOG.info("Apply network design rules")
 
         # Collect Rules
@@ -348,10 +353,11 @@ class ProcessDataSource:
         )
 
     def load_extracted_data_from_data_source(self, extracted_data):
-        """
-        Function called from spyglass.py to pass extracted data
+        """Function called from spyglass.py to pass extracted data
+
         from input data source
         """
+
         # TBR(pg710r): for internal testing
         """
         raw_data = self._read_file('extracted_data.yaml')
@@ -376,7 +382,8 @@ class ProcessDataSource:
         self.data["region_name"] = self.region_name
 
     def dump_intermediary_file(self, intermediary_dir):
-        """ Writing intermediary yaml """
+        """Writing intermediary yaml"""
+
         LOG.info("Writing intermediary yaml")
         intermediary_file = "{}_intermediary.yaml".format(
             self.data["region_name"]
@@ -393,7 +400,8 @@ class ProcessDataSource:
         f.close()
 
     def generate_intermediary_yaml(self):
-        """ Generating intermediary yaml """
+        """Generating intermediary yaml"""
+
         LOG.info("Start: Generate Intermediary")
         self._apply_design_rules()
         self._get_genesis_node_details()

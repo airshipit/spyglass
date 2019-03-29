@@ -1,21 +1,21 @@
 # Copyright 2018 AT&T Intellectual Property.  All other rights reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
 import abc
+import logging
 import pprint
 import six
-import logging
 
 from spyglass.utils import utils
 
@@ -34,8 +34,7 @@ class BaseDataSourcePlugin(object):
 
     @abc.abstractmethod
     def set_config_opts(self, conf):
-        """Placeholder to set configuration options
-        specific to each plugin.
+        """Placeholder to set configuration options specific to each plugin.
 
         :param dict conf: Configuration options as dict
 
@@ -44,19 +43,21 @@ class BaseDataSourcePlugin(object):
 
         Each plugin will have their own config opts.
         """
+
         return
 
     @abc.abstractmethod
     def get_plugin_conf(self, kwargs):
-        """ Validate and returns the plugin config parameters.
+        """Validate and returns the plugin config parameters.
+
         If validation fails, Spyglass exits.
 
         :param char pointer: Spyglass CLI parameters.
-
         :returns plugin conf if successfully validated.
 
         Each plugin implements their own validaton mechanism.
         """
+
         return {}
 
     @abc.abstractmethod
@@ -64,13 +65,12 @@ class BaseDataSourcePlugin(object):
         """Return list of racks in the region
 
         :param string region: Region name
-
         :returns: list of rack names
-
         :rtype: list
 
         Example: ['rack01', 'rack02']
         """
+
         return []
 
     @abc.abstractmethod
@@ -79,9 +79,7 @@ class BaseDataSourcePlugin(object):
 
         :param string region: Region name
         :param string rack: Rack name
-
         :returns: list of hosts information
-
         :rtype: list of dict
 
         Example: [
@@ -96,6 +94,7 @@ class BaseDataSourcePlugin(object):
                          'host_profile': 'hp_02'}
                  ]
         """
+
         return []
 
     @abc.abstractmethod
@@ -103,9 +102,7 @@ class BaseDataSourcePlugin(object):
         """Return list of networks in the region
 
         :param string region: Region name
-
         :returns: list of networks and their vlans
-
         :rtype: list of dict
 
         Example: [
@@ -158,9 +155,7 @@ class BaseDataSourcePlugin(object):
 
         :param string region: Region name
         :param string host: Host name
-
         :returns: Dict of IPs per network on the host
-
         :rtype: dict
 
         Example: {'oob': {'ipv4': '192.168.1.10'},
@@ -170,6 +165,7 @@ class BaseDataSourcePlugin(object):
         dict. In case some networks are missed, they are expected to be either
         DHCP or internally generated n the next steps by the design rules.
         """
+
         return {}
 
     @abc.abstractmethod
@@ -177,13 +173,12 @@ class BaseDataSourcePlugin(object):
         """Return the DNS servers
 
         :param string region: Region name
-
         :returns: List of DNS servers to be configured on host
-
         :rtype: List
 
         Example: ['8.8.8.8', '8.8.8.4']
         """
+
         return []
 
     @abc.abstractmethod
@@ -191,13 +186,12 @@ class BaseDataSourcePlugin(object):
         """Return the NTP servers
 
         :param string region: Region name
-
         :returns: List of NTP servers to be configured on host
-
         :rtype: List
 
         Example: ['ntp1.ubuntu1.example', 'ntp2.ubuntu.example']
         """
+
         return []
 
     @abc.abstractmethod
@@ -205,9 +199,7 @@ class BaseDataSourcePlugin(object):
         """Return the LDAP server information
 
         :param string region: Region name
-
         :returns: LDAP server information
-
         :rtype: Dict
 
         Example: {'url': 'ldap.example.com',
@@ -215,6 +207,7 @@ class BaseDataSourcePlugin(object):
                   'domain': 'test',
                   'subdomain': 'test_sub1'}
         """
+
         return {}
 
     @abc.abstractmethod
@@ -222,9 +215,7 @@ class BaseDataSourcePlugin(object):
         """Return location information
 
         :param string region: Region name
-
         :returns: Dict of location information
-
         :rtype: dict
 
         Example: {'name': 'Dallas',
@@ -233,6 +224,7 @@ class BaseDataSourcePlugin(object):
                   'country': 'US',
                   'corridor': 'CR1'}
         """
+
         return {}
 
     @abc.abstractmethod
@@ -240,20 +232,18 @@ class BaseDataSourcePlugin(object):
         """Return the Domain name
 
         :param string region: Region name
-
         :returns: Domain name
-
         :rtype: string
 
         Example: example.com
         """
+
         return ""
 
     def extract_baremetal_information(self):
         """Get baremetal information from plugin
 
         :returns: dict of baremetal nodes
-
         :rtype: dict
 
         Return dict should be in the format
@@ -275,6 +265,7 @@ class BaseDataSourcePlugin(object):
           }
         }
         """
+
         LOG.info("Extract baremetal information from plugin")
         baremetal = {}
         hosts = self.get_hosts(self.region)
@@ -330,7 +321,6 @@ class BaseDataSourcePlugin(object):
         """Get site information from plugin
 
         :returns: dict of site information
-
         :rtpe: dict
 
         Return dict should be in the format
@@ -346,6 +336,7 @@ class BaseDataSourcePlugin(object):
           'domain': None
         }
         """
+
         LOG.info("Extract site information from plugin")
         site_info = {}
 
@@ -373,11 +364,9 @@ class BaseDataSourcePlugin(object):
         return site_info
 
     def extract_network_information(self):
-        """Get network information from plugin
-        like Subnets, DNS, NTP, LDAP details.
+        """Get network details from plugin like Subnets, DNS, NTP and LDAP
 
         :returns: dict of baremetal nodes
-
         :rtype: dict
 
         Return dict should be in the format
@@ -393,6 +382,7 @@ class BaseDataSourcePlugin(object):
           }
         }
         """
+
         LOG.info("Extract network information from plugin")
         network_data = {}
         networks = self.get_networks(self.region)
@@ -431,6 +421,7 @@ class BaseDataSourcePlugin(object):
         Gather data related to baremetal, networks, storage and other site
         related information from plugin
         """
+
         LOG.info("Extract data from plugin")
         site_data = {}
         site_data["baremetal"] = self.extract_baremetal_information()
@@ -448,6 +439,7 @@ class BaseDataSourcePlugin(object):
         If there is repetition of data then additional data supplied
         shall take precedence.
         """
+
         LOG.info("Update site data with additional input")
         tmp_site_data = utils.dict_merge(self.site_data, extra_data)
         self.site_data = tmp_site_data

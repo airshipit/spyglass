@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,13 @@
 # limitations under the License.
 
 import logging
+from openpyxl import load_workbook
+from openpyxl import Workbook
 import pprint
 import re
 import sys
 import yaml
-from openpyxl import load_workbook
-from openpyxl import Workbook
+
 from spyglass.data_extractor.custom_exceptions import NoSpecMatched
 
 # from spyglass.data_extractor.custom_exceptions
@@ -26,8 +27,8 @@ from spyglass.data_extractor.custom_exceptions import NoSpecMatched
 LOG = logging.getLogger(__name__)
 
 
-class ExcelParser:
-    """ Parse data from excel into a dict """
+class ExcelParser(object):
+    """Parse data from excel into a dict"""
 
     def __init__(self, file_name, excel_specs):
         self.file_name = file_name
@@ -43,15 +44,18 @@ class ExcelParser:
 
     @staticmethod
     def sanitize(string):
-        """ Remove extra spaces and convert string to lower case """
+        """Remove extra spaces and convert string to lower case"""
+
         return string.replace(" ", "").lower()
 
     def compare(self, string1, string2):
-        """ Compare the strings """
+        """Compare the strings"""
+
         return bool(re.search(self.sanitize(string1), self.sanitize(string2)))
 
     def validate_sheet(self, spec, sheet):
-        """ Check if the sheet is correct or not """
+        """Check if the sheet is correct or not"""
+
         ws = self.wb_combined[sheet]
         header_row = self.excel_specs["specs"][spec]["header_row"]
         ipmi_header = self.excel_specs["specs"][spec]["ipmi_address_header"]
@@ -60,7 +64,8 @@ class ExcelParser:
         return bool(self.compare(ipmi_header, header_value))
 
     def find_correct_spec(self):
-        """ Find the correct spec """
+        """Find the correct spec"""
+
         for spec in self.excel_specs["specs"]:
             sheet_name = self.excel_specs["specs"][spec]["ipmi_sheet_name"]
             for sheet in self.wb_combined.sheetnames:
@@ -71,7 +76,8 @@ class ExcelParser:
         raise NoSpecMatched(self.excel_specs)
 
     def get_ipmi_data(self):
-        """ Read IPMI data from the sheet """
+        """Read IPMI data from the sheet"""
+
         ipmi_data = {}
         hosts = []
         provided_sheetname = self.excel_specs["specs"][self.spec][
@@ -140,7 +146,8 @@ class ExcelParser:
         return [ipmi_data, hosts]
 
     def get_private_vlan_data(self, ws):
-        """ Get private vlan data from private IP sheet """
+        """Get private vlan data from private IP sheet"""
+
         vlan_data = {}
         row = self.excel_specs["specs"][self.spec]["vlan_start_row"]
         end_row = self.excel_specs["specs"][self.spec]["vlan_end_row"]
@@ -160,7 +167,8 @@ class ExcelParser:
         return vlan_data
 
     def get_private_network_data(self):
-        """ Read network data from the private ip sheet """
+        """Read network data from the private ip sheet"""
+
         provided_sheetname = self.excel_specs["specs"][self.spec][
             "private_ip_sheet"
         ]
@@ -211,7 +219,8 @@ class ExcelParser:
         return network_data
 
     def get_public_network_data(self):
-        """ Read public network data from public ip data """
+        """Read public network data from public ip data"""
+
         network_data = {}
         provided_sheetname = self.excel_specs["specs"][self.spec][
             "public_ip_sheet"
@@ -251,7 +260,8 @@ class ExcelParser:
         return network_data
 
     def get_site_info(self):
-        """ Read location, dns, ntp and ldap data"""
+        """Read location, dns, ntp and ldap data"""
+
         site_info = {}
         provided_sheetname = self.excel_specs["specs"][self.spec][
             "dns_ntp_ldap_sheet"
@@ -326,7 +336,8 @@ class ExcelParser:
         return site_info
 
     def get_location_data(self):
-        """ Read location data from the site and zone sheet """
+        """Read location data from the site and zone sheet"""
+
         provided_sheetname = self.excel_specs["specs"][self.spec][
             "location_sheet"
         ]
@@ -356,7 +367,8 @@ class ExcelParser:
         }
 
     def validate_sheet_names_with_spec(self):
-        """ Checks is sheet name in spec file matches with excel file"""
+        """Checks is sheet name in spec file matches with excel file"""
+
         spec = list(self.excel_specs["specs"].keys())[0]
         spec_item = self.excel_specs["specs"][spec]
         sheet_name_list = []
@@ -391,7 +403,8 @@ class ExcelParser:
         LOG.info("Sheet names in excel spec validated")
 
     def get_data(self):
-        """ Create a dict with combined data """
+        """Create a dict with combined data"""
+
         self.validate_sheet_names_with_spec()
         ipmi_data = self.get_ipmi_data()
         network_data = self.get_private_network_data()
@@ -413,7 +426,8 @@ class ExcelParser:
         return data
 
     def combine_excel_design_specs(self, filenames):
-        """ Combines multiple excel file to a single design spec"""
+        """Combines multiple excel file to a single design spec"""
+
         design_spec = Workbook()
         for exel_file in filenames:
             loaded_workbook = load_workbook(exel_file, data_only=True)
@@ -428,10 +442,11 @@ class ExcelParser:
         return design_spec
 
     def get_xl_obj_and_sheetname(self, sheetname):
+        """The logic confirms if the sheetname is specified for example as:
+
+        'MTN57a_AEC_Network_Design_v1.6.xlsx:Public IPs'
         """
-        The logic confirms if the sheetname is specified for example as:
-            "MTN57a_AEC_Network_Design_v1.6.xlsx:Public IPs"
-        """
+
         if re.search(".xlsx", sheetname) or re.search(".xls", sheetname):
             """ Extract file name """
             source_xl_file = sheetname.split(":")[0]
