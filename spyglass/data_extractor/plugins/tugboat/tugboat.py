@@ -16,6 +16,7 @@ import itertools
 import logging
 import pprint
 import re
+
 from spyglass.data_extractor.base import BaseDataSourcePlugin
 from spyglass.data_extractor.plugins.tugboat.excel_parser import ExcelParser
 
@@ -106,13 +107,14 @@ class TugboatPlugin(BaseDataSourcePlugin):
         host_list = []
         for rack in rackwise_hosts.keys():
             for host in rackwise_hosts[rack]:
-                host_list.append(
-                    {
-                        "rack_name": rack,
-                        "name": host,
-                        "host_profile": ipmi_data[host]["host_profile"],
-                    }
-                )
+                host_list.append({
+                    "rack_name":
+                    rack,
+                    "name":
+                    host,
+                    "host_profile":
+                    ipmi_data[host]["host_profile"],
+                })
         return host_list
 
     def get_networks(self, region):
@@ -125,20 +127,18 @@ class TugboatPlugin(BaseDataSourcePlugin):
         private_net = self.parsed_xl_data["network_data"]["private"]
         public_net = self.parsed_xl_data["network_data"]["public"]
         # Extract network information from private and public network data
-        for net_type, net_val in itertools.chain(
-            private_net.items(), public_net.items()
-        ):
+        for net_type, net_val in itertools.chain(private_net.items(),
+                                                 public_net.items()):
             tmp_vlan = {}
             # Ingress is special network that has no vlan, only a subnet string
             # So treatment for ingress is different
             if net_type != "ingress":
                 # standardize the network name as net_type may ne different.
-                # For e.g insteas of pxe it may be PXE or instead of calico
+                # For e.g instead of pxe it may be PXE or instead of calico
                 # it may be ksn. Valid network names are pxe, calico, oob, oam,
                 # overlay, storage, ingress
-                tmp_vlan["name"] = self._get_network_name_from_vlan_name(
-                    net_type
-                )
+                tmp_vlan["name"] = \
+                    self._get_network_name_from_vlan_name(net_type)
 
                 # extract vlan tag. It was extracted from xl file as 'VlAN 45'
                 # The code below extracts the numeric data fron net_val['vlan']
@@ -154,11 +154,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
                 tmp_vlan["name"] = "ingress"
                 tmp_vlan["subnet"] = net_val
             vlan_list.append(tmp_vlan)
-        LOG.debug(
-            "vlan list extracted from tugboat:\n{}".format(
-                pprint.pformat(vlan_list)
-            )
-        )
+        LOG.debug("vlan list extracted from tugboat:\n{}".format(
+            pprint.pformat(vlan_list)))
         return vlan_list
 
     def get_ips(self, region, host=None):
@@ -200,9 +197,8 @@ class TugboatPlugin(BaseDataSourcePlugin):
             ldap_info["domain"] = url.split(".")[1]
         except IndexError as e:
             LOG.error("url.split:{}".format(e))
-        ldap_info["common_name"] = ldap_raw_data.get(
-            "common_name", "#CHANGE_ME"
-        )
+        ldap_info["common_name"] = \
+            ldap_raw_data.get("common_name", "#CHANGE_ME")
         ldap_info["subdomain"] = ldap_raw_data.get("subdomain", "#CHANGE_ME")
 
         return ldap_info
@@ -210,16 +206,16 @@ class TugboatPlugin(BaseDataSourcePlugin):
     def get_ntp_servers(self, region):
         """Returns a comma separated list of ntp ip addresses"""
 
-        ntp_server_list = self._get_formatted_server_list(
-            self.parsed_xl_data["site_info"]["ntp"]
-        )
+        ntp_server_list = \
+            self._get_formatted_server_list(self.parsed_xl_data["site_info"]
+                                                               ["ntp"])
         return ntp_server_list
 
     def get_dns_servers(self, region):
         """Returns a comma separated list of dns ip addresses"""
-        dns_server_list = self._get_formatted_server_list(
-            self.parsed_xl_data["site_info"]["dns"]
-        )
+        dns_server_list = \
+            self._get_formatted_server_list(self.parsed_xl_data["site_info"]
+                                                               ["dns"])
         return dns_server_list
 
     def get_domain_name(self, region):
@@ -228,17 +224,13 @@ class TugboatPlugin(BaseDataSourcePlugin):
         return self.parsed_xl_data["site_info"]["domain"]
 
     def get_location_information(self, region):
-        """Prepare location data from information extracted
-
-        by ExcelParser(i.e raw data)
-        """
+        """Prepare location data from information extracted by ExcelParser"""
 
         location_data = self.parsed_xl_data["site_info"]["location"]
 
         corridor_pattern = r"\d+"
-        corridor_number = re.findall(
-            corridor_pattern, location_data["corridor"]
-        )[0]
+        corridor_number = \
+            re.findall(corridor_pattern, location_data["corridor"])[0]
         name = location_data.get("name", "#CHANGE_ME")
         state = location_data.get("state", "#CHANGE_ME")
         country = location_data.get("country", "#CHANGE_ME")
@@ -273,7 +265,6 @@ class TugboatPlugin(BaseDataSourcePlugin):
 
     def _get_network_name_from_vlan_name(self, vlan_name):
         """Network names are ksn, oam, oob, overlay, storage, pxe
-
 
         This is a utility function to determine the vlan acceptable
         vlan from the name extracted from excel file
@@ -314,8 +305,7 @@ class TugboatPlugin(BaseDataSourcePlugin):
                     return "pxe"
         # if nothing matches
         LOG.error(
-            "Unable to recognize VLAN name extracted from Plugin data source"
-        )
+            "Unable to recognize VLAN name extracted from Plugin data source")
         return ""
 
     def _get_formatted_server_list(self, server_list):

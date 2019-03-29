@@ -14,9 +14,8 @@
 
 
 # Merge two dictionaries
-def dict_merge(dictA, dictB, path=None):
+def dict_merge(dict_a, dict_b, path=None):
     """Recursively Merge dictionary dictB  into dictA
-
 
     DictA represents the data extracted by a  plugin and DictB
     represents the additional site config dictionary that is passed
@@ -28,14 +27,14 @@ def dict_merge(dictA, dictB, path=None):
     if path is None:
         path = []
 
-    for key in dictB:
-        if key in dictA:
-            if isinstance(dictA[key], dict) and isinstance(dictB[key], dict):
-                dict_merge(dictA[key], dictB[key], path + [str(key)])
-            elif dictA[key] == dictB[key]:
+    for key in dict_b:
+        if key in dict_a:
+            if isinstance(dict_a[key], dict) and isinstance(dict_b[key], dict):
+                dict_merge(dict_a[key], dict_b[key], path + [str(key)])
+            elif dict_a[key] == dict_b[key]:
                 pass  # values are same, so no processing here
             else:
-                dictA[key] = dictB[key]
+                dict_a[key] = dict_b[key]
         else:
-            dictA[key] = dictB[key]
-    return dictA
+            dict_a[key] = dict_b[key]
+    return dict_a

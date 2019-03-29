@@ -15,15 +15,13 @@
 import abc
 import logging
 import pprint
-import six
 
 from spyglass.utils import utils
 
 LOG = logging.getLogger(__name__)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BaseDataSourcePlugin(object):
+class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
     """Provide basic hooks for data source plugins"""
 
     def __init__(self, region):
@@ -52,10 +50,10 @@ class BaseDataSourcePlugin(object):
 
         If validation fails, Spyglass exits.
 
-        :param char pointer: Spyglass CLI parameters.
+        :param char kwargs: Spyglass CLI parameters.
         :returns plugin conf if successfully validated.
 
-        Each plugin implements their own validaton mechanism.
+        Each plugin implements their own validation mechanism.
         """
 
         return {}
@@ -74,7 +72,7 @@ class BaseDataSourcePlugin(object):
         return []
 
     @abc.abstractmethod
-    def get_hosts(self, region, rack):
+    def get_hosts(self, region, rack=None):
         """Return list of hosts in the region
 
         :param string region: Region name
@@ -291,29 +289,23 @@ class BaseDataSourcePlugin(object):
 
             # Fill network IP for this host
             temp_host["ip"] = {}
-            temp_host["ip"]["oob"] = temp_host_ips[host_name].get(
-                "oob", "#CHANGE_ME"
-            )
-            temp_host["ip"]["calico"] = temp_host_ips[host_name].get(
-                "calico", "#CHANGE_ME"
-            )
-            temp_host["ip"]["oam"] = temp_host_ips[host_name].get(
-                "oam", "#CHANGE_ME"
-            )
-            temp_host["ip"]["storage"] = temp_host_ips[host_name].get(
-                "storage", "#CHANGE_ME"
-            )
-            temp_host["ip"]["overlay"] = temp_host_ips[host_name].get(
-                "overlay", "#CHANGE_ME"
-            )
-            temp_host["ip"]["pxe"] = temp_host_ips[host_name].get(
-                "pxe", "#CHANGE_ME"
-            )
+            temp_host["ip"]["oob"] = \
+                temp_host_ips[host_name].get("oob", "#CHANGE_ME")
+            temp_host["ip"]["calico"] = \
+                temp_host_ips[host_name].get("calico", "#CHANGE_ME")
+            temp_host["ip"]["oam"] = \
+                temp_host_ips[host_name].get("oam", "#CHANGE_ME")
+            temp_host["ip"]["storage"] = \
+                temp_host_ips[host_name].get("storage", "#CHANGE_ME")
+            temp_host["ip"]["overlay"] = \
+                temp_host_ips[host_name].get("overlay", "#CHANGE_ME")
+            temp_host["ip"]["pxe"] = \
+                temp_host_ips[host_name].get("pxe", "#CHANGE_ME")
 
             baremetal[rack_name][host_name] = temp_host
-        LOG.debug(
-            "Baremetal information:\n{}".format(pprint.pformat(baremetal))
-        )
+
+        LOG.debug("Baremetal information:\n{}".format(
+            pprint.pformat(baremetal)))
 
         return baremetal
 
@@ -357,9 +349,8 @@ class BaseDataSourcePlugin(object):
         domain_data = self.get_domain_name(self.region)
         site_info["domain"] = domain_data
 
-        LOG.debug(
-            "Extracted site information:\n{}".format(pprint.pformat(site_info))
-        )
+        LOG.debug("Extracted site information:\n{}".format(
+            pprint.pformat(site_info)))
 
         return site_info
 
@@ -405,14 +396,13 @@ class BaseDataSourcePlugin(object):
             tmp_net = {}
             if net["name"] in networks_to_scan:
                 tmp_net["subnet"] = net.get("subnet", "#CHANGE_ME")
-                if (net["name"] != "ingress") and (net["name"] != "oob"):
+                if net["name"] != "ingress" and net["name"] != "oob":
                     tmp_net["vlan"] = net.get("vlan", "#CHANGE_ME")
 
             network_data["vlan_network_data"][net["name"]] = tmp_net
 
-        LOG.debug(
-            "Extracted network data:\n{}".format(pprint.pformat(network_data))
-        )
+        LOG.debug("Extracted network data:\n{}".format(
+            pprint.pformat(network_data)))
         return network_data
 
     def extract_data(self):
@@ -423,17 +413,18 @@ class BaseDataSourcePlugin(object):
         """
 
         LOG.info("Extract data from plugin")
-        site_data = {}
-        site_data["baremetal"] = self.extract_baremetal_information()
-        site_data["site_info"] = self.extract_site_information()
-        site_data["network"] = self.extract_network_information()
+        site_data = {
+            "baremetal": self.extract_baremetal_information(),
+            "site_info": self.extract_site_information(),
+            "network": self.extract_network_information()
+        }
         self.site_data = site_data
         return site_data
 
     def apply_additional_data(self, extra_data):
         """Apply any additional inputs from user
 
-        In case plugin doesnot provide some data, user can specify
+        In case plugin does not provide some data, user can specify
         the same as part of additional data in form of dict. The user
         provided dict will be merged recursively to site_data.
         If there is repetition of data then additional data supplied

@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import formation_client
 import logging
 import pprint
 import re
+
+import formation_client
 import requests
 import urllib3
 
 from spyglass.data_extractor.base import BaseDataSourcePlugin
-
 import spyglass.data_extractor.custom_exceptions as exceptions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -136,17 +136,16 @@ class FormationPlugin(BaseDataSourcePlugin):
                 auth=(self.user, self.password),
                 verify=self.client_config.verify_ssl,
             )
-        except requests.exceptions.exceptions.ConnectionError:
-            raise exceptions.ConnectionError("Incorrect URL: {}".format(url))
+        except requests.exceptions.ConnectionError:
+            raise exceptions.FormationConnectionError(
+                "Incorrect URL: {}".format(url))
 
         if token_response.status_code == 200:
             self.token = token_response.json().get("X-Subject-Token", None)
         else:
             raise exceptions.TokenGenerationError(
                 "Unable to generate token because {}".format(
-                    token_response.reason
-                )
-            )
+                    token_response.reason))
 
         return self.token
 
@@ -160,9 +159,8 @@ class FormationPlugin(BaseDataSourcePlugin):
 
         token = self._generate_token()
         self.client_config.api_key = {"X-Auth-Token": self.user + "|" + token}
-        self.formation_api_client = formation_client.ApiClient(
-            self.client_config
-        )
+        self.formation_api_client = \
+            formation_client.ApiClient(self.client_config)
 
     def _update_site_and_zone(self, region):
         """Get Zone name and Site name from region"""
@@ -309,40 +307,35 @@ class FormationPlugin(BaseDataSourcePlugin):
         zone_id = self._get_zone_id_by_name(zone)
         device_api = formation_client.DevicesApi(self.formation_api_client)
         control_hosts = device_api.zones_zone_id_control_nodes_get(zone_id)
-        compute_hosts = device_api.zones_zone_id_devices_get(
-            zone_id, type="KVM"
-        )
+        compute_hosts = device_api.zones_zone_id_devices_get(zone_id,
+                                                             type="KVM")
 
         hosts_list = []
         for host in control_hosts:
             self.device_name_id_mapping[host.aic_standard_name] = host.id
-            hosts_list.append(
-                {
-                    "name": host.aic_standard_name,
-                    "type": "controller",
-                    "rack_name": host.rack_name,
-                    "host_profile": host.host_profile_name,
-                }
-            )
+            hosts_list.append({
+                "name": host.aic_standard_name,
+                "type": "controller",
+                "rack_name": host.rack_name,
+                "host_profile": host.host_profile_name,
+            })
 
         for host in compute_hosts:
             self.device_name_id_mapping[host.aic_standard_name] = host.id
-            hosts_list.append(
-                {
-                    "name": host.aic_standard_name,
-                    "type": "compute",
-                    "rack_name": host.rack_name,
-                    "host_profile": host.host_profile_name,
-                }
-            )
+            hosts_list.append({
+                "name": host.aic_standard_name,
+                "type": "compute",
+                "rack_name": host.rack_name,
+                "host_profile": host.host_profile_name,
+            })
         """
         for host in itertools.chain(control_hosts, compute_hosts):
             self.device_name_id_mapping[host.aic_standard_name] = host.id
             hosts_list.append({
-            'name': host.aic_standard_name,
-            'type': host.categories[0],
-            'rack_name': host.rack_name,
-            'host_profile': host.host_profile_name
+                'name': host.aic_standard_name,
+                'type': host.categories[0],
+                'rack_name': host.rack_name,
+                'host_profile': host.host_profile_name
             })
         """
 
@@ -354,8 +347,7 @@ class FormationPlugin(BaseDataSourcePlugin):
         region_id = self._get_region_id_by_name(region)
         vlan_api = formation_client.VlansApi(self.formation_api_client)
         vlans = vlan_api.zones_zone_id_regions_region_id_vlans_get(
-            zone_id, region_id
-        )
+            zone_id, region_id)
 
         # Case when vlans list is empty from
         # zones_zone_id_regions_region_id_vlans_get
@@ -364,22 +356,22 @@ class FormationPlugin(BaseDataSourcePlugin):
             hosts = self.get_hosts(self.region)
             host = hosts[0]["name"]
             device_id = self._get_device_id_by_name(host)
-            vlans = vlan_api.zones_zone_id_devices_device_id_vlans_get(
-                zone_id, device_id
-            )
+            vlans = \
+                vlan_api.zones_zone_id_devices_device_id_vlans_get(zone_id,
+                                                                   device_id)
 
         LOG.debug("Extracted region network information\n{}".format(vlans))
         vlans_list = []
         for vlan_ in vlans:
             if len(vlan_.vlan.ipv4) != 0:
-                tmp_vlan = {}
-                tmp_vlan["name"] = self._get_network_name_from_vlan_name(
-                    vlan_.vlan.name
-                )
-                tmp_vlan["vlan"] = vlan_.vlan.vlan_id
-                tmp_vlan["subnet"] = vlan_.vlan.subnet_range
-                tmp_vlan["gateway"] = vlan_.ipv4_gateway
-                tmp_vlan["subnet_level"] = vlan_.vlan.subnet_level
+                tmp_vlan = {
+                    "name":
+                    self._get_network_name_from_vlan_name(vlan_.vlan.name),
+                    "vlan": vlan_.vlan.vlan_id,
+                    "subnet": vlan_.vlan.subnet_range,
+                    "gateway": vlan_.ipv4_gateway,
+                    "subnet_level": vlan_.vlan.subnet_level
+                }
                 vlans_list.append(tmp_vlan)
 
         return vlans_list
@@ -401,9 +393,9 @@ class FormationPlugin(BaseDataSourcePlugin):
 
         for host in hosts:
             device_id = self._get_device_id_by_name(host)
-            vlans = vlan_api.zones_zone_id_devices_device_id_vlans_get(
-                zone_id, device_id
-            )
+            vlans = \
+                vlan_api.zones_zone_id_devices_device_id_vlans_get(zone_id,
+                                                                   device_id)
             LOG.debug("Received VLAN Network Information\n{}".format(vlans))
             ip_[host] = {}
             for vlan_ in vlans:
@@ -411,14 +403,10 @@ class FormationPlugin(BaseDataSourcePlugin):
                 # list is empty
                 if len(vlan_.vlan.ipv4) != 0:
                     name = self._get_network_name_from_vlan_name(
-                        vlan_.vlan.name
-                    )
+                        vlan_.vlan.name)
                     ipv4 = vlan_.vlan.ipv4[0].ip
-                    LOG.debug(
-                        "vlan:{},name:{},ip:{},vlan_name:{}".format(
-                            vlan_.vlan.vlan_id, name, ipv4, vlan_.vlan.name
-                        )
-                    )
+                    LOG.debug("vlan:{},name:{},ip:{},vlan_name:{}".format(
+                        vlan_.vlan.vlan_id, name, ipv4, vlan_.vlan.name))
                     # TODD(pg710r) This code needs to extended to support ipv4
                     # and ipv6
                     # ip_[host][name] = {'ipv4': ipv4}
@@ -465,7 +453,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             raise exceptions.ApiClientError(e.msg)
 
         if not zone_.ipv4_dns:
-            LOG.warn("No dns server")
+            LOG.warning("No dns server")
             return []
 
         dns_list = []
@@ -498,8 +486,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             }
         except AttributeError as e:
             raise exceptions.MissingAttributeError(
-                "Missing {} information in {}".format(e, site_info.city)
-            )
+                "Missing {} information in {}".format(e, site_info.city))
 
     def get_domain_name(self, region):
         try:
@@ -511,7 +498,7 @@ class FormationPlugin(BaseDataSourcePlugin):
             raise exceptions.ApiClientError(e.msg)
 
         if not zone_.dns:
-            LOG.warn("Got None while running get domain name")
+            LOG.warning("Got None while running get domain name")
             return None
 
         return zone_.dns

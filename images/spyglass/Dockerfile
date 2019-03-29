@@ -4,7 +4,7 @@ FROM ${FROM}
 VOLUME /var/spyglass
 WORKDIR /var/spyglass
 
-ARG ctx_base=.
+ARG ctx_base=./
 
 COPY ${ctx_base}/requirements.txt /opt/spyglass/requirements.txt
 RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt

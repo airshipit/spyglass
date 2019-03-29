@@ -32,11 +32,9 @@ class NoSpecMatched(BaseError):
         self.specs = excel_specs
 
     def display_error(self):
-        print(
-            "No spec matched. Following are the available specs:\n".format(
-                self.specs
-            )
-        )
+        # FIXME (Ian Pittwood): use log instead of print
+        print("No spec matched. Following are the available specs:\n".format(
+            self.specs))
         sys.exit(1)
 
 
@@ -56,5 +54,5 @@ class TokenGenerationError(BaseError):
     pass
 
 
-class ConnectionError(BaseError):
+class FormationConnectionError(BaseError):
     pass
