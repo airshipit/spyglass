@@ -310,7 +310,7 @@ class ProcessDataSource(object):
             pprint.pformat(vlan_network_data_)))
 
     def load_extracted_data_from_data_source(self, extracted_data):
-        """Function called from spyglass.py to pass extracted data
+        """Function called from cli.py to pass extracted data
 
         from input data source
         """

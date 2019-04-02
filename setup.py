@@ -33,7 +33,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'spyglass=spyglass.spyglass:main',
+            'spyglass=spyglass.cli:main',
         ],
         'data_extractor_plugins': [
             'formation='
