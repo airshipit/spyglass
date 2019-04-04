@@ -1,5 +1,5 @@
 ..
-      Copyright 2018 AT&T Intellectual Property.
+      Copyright 2019 AT&T Intellectual Property.
       All Rights Reserved.
 
       Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -33,4 +33,5 @@ fed to Shipyard for site deployment / updates.
 
    getting_started
    developer_quickstart
+   cli
    tugboat
