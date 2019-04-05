@@ -281,8 +281,8 @@ class BaseDataSourcePlugin(object):
 
         # For each host list fill host profile and network IPs
         for host in hosts:
-            host_name = host['name']
-            rack_name = host['rack_name']
+            host_name = host["name"]
+            rack_name = host["rack_name"]
 
             if rack_name not in baremetal:
                 baremetal[rack_name] = {}
@@ -290,32 +290,39 @@ class BaseDataSourcePlugin(object):
             # Prepare temp dict for each host and append it to baremetal
             # at a rack level
             temp_host = {}
-            if host['host_profile'] is None:
-                temp_host['host_profile'] = "#CHANGE_ME"
+            if host["host_profile"] is None:
+                temp_host["host_profile"] = "#CHANGE_ME"
             else:
-                temp_host['host_profile'] = host['host_profile']
+                temp_host["host_profile"] = host["host_profile"]
 
             # Get Host IPs from plugin
             temp_host_ips = self.get_ips(self.region, host_name)
 
             # Fill network IP for this host
-            temp_host['ip'] = {}
-            temp_host['ip']['oob'] = temp_host_ips[host_name].get(
-                'oob', "#CHANGE_ME")
-            temp_host['ip']['calico'] = temp_host_ips[host_name].get(
-                'calico', "#CHANGE_ME")
-            temp_host['ip']['oam'] = temp_host_ips[host_name].get(
-                'oam', "#CHANGE_ME")
-            temp_host['ip']['storage'] = temp_host_ips[host_name].get(
-                'storage', "#CHANGE_ME")
-            temp_host['ip']['overlay'] = temp_host_ips[host_name].get(
-                'overlay', "#CHANGE_ME")
-            temp_host['ip']['pxe'] = temp_host_ips[host_name].get(
-                'pxe', "#CHANGE_ME")
+            temp_host["ip"] = {}
+            temp_host["ip"]["oob"] = temp_host_ips[host_name].get(
+                "oob", "#CHANGE_ME"
+            )
+            temp_host["ip"]["calico"] = temp_host_ips[host_name].get(
+                "calico", "#CHANGE_ME"
+            )
+            temp_host["ip"]["oam"] = temp_host_ips[host_name].get(
+                "oam", "#CHANGE_ME"
+            )
+            temp_host["ip"]["storage"] = temp_host_ips[host_name].get(
+                "storage", "#CHANGE_ME"
+            )
+            temp_host["ip"]["overlay"] = temp_host_ips[host_name].get(
+                "overlay", "#CHANGE_ME"
+            )
+            temp_host["ip"]["pxe"] = temp_host_ips[host_name].get(
+                "pxe", "#CHANGE_ME"
+            )
 
             baremetal[rack_name][host_name] = temp_host
-        LOG.debug("Baremetal information:\n{}".format(
-            pprint.pformat(baremetal)))
+        LOG.debug(
+            "Baremetal information:\n{}".format(pprint.pformat(baremetal))
+        )
 
         return baremetal
 
@@ -348,19 +355,20 @@ class BaseDataSourcePlugin(object):
             site_info = location_data
 
         dns_data = self.get_dns_servers(self.region)
-        site_info['dns'] = dns_data
+        site_info["dns"] = dns_data
 
         ntp_data = self.get_ntp_servers(self.region)
-        site_info['ntp'] = ntp_data
+        site_info["ntp"] = ntp_data
 
         ldap_data = self.get_ldap_information(self.region)
-        site_info['ldap'] = ldap_data
+        site_info["ldap"] = ldap_data
 
         domain_data = self.get_domain_name(self.region)
-        site_info['domain'] = domain_data
+        site_info["domain"] = domain_data
 
-        LOG.debug("Extracted site information:\n{}".format(
-            pprint.pformat(site_info)))
+        LOG.debug(
+            "Extracted site information:\n{}".format(pprint.pformat(site_info))
+        )
 
         return site_info
 
@@ -393,21 +401,28 @@ class BaseDataSourcePlugin(object):
         # networks_to_scan, so look for these networks from the data
         # returned by plugin
         networks_to_scan = [
-            'calico', 'overlay', 'pxe', 'storage', 'oam', 'oob', 'ingress'
+            "calico",
+            "overlay",
+            "pxe",
+            "storage",
+            "oam",
+            "oob",
+            "ingress",
         ]
-        network_data['vlan_network_data'] = {}
+        network_data["vlan_network_data"] = {}
 
         for net in networks:
             tmp_net = {}
-            if net['name'] in networks_to_scan:
-                tmp_net['subnet'] = net.get('subnet', '#CHANGE_ME')
-                if ((net['name'] != 'ingress') and (net['name'] != 'oob')):
-                    tmp_net['vlan'] = net.get('vlan', '#CHANGE_ME')
+            if net["name"] in networks_to_scan:
+                tmp_net["subnet"] = net.get("subnet", "#CHANGE_ME")
+                if (net["name"] != "ingress") and (net["name"] != "oob"):
+                    tmp_net["vlan"] = net.get("vlan", "#CHANGE_ME")
 
-            network_data['vlan_network_data'][net['name']] = tmp_net
+            network_data["vlan_network_data"][net["name"]] = tmp_net
 
-        LOG.debug("Extracted network data:\n{}".format(
-            pprint.pformat(network_data)))
+        LOG.debug(
+            "Extracted network data:\n{}".format(pprint.pformat(network_data))
+        )
         return network_data
 
     def extract_data(self):
@@ -418,9 +433,9 @@ class BaseDataSourcePlugin(object):
         """
         LOG.info("Extract data from plugin")
         site_data = {}
-        site_data['baremetal'] = self.extract_baremetal_information()
-        site_data['site_info'] = self.extract_site_information()
-        site_data['network'] = self.extract_network_information()
+        site_data["baremetal"] = self.extract_baremetal_information()
+        site_data["site_info"] = self.extract_site_information()
+        site_data["network"] = self.extract_network_information()
         self.site_data = site_data
         return site_data
 

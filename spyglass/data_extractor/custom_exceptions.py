@@ -31,8 +31,11 @@ class NoSpecMatched(BaseError):
         self.specs = excel_specs
 
     def display_error(self):
-        print('No spec matched. Following are the available specs:\n'.format(
-            self.specs))
+        print(
+            "No spec matched. Following are the available specs:\n".format(
+                self.specs
+            )
+        )
         sys.exit(1)
 
 

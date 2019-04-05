@@ -26,49 +26,55 @@ from flask_bootstrap import Bootstrap
 
 
 app_path = os.path.dirname(os.path.abspath(__file__))
-app = Flask('Yaml Editor!',
-            template_folder=os.path.join(app_path, 'templates'),
-            static_folder=os.path.join(app_path, 'static'))
+app = Flask(
+    "Yaml Editor!",
+    template_folder=os.path.join(app_path, "templates"),
+    static_folder=os.path.join(app_path, "static"),
+)
 Bootstrap(app)
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 LOG = app.logger
 
 
-@app.route('/favicon.ico')
+@app.route("/favicon.ico")
 def favicon():
-    return send_from_directory(app.static_folder, 'favicon.ico')
+    return send_from_directory(app.static_folder, "favicon.ico")
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
     """Renders index page to edit provided yaml file."""
-    LOG.info('Rendering yaml file for editing')
-    with open(app.config['YAML_FILE']) as file_obj:
+    LOG.info("Rendering yaml file for editing")
+    with open(app.config["YAML_FILE"]) as file_obj:
         data = yaml.safe_load(file_obj)
-    return render_template('yaml.html',
-                           data=json.dumps(data),
-                           change_str=app.config['STRING_TO_CHANGE'])
+    return render_template(
+        "yaml.html",
+        data=json.dumps(data),
+        change_str=app.config["STRING_TO_CHANGE"],
+    )
 
 
-@app.route('/save', methods=['POST'])
+@app.route("/save", methods=["POST"])
 def save():
     """Save current progress on file."""
-    LOG.info('Saving edited inputs from user to yaml file')
-    out = request.json.get('yaml_data')
-    with open(app.config['YAML_FILE'], 'w') as file_obj:
+    LOG.info("Saving edited inputs from user to yaml file")
+    out = request.json.get("yaml_data")
+    with open(app.config["YAML_FILE"], "w") as file_obj:
         yaml.safe_dump(out, file_obj, default_flow_style=False)
     return "Data saved successfully!"
 
 
-@app.route('/saveExit', methods=['POST'])
+@app.route("/saveExit", methods=["POST"])
 def save_exit():
     """Save current progress on file and shuts down the server."""
-    LOG.info('Saving edited inputs from user to yaml file and shutting'
-             ' down server')
-    out = request.json.get('yaml_data')
-    with open(app.config['YAML_FILE'], 'w') as file_obj:
+    LOG.info(
+        "Saving edited inputs from user to yaml file and shutting"
+        " down server"
+    )
+    out = request.json.get("yaml_data")
+    with open(app.config["YAML_FILE"], "w") as file_obj:
         yaml.safe_dump(out, file_obj, default_flow_style=False)
-    func = request.environ.get('werkzeug.server.shutdown')
+    func = request.environ.get("werkzeug.server.shutdown")
     if func:
         func()
     return "Saved successfully, Shutting down app! You may close the tab!"
@@ -77,68 +83,72 @@ def save_exit():
 @app.errorhandler(404)
 def page_not_found(e):
     """Serves 404 error."""
-    LOG.info('User tried to access unavailable page.')
-    return '<h1>404: Page not Found!</h1>'
+    LOG.info("User tried to access unavailable page.")
+    return "<h1>404: Page not Found!</h1>"
 
 
 def run(*args, **kwargs):
     """Starts the server."""
-    LOG.info('Initiating web server for yaml editing')
-    port = kwargs.get('port', None)
+    LOG.info("Initiating web server for yaml editing")
+    port = kwargs.get("port", None)
     if not port:
         port = 8161
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
 @click.command()
 @click.option(
-    '--file',
-    '-f',
+    "--file",
+    "-f",
     required=True,
     type=click.File(),
     multiple=False,
-    help="Path with file name to the intermediary yaml file."
+    help="Path with file name to the intermediary yaml file.",
 )
 @click.option(
-    '--host',
-    '-h',
-    default='0.0.0.0',
+    "--host",
+    "-h",
+    default="0.0.0.0",
     type=click.STRING,
     multiple=False,
-    help="Optional host parameter to run Flask on."
+    help="Optional host parameter to run Flask on.",
 )
 @click.option(
-    '--port',
-    '-p',
+    "--port",
+    "-p",
     default=8161,
     type=click.INT,
     multiple=False,
-    help="Optional port parameter to run Flask on."
+    help="Optional port parameter to run Flask on.",
 )
 @click.option(
-    '--string',
-    '-s',
-    default='#CHANGE_ME',
+    "--string",
+    "-s",
+    default="#CHANGE_ME",
     type=click.STRING,
     multiple=False,
-    help="Text which is required to be changed on yaml file."
+    help="Text which is required to be changed on yaml file.",
 )
 def main(*args, **kwargs):
     LOG.setLevel(logging.INFO)
-    LOG.info('Initiating yaml-editor')
+    LOG.info("Initiating yaml-editor")
     try:
-        yaml.safe_load(kwargs['file'])
+        yaml.safe_load(kwargs["file"])
     except yaml.YAMLError as e:
-        LOG.error('EXITTING - Please provide a valid yaml file.')
-        if hasattr(e, 'problem_mark'):
+        LOG.error("EXITTING - Please provide a valid yaml file.")
+        if hasattr(e, "problem_mark"):
             mark = e.problem_mark
-            LOG.error("Error position: ({0}:{1})".format(
-                mark.line + 1, mark.column + 1))
+            LOG.error(
+                "Error position: ({0}:{1})".format(
+                    mark.line + 1, mark.column + 1
+                )
+            )
         sys.exit(2)
     except Exception:
-        LOG.error('EXITTING - Please provide a valid yaml file.')
+        LOG.error("EXITTING - Please provide a valid yaml file.")
         sys.exit(2)
-    LOG.info("""
+    LOG.info(
+        """
 
 ##############################################################################
 
@@ -146,12 +156,15 @@ Please go to http://{0}:{1}/ to edit your yaml file.
 
 ##############################################################################
 
-    """.format(kwargs['host'], kwargs['port']))
-    app.config['YAML_FILE'] = kwargs['file'].name
-    app.config['STRING_TO_CHANGE'] = kwargs['string']
+    """.format(
+            kwargs["host"], kwargs["port"]
+        )
+    )
+    app.config["YAML_FILE"] = kwargs["file"].name
+    app.config["STRING_TO_CHANGE"] = kwargs["string"]
     run(*args, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Invoked when used as a script."""
     main()

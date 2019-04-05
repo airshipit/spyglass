@@ -36,12 +36,12 @@ class SiteProcessor(BaseProcessor):
         """
         # Check of manifest_dir exists
         if self.manifest_dir is not None:
-            site_manifest_dir = self.manifest_dir + '/pegleg_manifests/site/'
+            site_manifest_dir = self.manifest_dir + "/pegleg_manifests/site/"
         else:
-            site_manifest_dir = 'pegleg_manifests/site/'
+            site_manifest_dir = "pegleg_manifests/site/"
         LOG.info("Site manifest output dir:{}".format(site_manifest_dir))
 
-        template_software_dir = template_dir + '/'
+        template_software_dir = template_dir + "/"
         template_dir_abspath = os.path.dirname(template_software_dir)
         LOG.debug("Template Path:%s", template_dir_abspath)
 
@@ -50,16 +50,19 @@ class SiteProcessor(BaseProcessor):
                 j2_env = Environment(
                     autoescape=False,
                     loader=FileSystemLoader(dirpath),
-                    trim_blocks=True)
+                    trim_blocks=True,
+                )
                 j2_env.filters[
-                    'get_role_wise_nodes'] = self.get_role_wise_nodes
+                    "get_role_wise_nodes"
+                ] = self.get_role_wise_nodes
                 templatefile = os.path.join(dirpath, filename)
-                outdirs = dirpath.split('templates')[1]
+                outdirs = dirpath.split("templates")[1]
 
-                outfile_path = '{}{}{}'.format(
-                    site_manifest_dir, self.yaml_data['region_name'], outdirs)
-                outfile_yaml = templatefile.split('.j2')[0].split('/')[-1]
-                outfile = outfile_path + '/' + outfile_yaml
+                outfile_path = "{}{}{}".format(
+                    site_manifest_dir, self.yaml_data["region_name"], outdirs
+                )
+                outfile_yaml = templatefile.split(".j2")[0].split("/")[-1]
+                outfile = outfile_path + "/" + outfile_yaml
                 outfile_dir = os.path.dirname(outfile)
                 if not os.path.exists(outfile_dir):
                     os.makedirs(outfile_dir)
@@ -71,7 +74,10 @@ class SiteProcessor(BaseProcessor):
                     out.close()
                 except IOError as ioe:
                     LOG.error(
-                        "IOError during rendering:{}".format(outfile_yaml))
+                        "IOError during rendering:{}".format(outfile_yaml)
+                    )
                     raise SystemExit(
                         "Error when generating {:s}:\n{:s}".format(
-                            outfile, ioe.strerror))
+                            outfile, ioe.strerror
+                        )
+                    )

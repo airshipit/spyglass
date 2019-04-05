@@ -23,7 +23,7 @@ class NotEnoughIp(BaseError):
         self.total_nodes = total_nodes
 
     def display_error(self):
-        print('{} can not handle {} nodes'.format(self.cidr, self.total_nodes))
+        print("{} can not handle {} nodes".format(self.cidr, self.total_nodes))
 
 
 class NoSpecMatched(BaseError):
@@ -31,5 +31,8 @@ class NoSpecMatched(BaseError):
         self.specs = excel_specs
 
     def display_error(self):
-        print('No spec matched. Following are the available specs:\n'.format(
-            self.specs))
+        print(
+            "No spec matched. Following are the available specs:\n".format(
+                self.specs
+            )
+        )
