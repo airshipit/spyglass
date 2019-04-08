@@ -15,11 +15,9 @@
 import copy
 import json
 import logging
-import os
 import pkg_resources
 import pprint
 import sys
-import tempfile
 
 import jsonschema
 import netaddr
@@ -394,28 +392,11 @@ class ProcessDataSource:
             f.write(yaml_file)
         f.close()
 
-    def generate_intermediary_yaml(self, edit_intermediary=False):
+    def generate_intermediary_yaml(self):
         """ Generating intermediary yaml """
         LOG.info("Start: Generate Intermediary")
         self._apply_design_rules()
         self._get_genesis_node_details()
         # This will validate the extracted data from different sources.
         self._validate_intermediary_data(self.data)
-        if edit_intermediary:
-            self.edit_intermediary_yaml()
-            # This will check if user edited changes are in order.
-            self._validate_intermediary_data(self.data)
-        self.intermediary_yaml = self.data
-        return self.intermediary_yaml
-
-    def edit_intermediary_yaml(self):
-        """ Edit generated data using on browser """
-        LOG.info(
-            "edit_intermediary_yaml: Invoking web server for yaml editing"
-        )
-        with tempfile.NamedTemporaryFile(mode="r+") as file_obj:
-            yaml.safe_dump(self.data, file_obj, default_flow_style=False)
-            host = self._get_genesis_node_ip()
-            os.system("yaml-editor -f {0} -h {1}".format(file_obj.name, host))
-            file_obj.seek(0)
-            self.data = yaml.safe_load(file_obj)
+        return self.data

@@ -72,9 +72,6 @@ Supported Features
 2. Remote Data Source Plugin: Supports extracting site data from a REST
    endpoint.
 
-3. YAML Editor for Intermediary YAML: Support runtime editing of missing
-   site parameters, see :ref:`yaml-editor-info`
-
 Future Work
 -----------
 1) Schema based manifest generation instead of Jinja2 templates. It shall
@@ -160,7 +157,6 @@ Options:
                                   excel spec
   -idir, --intermediary_dir PATH  The path where intermediary file needs to be
                                   generated
-  -e, --edit_intermediary         Flag to let user edit intermediary
   -m, --generate_manifests        Generate manifests from the generated
                                   intermediary file
   -mdir, --manifest_dir PATH      The path where manifest files needs to be

@@ -1,4 +1,2 @@
-recursive-include spyglass/utils/editor/static *
-recursive-include spyglass/utils/editor/templates *
 recursive-include spyglass/ **.yaml
 recursive-include spyglass/ **.json
