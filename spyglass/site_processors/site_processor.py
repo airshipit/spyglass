@@ -48,7 +48,7 @@ class SiteProcessor(BaseProcessor):
         for dirpath, dirs, files in os.walk(template_dir_abspath):
             for filename in files:
                 j2_env = Environment(
-                    autoescape=False,
+                    autoescape=True,
                     loader=FileSystemLoader(dirpath),
                     trim_blocks=True,
                 )
