@@ -36,13 +36,11 @@ LOG = logging.getLogger(__name__)
 class FormationPlugin(BaseDataSourcePlugin):
     def __init__(self, region):
         # Save site name is valid
-        try:
-            assert region is not None
-            super().__init__(region)
-        except AssertionError:
+        if not region:
             LOG.error("Site: None! Spyglass exited!")
             LOG.info("Check spyglass --help for details")
             exit()
+        super().__init__(region)
 
         self.source_type = "rest"
         self.source_name = "formation"
@@ -80,23 +78,21 @@ class FormationPlugin(BaseDataSourcePlugin):
 
     def get_plugin_conf(self, kwargs):
         """ Validates the plugin param and return if success"""
-        try:
-            assert (
-                kwargs["formation_url"]
-            ) is not None, "formation_url is Not Specified"
-            url = kwargs["formation_url"]
-            assert (
-                kwargs["formation_user"]
-            ) is not None, "formation_user is Not Specified"
-            user = kwargs["formation_user"]
-            assert (
-                kwargs["formation_password"]
-            ) is not None, "formation_password is Not Specified"
-            password = kwargs["formation_password"]
-        except AssertionError:
-            LOG.error("Insufficient plugin parameter! Spyglass exited!")
-            raise
+
+        if not kwargs["formation_url"]:
+            LOG.error("formation_url not specified! Spyglass exited!")
             exit()
+        url = kwargs["formation_url"]
+
+        if not kwargs["formation_user"]:
+            LOG.error("formation_user not specified! Spyglass exited!")
+            exit()
+        user = kwargs["formation_user"]
+
+        if not kwargs["formation_password"]:
+            LOG.error("formation_password not specified! Spyglass exited!")
+            exit()
+        password = kwargs['formation_password']
 
         plugin_conf = {"url": url, "user": user, "password": password}
         return plugin_conf

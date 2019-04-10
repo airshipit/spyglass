@@ -68,16 +68,14 @@ class TugboatPlugin(BaseDataSourcePlugin):
         and excel specs are not specified. The below code has been
         written as an additional safeguard.
         """
-        try:
-            assert len(kwargs["excel"]), "Engineering Spec file not specified"
-            excel_file_info = kwargs["excel"]
-            assert (
-                kwargs["excel_spec"]
-            ) is not None, "Excel Spec file not specified"
-            excel_spec_info = kwargs["excel_spec"]
-        except AssertionError as e:
-            LOG.error("{}:Spyglass exited!".format(e))
+        if not kwargs["excel"]:
+            LOG.error("Engineering excel file not specified: Spyglass exited!")
             exit()
+        excel_file_info = kwargs["excel"]
+        if not kwargs["excel_spec"]:
+            LOG.error("Engineering spec file not specified: Spyglass exited!")
+            exit()
+        excel_spec_info = kwargs["excel_spec"]
         plugin_conf = {
             "excel_path": excel_file_info,
             "excel_spec": excel_spec_info,
