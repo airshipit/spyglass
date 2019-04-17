@@ -65,12 +65,7 @@ Architecture
 
 Supported Features
 ------------------
-1. Tugboat Plugin: Supports extracting site data from Excel files and
-   then generate site manifests for sitetype:airship-seaworthy.
-   Find more documentation for Tugboat, see :ref:`tugboatinfo`.
-
-2. Remote Data Source Plugin: Supports extracting site data from a REST
-   endpoint.
+1. Spyglass XLS Plugin: https://opendev.org/airship/spyglass-plugin-xls
 
 Future Work
 -----------
@@ -135,4 +130,4 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-        pip3 install -r airship-spyglass/requirements.txt
+        pip3 install -r spyglass/requirements.txt

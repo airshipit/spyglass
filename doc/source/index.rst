@@ -34,4 +34,3 @@ fed to Shipyard for site deployment / updates.
    getting_started
    developer_quickstart
    cli
-   tugboat
