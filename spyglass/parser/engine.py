@@ -15,22 +15,22 @@
 import copy
 import json
 import logging
-import pkg_resources
 import pprint
 import sys
 
 import jsonschema
-import netaddr
+from netaddr import IPNetwork
+from pkg_resources import resource_filename
 import yaml
 
 LOG = logging.getLogger(__name__)
 
 
 class ProcessDataSource(object):
-    def __init__(self, sitetype):
+    def __init__(self, site_type):
         # Initialize intermediary and save site type
         self._initialize_intermediary()
-        self.region_name = sitetype
+        self.region_name = site_type
 
     @staticmethod
     def _read_file(file_name):
@@ -64,15 +64,15 @@ class ProcessDataSource(object):
         for net_type in self.data["network"]["vlan_network_data"]:
             # One of the type is ingress and we don't want that here
             if net_type != "ingress":
-                network_subnets[net_type] = netaddr.IPNetwork(
-                    self.data["network"]["vlan_network_data"][net_type][
-                        "subnet"
-                    ][0]
-                )
+                network_subnets[net_type] = \
+                    IPNetwork(self.data["network"]
+                                       ["vlan_network_data"]
+                                       [net_type]
+                                       ["subnet"]
+                                       [0])
 
-        LOG.debug(
-            "Network subnets:\n{}".format(pprint.pformat(network_subnets))
-        )
+        LOG.debug("Network subnets:\n{}".format(
+            pprint.pformat(network_subnets)))
         return network_subnets
 
     def _get_genesis_node_details(self):
@@ -83,11 +83,8 @@ class ProcessDataSource(object):
                 if rack_hosts[host]["type"] == "genesis":
                     self.genesis_node = rack_hosts[host]
                     self.genesis_node["name"] = host
-        LOG.debug(
-            "Genesis Node Details:\n{}".format(
-                pprint.pformat(self.genesis_node)
-            )
-        )
+        LOG.debug("Genesis Node Details:\n{}".format(
+            pprint.pformat(self.genesis_node)))
 
     def _get_genesis_node_ip(self):
         """Returns the genesis node ip"""
@@ -104,14 +101,13 @@ class ProcessDataSource(object):
     def _validate_intermediary_data(self, data):
         """Validates the intermediary data before generating manifests.
 
-        It checks wether the data types and data format are as expected.
+        It checks whether the data types and data format are as expected.
         The method validates this with regex pattern defined for each
         data type.
         """
 
         LOG.info("Validating Intermediary data")
-        temp_data = {}
-        # Peforming a deep copy
+        # Performing a deep copy
         temp_data = copy.deepcopy(data)
         # Converting baremetal dict to list.
         baremetal_list = []
@@ -120,7 +116,7 @@ class ProcessDataSource(object):
             baremetal_list = baremetal_list + temp
 
         temp_data["baremetal"] = baremetal_list
-        schema_dir = pkg_resources.resource_filename("spyglass", "schemas/")
+        schema_dir = resource_filename("spyglass", "schemas/")
         schema_file = schema_dir + "data_schema.json"
         json_data = json.loads(json.dumps(temp_data))
         with open(schema_file, "r") as f:
@@ -153,12 +149,12 @@ class ProcessDataSource(object):
 
         These rules are used to determine ip address allocation ranges,
         host profile interfaces and also to create hardware profile
-        information. The method calls corresponding rule hander function
+        information. The method calls corresponding rule handler function
         based on rule name and applies them to appropriate data objects.
         """
 
         LOG.info("Apply design rules")
-        rules_dir = pkg_resources.resource_filename("spyglass", "config/")
+        rules_dir = resource_filename("spyglass", "config/")
         rules_file = rules_dir + "rules.yaml"
         rules_data_raw = self._read_file(rules_file)
         rules_yaml = yaml.safe_load(rules_data_raw)
@@ -197,10 +193,8 @@ class ProcessDataSource(object):
             # done to determine the genesis node.
             for host in sorted(self.data["baremetal"][rack].keys()):
                 host_info = self.data["baremetal"][rack][host]
-                if (
-                    host_info["host_profile"]
-                    == hardware_profile["profile_name"]["ctrl"]
-                ):
+                if host_info["host_profile"] \
+                        == hardware_profile["profile_name"]["ctrl"]:
                     if not is_genesis:
                         host_info["type"] = "genesis"
                         is_genesis = True
@@ -229,7 +223,7 @@ class ProcessDataSource(object):
         If a particular ip exists it is overridden.
         """
 
-        # Ger defult ip offset
+        # Ger default ip offset
         default_ip_offset = rule_data["default"]
 
         host_idx = 0
@@ -243,11 +237,8 @@ class ProcessDataSource(object):
                     host_networks[net] = str(ips[host_idx + default_ip_offset])
                 host_idx = host_idx + 1
 
-        LOG.debug(
-            "Updated baremetal host:\n{}".format(
-                pprint.pformat(self.data["baremetal"])
-            )
-        )
+        LOG.debug("Updated baremetal host:\n{}".format(
+            pprint.pformat(self.data["baremetal"])))
 
     def _update_vlan_net_data(self, rule_data):
         """Offset allocation rules to determine ip address range(s)
@@ -270,21 +261,17 @@ class ProcessDataSource(object):
 
         # Set ingress vip and CIDR for bgp
         LOG.info("Apply network design rules:bgp")
-        subnet = netaddr.IPNetwork(
-            self.data["network"]["vlan_network_data"]["ingress"]["subnet"][0]
-        )
+        vlan_network_data_ = self.data["network"]["vlan_network_data"]
+        subnet = IPNetwork(vlan_network_data_["ingress"]["subnet"][0])
         ips = list(subnet)
-        self.data["network"]["bgp"]["ingress_vip"] = str(
-            ips[ingress_vip_offset]
-        )
-        self.data["network"]["bgp"]["public_service_cidr"] = self.data[
-            "network"
-        ]["vlan_network_data"]["ingress"]["subnet"][0]
-        LOG.debug(
-            "Updated network bgp data:\n{}".format(
-                pprint.pformat(self.data["network"]["bgp"])
-            )
-        )
+        self.data["network"]["bgp"]["ingress_vip"] = \
+            str(ips[ingress_vip_offset])
+        self.data["network"]["bgp"]["public_service_cidr"] = \
+            (vlan_network_data_["ingress"]
+                               ["subnet"]
+                               [0])
+        LOG.debug("Updated network bgp data:\n{}".format(
+            pprint.pformat(self.data["network"]["bgp"])))
 
         LOG.info("Apply network design rules:vlan")
         # Apply rules to vlan networks
@@ -297,16 +284,11 @@ class ProcessDataSource(object):
             subnet = self.network_subnets[net_type]
             ips = list(subnet)
 
-            self.data["network"]["vlan_network_data"][net_type][
-                "gateway"
-            ] = str(ips[gateway_ip_offset])
+            vlan_network_data_[net_type]["gateway"] = \
+                str(ips[gateway_ip_offset])
 
-            self.data["network"]["vlan_network_data"][net_type][
-                "reserved_start"
-            ] = str(ips[1])
-            self.data["network"]["vlan_network_data"][net_type][
-                "reserved_end"
-            ] = str(ips[ip_offset])
+            vlan_network_data_[net_type]["reserved_start"] = str(ips[1])
+            vlan_network_data_[net_type]["reserved_end"] = str(ips[ip_offset])
 
             static_start = str(ips[ip_offset + 1])
             static_end = str(ips[static_ip_end_offset])
@@ -317,40 +299,26 @@ class ProcessDataSource(object):
                 dhcp_start = str(ips[mid])
                 dhcp_end = str(ips[dhcp_ip_end_offset])
 
-                self.data["network"]["vlan_network_data"][net_type][
-                    "dhcp_start"
-                ] = dhcp_start
-                self.data["network"]["vlan_network_data"][net_type][
-                    "dhcp_end"
-                ] = dhcp_end
+                vlan_network_data_[net_type]["dhcp_start"] = dhcp_start
+                vlan_network_data_[net_type]["dhcp_end"] = dhcp_end
 
-            self.data["network"]["vlan_network_data"][net_type][
-                "static_start"
-            ] = static_start
-            self.data["network"]["vlan_network_data"][net_type][
-                "static_end"
-            ] = static_end
+            vlan_network_data_[net_type]["static_start"] = static_start
+            vlan_network_data_[net_type]["static_end"] = static_end
 
             # There is no vlan for oob network
             if net_type != "oob":
-                self.data["network"]["vlan_network_data"][net_type][
-                    "vlan"
-                ] = self.data["network"]["vlan_network_data"][net_type]["vlan"]
+                vlan_network_data_[net_type]["vlan"] = \
+                    vlan_network_data_[net_type]["vlan"]
 
             # OAM have default routes. Only for cruiser. TBD
             if net_type == "oam":
                 routes = ["0.0.0.0/0"]
             else:
                 routes = []
-            self.data["network"]["vlan_network_data"][net_type][
-                "routes"
-            ] = routes
+            vlan_network_data_[net_type]["routes"] = routes
 
-        LOG.debug(
-            "Updated vlan network data:\n{}".format(
-                pprint.pformat(self.data["network"]["vlan_network_data"])
-            )
-        )
+        LOG.debug("Updated vlan network data:\n{}".format(
+            pprint.pformat(vlan_network_data_)))
 
     def load_extracted_data_from_data_source(self, extracted_data):
         """Function called from spyglass.py to pass extracted data
@@ -366,12 +334,9 @@ class ProcessDataSource(object):
 
         LOG.info("Loading plugin data source")
         self.data = extracted_data
-        LOG.debug(
-            "Extracted data from plugin:\n{}".format(
-                pprint.pformat(extracted_data)
-            )
-        )
-        # Uncommeent following segment for debugging purpose.
+        LOG.debug("Extracted data from plugin:\n{}".format(
+            pprint.pformat(extracted_data)))
+        # Uncomment following segment for debugging purpose.
         # extracted_file = "extracted_file.yaml"
         # yaml_file = yaml.dump(extracted_data, default_flow_style=False)
         # with open(extracted_file, 'w') as f:
@@ -385,9 +350,8 @@ class ProcessDataSource(object):
         """Writing intermediary yaml"""
 
         LOG.info("Writing intermediary yaml")
-        intermediary_file = "{}_intermediary.yaml".format(
-            self.data["region_name"]
-        )
+        intermediary_file = "{}_intermediary.yaml" \
+                            .format(self.data["region_name"])
         # Check of if output dir = intermediary_dir exists
         if intermediary_dir is not None:
             outfile = "{}/{}".format(intermediary_dir, intermediary_file)

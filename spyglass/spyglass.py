@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import logging
-import pkg_resources
 import pprint
 
 import click
+from pkg_resources import iter_entry_points
 import yaml
 
 from spyglass.parser.engine import ProcessDataSource
@@ -26,25 +26,23 @@ LOG = logging.getLogger("spyglass")
 
 
 @click.command()
-@click.option(
-    "--site", "-s", help="Specify the site for which manifests to be generated"
-)
-@click.option(
-    "--type", "-t", help="Specify the plugin type formation or tugboat"
-)
+@click.option("--site",
+              "-s",
+              help="Specify the site for which manifests to be generated")
+@click.option("--type",
+              "-t",
+              help="Specify the plugin type formation or tugboat")
 @click.option("--formation_url", "-f", help="Specify the formation url")
 @click.option("--formation_user", "-u", help="Specify the formation user id")
-@click.option(
-    "--formation_password", "-p", help="Specify the formation user password"
-)
+@click.option("--formation_password",
+              "-p",
+              help="Specify the formation user password")
 @click.option(
     "--intermediary",
     "-i",
     type=click.Path(exists=True),
-    help=(
-        "Intermediary file path generate manifests, "
-        "use -m also with this option"
-    ),
+    help="Intermediary file path generate manifests, "
+    "use -m also with this option",
 )
 @click.option(
     "--additional_config",
@@ -87,10 +85,8 @@ LOG = logging.getLogger("spyglass")
     "-x",
     multiple=True,
     type=click.Path(exists=True),
-    help=(
-        "Path to engineering excel file, to be passed with "
-        "generate_intermediary"
-    ),
+    help="Path to engineering excel file, to be passed with "
+    "generate_intermediary",
 )
 @click.option(
     "--excel_spec",
@@ -104,8 +100,8 @@ LOG = logging.getLogger("spyglass")
     default=20,
     multiple=False,
     show_default=True,
-    help="Loglevel NOTSET:0 ,DEBUG:10, \
-    INFO:20, WARNING:30, ERROR:40, CRITICAL:50",
+    help="Loglevel NOTSET:0 ,DEBUG:10, INFO:20, WARNING:30, ERROR:40, "
+    "CRITICAL:50",
 )
 def main(*args, **kwargs):
     # Extract user provided inputs
@@ -121,9 +117,8 @@ def main(*args, **kwargs):
     # Set Logging format
     LOG.setLevel(loglevel)
     stream_handle = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "(%(name)s): %(asctime)s %(levelname)s %(message)s"
-    )
+    formatter = \
+        logging.Formatter("(%(name)s): %(asctime)s %(levelname)s %(message)s")
     stream_handle.setFormatter(formatter)
     LOG.addHandler(stream_handle)
 
@@ -139,14 +134,12 @@ def main(*args, **kwargs):
     if generate_manifests:
         if template_dir is None:
             LOG.error("Template directory not specified!! Spyglass exited")
-            LOG.error(
-                "It is mandatory to provide it when generate_manifests is true"
-            )
+            LOG.error("It is mandatory to provide it when "
+                      "generate_manifests is true")
             exit()
 
     # Generate Intermediary yaml and manifests extracting data
     # from data source specified by plugin type
-    intermediary_yaml = {}
     if intermediary is None:
         LOG.info("Generating Intermediary yaml")
         plugin_type = kwargs.get("type", None)
@@ -154,16 +147,13 @@ def main(*args, **kwargs):
 
         # Discover the plugin and load the plugin class
         LOG.info("Load the plugin class")
-        for entry_point in pkg_resources.iter_entry_points(
-            "data_extractor_plugins"
-        ):
+        for entry_point in iter_entry_points("data_extractor_plugins"):
             if entry_point.name == plugin_type:
                 plugin_class = entry_point.load()
 
         if plugin_class is None:
             LOG.error(
-                "Unsupported Plugin type. Plugin type:{}".format(plugin_type)
-            )
+                "Unsupported Plugin type. Plugin type:{}".format(plugin_type))
             exit()
 
         # Extract data from plugin data source
@@ -179,17 +169,11 @@ def main(*args, **kwargs):
             with open(additional_config, "r") as config:
                 raw_data = config.read()
                 additional_config_data = yaml.safe_load(raw_data)
-            LOG.debug(
-                "Additional config data:\n{}".format(
-                    pprint.pformat(additional_config_data)
-                )
-            )
+            LOG.debug("Additional config data:\n{}".format(
+                pprint.pformat(additional_config_data)))
 
-            LOG.info(
-                "Apply additional configuration from:{}".format(
-                    additional_config
-                )
-            )
+            LOG.info("Apply additional configuration from:{}".format(
+                additional_config))
             data_extractor.apply_additional_data(additional_config_data)
             LOG.debug(pprint.pformat(data_extractor.site_data))
 
@@ -197,8 +181,7 @@ def main(*args, **kwargs):
         LOG.info("Apply design rules to the extracted data")
         process_input_ob = ProcessDataSource(site)
         process_input_ob.load_extracted_data_from_data_source(
-            data_extractor.site_data
-        )
+            data_extractor.site_data)
 
         LOG.info("Generate intermediary yaml")
         intermediary_yaml = process_input_ob.generate_intermediary_yaml()

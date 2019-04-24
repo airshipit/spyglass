@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jinja2 import Environment
-from jinja2 import FileSystemLoader
 import logging
 import os
+
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+
 from spyglass.site_processors.base import BaseProcessor
 
 LOG = logging.getLogger(__name__)
@@ -23,6 +25,7 @@ LOG = logging.getLogger(__name__)
 
 class SiteProcessor(BaseProcessor):
     def __init__(self, intermediary_yaml, manifest_dir):
+        super().__init__()
         self.yaml_data = intermediary_yaml
         self.manifest_dir = manifest_dir
 
@@ -47,20 +50,17 @@ class SiteProcessor(BaseProcessor):
 
         for dirpath, dirs, files in os.walk(template_dir_abspath):
             for filename in files:
-                j2_env = Environment(
-                    autoescape=True,
-                    loader=FileSystemLoader(dirpath),
-                    trim_blocks=True,
-                )
-                j2_env.filters[
-                    "get_role_wise_nodes"
-                ] = self.get_role_wise_nodes
+                j2_env = Environment(autoescape=True,
+                                     loader=FileSystemLoader(dirpath),
+                                     trim_blocks=True)
+                j2_env.filters["get_role_wise_nodes"] = \
+                    self.get_role_wise_nodes
                 templatefile = os.path.join(dirpath, filename)
                 outdirs = dirpath.split("templates")[1]
 
-                outfile_path = "{}{}{}".format(
-                    site_manifest_dir, self.yaml_data["region_name"], outdirs
-                )
+                outfile_path = "{}{}{}".format(site_manifest_dir,
+                                               self.yaml_data["region_name"],
+                                               outdirs)
                 outfile_yaml = templatefile.split(".j2")[0].split("/")[-1]
                 outfile = outfile_path + "/" + outfile_yaml
                 outfile_dir = os.path.dirname(outfile)
@@ -74,10 +74,7 @@ class SiteProcessor(BaseProcessor):
                     out.close()
                 except IOError as ioe:
                     LOG.error(
-                        "IOError during rendering:{}".format(outfile_yaml)
-                    )
+                        "IOError during rendering:{}".format(outfile_yaml))
                     raise SystemExit(
                         "Error when generating {:s}:\n{:s}".format(
-                            outfile, ioe.strerror
-                        )
-                    )
+                            outfile, ioe.strerror))

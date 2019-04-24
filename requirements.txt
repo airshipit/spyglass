@@ -4,4 +4,3 @@ netaddr
 openpyxl==2.5.4
 pyyaml==3.12
 requests
-six

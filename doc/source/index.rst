@@ -32,4 +32,5 @@ fed to Shipyard for site deployment / updates.
    :maxdepth: 2
 
    getting_started
+   developer_quickstart
    tugboat

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
 from setuptools import find_packages
+from setuptools import setup
 
 setup(
     name='spyglass',
@@ -35,9 +35,11 @@ setup(
         'console_scripts': [
             'spyglass=spyglass.spyglass:main',
         ],
-        'data_extractor_plugins':
-        ['formation=spyglass.data_extractor.plugins.formation:FormationPlugin',
-        'tugboat=spyglass.data_extractor.plugins.tugboat.tugboat:TugboatPlugin',
+        'data_extractor_plugins': [
+            'formation='
+            'spyglass.data_extractor.plugins.formation:FormationPlugin',
+            'tugboat='
+            'spyglass.data_extractor.plugins.tugboat.tugboat:TugboatPlugin',
         ]
     },
     include_package_data=True,

@@ -14,7 +14,7 @@
 
 
 class BaseProcessor(object):
-    def __init__(self, file_name):
+    def __init__(self):
         pass
 
     def render_template(self, template):
@@ -32,9 +32,8 @@ class BaseProcessor(object):
                         "pxe": yaml_data["baremetal"][rack][host]["ip"]["pxe"],
                         "oam": yaml_data["baremetal"][rack][host]["ip"]["oam"],
                     }
-                elif (
-                    yaml_data["baremetal"][rack][host]["type"] == "controller"
-                ):
+                elif yaml_data["baremetal"][rack][host]["type"] \
+                        == "controller":
                     hosts["masters"].append(host)
                 else:
                     hosts["workers"].append(host)
