@@ -21,7 +21,9 @@ PROXY             ?= http://proxy.foo.com:8000
 NO_PROXY          ?= localhost,127.0.0.1,.svc.cluster.local
 USE_PROXY         ?= false
 PUSH_IMAGE        ?= false
-LABEL             ?= commit-id
+# use this variable for image labels added in internal build process
+LABEL             ?= org.airshipit.build=community
+COMMIT            ?= $(shell git rev-parse HEAD)
 IMAGE             ?= $(DOCKER_REGISTRY)/$(IMAGE_PREFIX)/$(IMAGE_NAME):$(IMAGE_TAG)
 PYTHON_BASE_IMAGE ?= python:3.6
 export
@@ -34,13 +36,16 @@ images: build_spyglass
 .PHONY: run_images
 run_images: run_spyglass
 
+# Run the Spyglass container and exercise simple tests
 .PHONY: run_spyglass
 run_spyglass: build_spyglass
 	tools/spyglass.sh --help
 
 .PHONY: security
 security:
-	tox -c tox.ini -e bandit
+	tox -e bandit
+
+# TODO (alexanderhughes) add tox -e py36 tests once implemented in Spyglass
 
 # Perform Linting
 .PHONY: lint
@@ -53,7 +58,11 @@ format: py_format
 .PHONY: build_spyglass
 build_spyglass:
 ifeq ($(USE_PROXY), true)
-	docker build -t $(IMAGE) --network=host --label $(LABEL) -f images/spyglass/Dockerfile \
+	docker build -t $(IMAGE) --network=host --label $(LABEL) \
+		--label "org.opencontainers.image.revision=$(COMMIT)" \
+		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
+		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
+		-f images/spyglass/Dockerfile \
 		--build-arg FROM=$(PYTHON_BASE_IMAGE) \
 		--build-arg http_proxy=$(PROXY) \
 		--build-arg https_proxy=$(PROXY) \
@@ -63,13 +72,21 @@ ifeq ($(USE_PROXY), true)
 		--build-arg NO_PROXY=$(NO_PROXY) \
 		--build-arg ctx_base=$(SPYGLASS_BUILD_CTX) .
 else
-	docker build -t $(IMAGE) --network=host --label $(LABEL) -f images/spyglass/Dockerfile \
+	docker build -t $(IMAGE) --network=host --label $(LABEL) \
+		--label "org.opencontainers.image.revision=$(COMMIT)" \
+		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
+		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
+		-f images/spyglass/Dockerfile \
 		--build-arg FROM=$(PYTHON_BASE_IMAGE) \
 		--build-arg ctx_base=$(SPYGLASS_BUILD_CTX) .
 endif
 ifeq ($(PUSH_IMAGE), true)
 	docker push $(IMAGE)
 endif
+
+.PHONY: docs
+docs: clean
+	tox -e docs
 
 .PHONY: clean
 clean:
