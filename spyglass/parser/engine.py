@@ -86,18 +86,6 @@ class ProcessDataSource(object):
         LOG.debug("Genesis Node Details:\n{}".format(
             pprint.pformat(self.genesis_node)))
 
-    def _get_genesis_node_ip(self):
-        """Returns the genesis node ip"""
-
-        ip = "0.0.0.0"
-        LOG.info("Getting Genesis Node IP")
-        if not self.genesis_node:
-            self._get_genesis_node_details()
-        ips = self.genesis_node.get("ip", "")
-        if ips:
-            ip = ips.get("oam", "0.0.0.0")
-        return ip
-
     def _validate_intermediary_data(self, data):
         """Validates the intermediary data before generating manifests.
 
@@ -312,7 +300,7 @@ class ProcessDataSource(object):
 
             # OAM have default routes. Only for cruiser. TBD
             if net_type == "oam":
-                routes = ["0.0.0.0/0"]
+                routes = ["0.0.0.0/0"]  # nosec
             else:
                 routes = []
             vlan_network_data_[net_type]["routes"] = routes
