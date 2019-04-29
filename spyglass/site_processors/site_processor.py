@@ -24,6 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 class SiteProcessor(BaseProcessor):
+
     def __init__(self, intermediary_yaml, manifest_dir):
         super().__init__()
         self.yaml_data = intermediary_yaml

@@ -19,6 +19,7 @@ LOG = logging.getLogger(__name__)
 
 
 class BaseError(Exception):
+
     def __init__(self, msg):
         self.msg = msg
 
@@ -28,6 +29,7 @@ class BaseError(Exception):
 
 
 class NoSpecMatched(BaseError):
+
     def __init__(self, excel_specs):
         self.specs = excel_specs
 

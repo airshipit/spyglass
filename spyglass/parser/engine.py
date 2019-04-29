@@ -27,6 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 class ProcessDataSource(object):
+
     def __init__(self, site_type):
         # Initialize intermediary and save site type
         self._initialize_intermediary()
@@ -315,6 +316,7 @@ class ProcessDataSource(object):
         """
 
         # TBR(pg710r): for internal testing
+
         """
         raw_data = self._read_file('extracted_data.yaml')
         extracted_data = yaml.safe_load(raw_data)

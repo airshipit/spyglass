@@ -18,6 +18,7 @@ class BaseError(Exception):
 
 
 class NotEnoughIp(BaseError):
+
     def __init__(self, cidr, total_nodes):
         self.cidr = cidr
         self.total_nodes = total_nodes
@@ -27,6 +28,7 @@ class NotEnoughIp(BaseError):
 
 
 class NoSpecMatched(BaseError):
+
     def __init__(self, excel_specs):
         self.specs = excel_specs
 

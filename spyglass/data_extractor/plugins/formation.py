@@ -29,6 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class FormationPlugin(BaseDataSourcePlugin):
+
     def __init__(self, region):
         # Save site name is valid
         if not region:
@@ -365,8 +366,8 @@ class FormationPlugin(BaseDataSourcePlugin):
         for vlan_ in vlans:
             if len(vlan_.vlan.ipv4) != 0:
                 tmp_vlan = {
-                    "name":
-                    self._get_network_name_from_vlan_name(vlan_.vlan.name),
+                    "name": self._get_network_name_from_vlan_name(
+                        vlan_.vlan.name),
                     "vlan": vlan_.vlan.vlan_id,
                     "subnet": vlan_.vlan.subnet_range,
                     "gateway": vlan_.ipv4_gateway,
