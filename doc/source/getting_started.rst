@@ -28,7 +28,7 @@ for a site deployment. These site manifest YAML files generated
 by spyglass will be saved in a Git repository, from where Pegleg
 can access and aggregate them. This aggregated file can then be
 fed to Shipyard for site deployment / updates.
-Reference: https://review.openstack.org/#/c/605227
+Reference: https://review.opendev.org/#/c/605227
 
 Architecture
 ------------
@@ -129,7 +129,7 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-    git clone https://github.com/openstack/airship-spyglass
+    git clone https://opendev.org/airship/spyglass.git
 
 2. Install the required packages in spyglass:
 

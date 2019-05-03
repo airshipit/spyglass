@@ -19,7 +19,7 @@ setup(
     name='spyglass',
     version='0.0.1',
     description='Generate Airship specific yaml manifests from data sources',
-    url='http://github.com/openstack/airship-spyglass',
+    url='https://opendev.org/airship/spyglass.git',
     python_requires='>=3.5.0',
     license='Apache 2.0',
     packages=find_packages(),
