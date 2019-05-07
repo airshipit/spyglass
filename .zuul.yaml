@@ -16,3 +16,29 @@
     gate:
       jobs:
         - openstack-tox-pep8
+
+- secret:
+    name: airship_spyglass_quay_creds
+    data:
+      username: !encrypted/pkcs1-oaep
+        - vW9FvKGXcUOLEaq8gjcbfrUXZWen5he2FfNVs4IIa7PtXMToiSbw4+07ZpkqhmgLAvVJ1
+          xCk274kPoYztCEOODyHUCJQVkROBhb2Phrzm1RDq+oNssDWgeUIzHf1FZmXJOZCRYMhrz
+          I3xg8+lWRlKeFS6u8M10pkd8iW5Gt7u19gW4dinerOnqyhLKoJfPQ00pzs1lIxAh0r89e
+          ZXNJr4K0n8pMp43ihZN9EHcU7zGb8kxPqUTt6NrXejaWDm3IPO/TbSnGTOLhctcMV7fFa
+          MWim7JxIxwdegoYGv9hMoJhXMMRFeUVy/iNFA9aZCl9TR01oHwXNOdv94pJWyNDmFG2Cy
+          BxAQHtXVZdQlRpcmqcrS3iIrEkuyoXyGjaYqrMX/OpPdmmPnvL2Gl4QQjfRo2eAc5Ma6M
+          4Iuq1zv2ncn//NBTvnFGRF5P0Late+6ZPC4j/UVeozT0u4wO8T/C+js3nhNnjhvDzsWXm
+          KLlO1O0KXlCAN8GVvVH/0yMxFqjE3xN5UK+3EX4/6Qv6ZYp9LqQ6BwNmH/uFEuDGKqviF
+          kF5mgza/c3+YV8ig9zGBzJcMmjzB5EZ/SDSFNgIne7ky60jyZNaS7EZgb2TmBHcpd8oXn
+          JdQXq4maP1w6DRFgbxnfZMTI76UMrzSxR0jKskagOJFFqeUjr9zn+aV07E+ijc=
+      password: !encrypted/pkcs1-oaep
+        - bORgw0TIMX1NVS2MnFrL10ZzxcXQ76ndpziFKxGLFgB1b+9D24HylcAs64SPw3sT5cSGR
+          TUqOtWfPSWCnXWssPtrlUVIwUIOZjUq5DhJ8dw8gjrKGx9p1nuVRZVLDw9PZe7yTPVvM9
+          MJugMrN/WdIlzYneiT3iZy0M9lx7PkB32MNVh/hfsRCCCnY3MnNcKJo5FHXJYcwIrFao+
+          oR+YKJGTxNPeO7fxQndZH43dbuM3yv4CAOb8wumqyufiBCdiRLVLeEl4oEGhHZOSu2G+U
+          jSzUmPSYCWM/aAaHYeiDrf6ZCIKlV6OEFxf9Ta7Fnvxth6nZJHub0xTFfvPwccUAlP8Y4
+          80DlE0/ApEN4WAt3fTImUh4m/RcmZ1fS15qf+SbWGx8mIqk10StJIDGQViqyLpcOF3s2F
+          BOLzcyDz4Lp0YudBs1i0YOtNB7Rr6WiJoHYZTILj47f/F1Uz/uXFaR7Kqg+GFRl+OvaI0
+          V3rDRQ6VlEnFYOrY4UMypxY1qSn4xRvYDX3ZtNToe+WOazTABT6b4Xonh7kKoD+Vmysn3
+          mc6gexwzmBflO+yyaokpIzU5rIP5mQ6yWBSyoXVO94Ix11VdL3COQppfg7KO1/8gW+Kmh
+          MSQhHBn34oof6CaDpNSDlvIdnl/MmGmfMiSB5sdTbzho7VL9TrjKh0buI1IDXg=
