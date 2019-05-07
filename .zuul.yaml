@@ -13,9 +13,47 @@
     check:
       jobs:
         - openstack-tox-pep8
+        - spyglass-docker-build-gate
     gate:
       jobs:
         - openstack-tox-pep8
+        - spyglass-docker-build-gate
+    post:
+      jobs:
+        - spyglass-docker-publish
+
+- nodeset:
+    name: spyglass-single-node
+    nodes:
+      - name: primary
+        label: ubuntu-xenial
+
+- job:
+    name: spyglass-docker-build-gate
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: spyglass-single-node
+    vars:
+      publish: false
+      tags:
+        dynamic:
+          patch_set: true
+
+- job:
+    name: spyglass-docker-publish
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: armada-single-node
+    secrets:
+      - airship_spyglass_quay_creds
+    vars:
+      publish: true
+      tags:
+        dynamic:
+          branch: true
+          commit: true
+        static:
+          - latest
 
 - secret:
     name: airship_spyglass_quay_creds
