@@ -72,8 +72,8 @@ class ProcessDataSource(object):
                                        ["subnet"]
                                        [0])
 
-        LOG.debug("Network subnets:\n{}".format(
-            pprint.pformat(network_subnets)))
+        LOG.debug(
+            "Network subnets:\n{}".format(pprint.pformat(network_subnets)))
         return network_subnets
 
     def _get_genesis_node_details(self):
@@ -84,8 +84,9 @@ class ProcessDataSource(object):
                 if rack_hosts[host]["type"] == "genesis":
                     self.genesis_node = rack_hosts[host]
                     self.genesis_node["name"] = host
-        LOG.debug("Genesis Node Details:\n{}".format(
-            pprint.pformat(self.genesis_node)))
+        LOG.debug(
+            "Genesis Node Details:\n{}".format(
+                pprint.pformat(self.genesis_node)))
 
     def _validate_intermediary_data(self, data):
         """Validates the intermediary data before generating manifests.
@@ -226,8 +227,9 @@ class ProcessDataSource(object):
                     host_networks[net] = str(ips[host_idx + default_ip_offset])
                 host_idx = host_idx + 1
 
-        LOG.debug("Updated baremetal host:\n{}".format(
-            pprint.pformat(self.data["baremetal"])))
+        LOG.debug(
+            "Updated baremetal host:\n{}".format(
+                pprint.pformat(self.data["baremetal"])))
 
     def _update_vlan_net_data(self, rule_data):
         """Offset allocation rules to determine ip address range(s)
@@ -259,8 +261,9 @@ class ProcessDataSource(object):
             (vlan_network_data_["ingress"]
                                ["subnet"]
                                [0])
-        LOG.debug("Updated network bgp data:\n{}".format(
-            pprint.pformat(self.data["network"]["bgp"])))
+        LOG.debug(
+            "Updated network bgp data:\n{}".format(
+                pprint.pformat(self.data["network"]["bgp"])))
 
         LOG.info("Apply network design rules:vlan")
         # Apply rules to vlan networks
@@ -306,8 +309,9 @@ class ProcessDataSource(object):
                 routes = []
             vlan_network_data_[net_type]["routes"] = routes
 
-        LOG.debug("Updated vlan network data:\n{}".format(
-            pprint.pformat(vlan_network_data_)))
+        LOG.debug(
+            "Updated vlan network data:\n{}".format(
+                pprint.pformat(vlan_network_data_)))
 
     def load_extracted_data_from_data_source(self, extracted_data):
         """Function called from cli.py to pass extracted data
@@ -324,8 +328,9 @@ class ProcessDataSource(object):
 
         LOG.info("Loading plugin data source")
         self.data = extracted_data
-        LOG.debug("Extracted data from plugin:\n{}".format(
-            pprint.pformat(extracted_data)))
+        LOG.debug(
+            "Extracted data from plugin:\n{}".format(
+                pprint.pformat(extracted_data)))
         # Uncomment following segment for debugging purpose.
         # extracted_file = "extracted_file.yaml"
         # yaml_file = yaml.dump(extracted_data, default_flow_style=False)

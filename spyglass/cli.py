@@ -37,9 +37,10 @@ def tugboat_required_callback(ctx, param, value):
     if 'plugin_type' not in ctx.params or \
             ctx.params['plugin_type'] == 'tugboat':
         if not value:
-            raise click.UsageError('%s is required for the tugboat '
-                                   'plugin.' % str(param.name),
-                                   ctx=ctx)
+            raise click.UsageError(
+                '%s is required for the tugboat '
+                'plugin.' % str(param.name),
+                ctx=ctx)
     return value
 
 
@@ -48,9 +49,10 @@ def formation_required_callback(ctx, param, value):
     if 'plugin_type' in ctx.params:
         if ctx.params['plugin_type'] == 'formation':
             if not value:
-                raise click.UsageError('%s is required for the '
-                                       'formation plugin.' % str(param.name),
-                                       ctx=ctx)
+                raise click.UsageError(
+                    '%s is required for the '
+                    'formation plugin.' % str(param.name),
+                    ctx=ctx)
             return value
     return ['', '', '']
 
@@ -62,7 +64,7 @@ PLUGIN_TYPE_OPTION = click.option(
     type=click.Choice(['formation', 'tugboat']),
     default='tugboat',
     show_default=True,
-    help='The plugin type to use.')  # yapf: disable
+    help='The plugin type to use.')
 
 # TODO(ianp): Either provide a prompt for passwords or use environment
 # variable so passwords are no longer plain text
@@ -71,8 +73,9 @@ FORMATION_TARGET_OPTION = click.option(
     '--formation-target',
     'formation_target',
     nargs=3,
-    help=('Target URL, username, and password for formation plugin. Required '
-          'for formation plugin.'),
+    help=(
+        'Target URL, username, and password for formation plugin. Required '
+        'for formation plugin.'),
     callback=formation_required_callback)
 
 INTERMEDIARY_DIR_OPTION = click.option(
@@ -97,8 +100,9 @@ EXCEL_SPEC_OPTION = click.option(
     '--excel-spec',
     'excel_spec',
     type=click.Path(exists=True, readable=True, dir_okay=False),
-    help=('Path to the Excel specification YAML file for the engineering '
-          'Excel file. Required for tugboat plugin.'),
+    help=(
+        'Path to the Excel specification YAML file for the engineering '
+        'Excel file. Required for tugboat plugin.'),
     callback=tugboat_required_callback)
 
 SITE_CONFIGURATION_FILE_OPTION = click.option(
@@ -135,11 +139,12 @@ MANIFEST_DIR_OPTION = click.option(
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.option('-v',
-              '--verbose',
-              is_flag=True,
-              default=False,
-              help='Enable debug messages in log.')
+@click.option(
+    '-v',
+    '--verbose',
+    is_flag=True,
+    default=False,
+    help='Enable debug messages in log.')
 def main(*, verbose):
     """CLI for Airship Spyglass"""
     if verbose:
@@ -149,8 +154,9 @@ def main(*, verbose):
     logging.basicConfig(format=LOG_FORMAT, level=log_level)
 
 
-def _intermediary_helper(plugin_type, formation_data, site, excel_file,
-                         excel_spec, additional_configuration):
+def _intermediary_helper(
+        plugin_type, formation_data, site, excel_file, excel_spec,
+        additional_configuration):
     LOG.info("Generating Intermediary yaml")
     plugin_type = plugin_type
     plugin_class = None
@@ -170,13 +176,14 @@ def _intermediary_helper(plugin_type, formation_data, site, excel_file,
     # Extract data from plugin data source
     LOG.info("Extract data from plugin data source")
     data_extractor = plugin_class(site)
-    plugin_conf = data_extractor.get_plugin_conf({
-        'excel': excel_file,
-        'excel_spec': excel_spec,
-        'formation_url': formation_data[0],
-        'formation_user': formation_data[1],
-        'formation_password': formation_data[2]
-    })  # yapf: disable
+    plugin_conf = data_extractor.get_plugin_conf(
+        {
+            'excel': excel_file,
+            'excel_spec': excel_spec,
+            'formation_url': formation_data[0],
+            'formation_user': formation_data[1],
+            'formation_password': formation_data[2]
+        })
     data_extractor.set_config_opts(plugin_conf)
     data_extractor.extract_data()
 
@@ -186,8 +193,9 @@ def _intermediary_helper(plugin_type, formation_data, site, excel_file,
         with open(additional_config, 'r') as config:
             raw_data = config.read()
             additional_config_data = yaml.safe_load(raw_data)
-        LOG.debug("Additional config data:\n{}".format(
-            pprint.pformat(additional_config_data)))
+        LOG.debug(
+            "Additional config data:\n{}".format(
+                pprint.pformat(additional_config_data)))
 
         LOG.info(
             "Apply additional configuration from:{}".format(additional_config))
@@ -202,9 +210,10 @@ def _intermediary_helper(plugin_type, formation_data, site, excel_file,
     return process_input_ob
 
 
-@main.command('i',
-              short_help='generate intermediary',
-              help='Generates an intermediary file from passed excel data.')
+@main.command(
+    'i',
+    short_help='generate intermediary',
+    help='Generates an intermediary file from passed excel data.')
 @PLUGIN_TYPE_OPTION
 @FORMATION_TARGET_OPTION
 @INTERMEDIARY_DIR_OPTION
@@ -212,20 +221,21 @@ def _intermediary_helper(plugin_type, formation_data, site, excel_file,
 @EXCEL_SPEC_OPTION
 @SITE_CONFIGURATION_FILE_OPTION
 @SITE_NAME_CONFIGURATION_OPTION
-def generate_intermediary(*, plugin_type, formation_target, intermediary_dir,
-                          excel_file, excel_spec, site_configuration,
-                          site_name):
-    process_input_ob = _intermediary_helper(plugin_type, formation_target,
-                                            site_name, excel_file, excel_spec,
-                                            site_configuration)
+def generate_intermediary(
+        *, plugin_type, formation_target, intermediary_dir, excel_file,
+        excel_spec, site_configuration, site_name):
+    process_input_ob = _intermediary_helper(
+        plugin_type, formation_target, site_name, excel_file, excel_spec,
+        site_configuration)
     LOG.info("Generate intermediary yaml")
     process_input_ob.generate_intermediary_yaml()
     process_input_ob.dump_intermediary_file(intermediary_dir)
 
 
-@main.command('m',
-              short_help='generates manifest and intermediary',
-              help='Generates manifest and intermediary files.')
+@main.command(
+    'm',
+    short_help='generates manifest and intermediary',
+    help='Generates manifest and intermediary files.')
 @click.option(
     '-i',
     '--save-intermediary',
@@ -243,14 +253,13 @@ def generate_intermediary(*, plugin_type, formation_target, intermediary_dir,
 @SITE_NAME_CONFIGURATION_OPTION
 @TEMPLATE_DIR_OPTION
 @MANIFEST_DIR_OPTION
-def generate_manifests_and_intermediary(*, save_intermediary, plugin_type,
-                                        formation_target, intermediary_dir,
-                                        excel_file, excel_spec,
-                                        site_configuration, site_name,
-                                        template_dir, manifest_dir):
-    process_input_ob = _intermediary_helper(plugin_type, formation_target,
-                                            site_name, excel_file, excel_spec,
-                                            site_configuration)
+def generate_manifests_and_intermediary(
+        *, save_intermediary, plugin_type, formation_target, intermediary_dir,
+        excel_file, excel_spec, site_configuration, site_name, template_dir,
+        manifest_dir):
+    process_input_ob = _intermediary_helper(
+        plugin_type, formation_target, site_name, excel_file, excel_spec,
+        site_configuration)
     LOG.info("Generate intermediary yaml")
     intermediary_yaml = process_input_ob.generate_intermediary_yaml()
     if save_intermediary:
@@ -264,15 +273,17 @@ def generate_manifests_and_intermediary(*, save_intermediary, plugin_type,
     processor_engine.render_template(template_dir)
 
 
-@main.command('mi',
-              short_help='generates manifest from intermediary',
-              help='Generate manifest files from specified intermediary file.')
-@click.argument('intermediary_file',
-                type=click.Path(exists=True, readable=True, dir_okay=False))
+@main.command(
+    'mi',
+    short_help='generates manifest from intermediary',
+    help='Generate manifest files from specified intermediary file.')
+@click.argument(
+    'intermediary_file',
+    type=click.Path(exists=True, readable=True, dir_okay=False))
 @TEMPLATE_DIR_OPTION
 @MANIFEST_DIR_OPTION
-def generate_manifests_using_intermediary(*, intermediary_file, template_dir,
-                                          manifest_dir):
+def generate_manifests_using_intermediary(
+        *, intermediary_file, template_dir, manifest_dir):
     LOG.info("Loading intermediary from user provided input")
     with open(intermediary_file, 'r') as f:
         raw_data = f.read()

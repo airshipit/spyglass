@@ -109,10 +109,10 @@ class ExcelParser(object):
             host_profile = ws.cell(row=row, column=host_profile_col).value
             try:
                 if host_profile is None:
-                    raise RuntimeError("No value read from "
-                                       "{} sheet:{} row:{}, col:{}".format(
-                                           self.file_name, self.spec, row,
-                                           host_profile_col))
+                    raise RuntimeError(
+                        "No value read from "
+                        "{} sheet:{} row:{}, col:{}".format(
+                            self.file_name, self.spec, row, host_profile_col))
             except RuntimeError as rerror:
                 LOG.critical(rerror)
                 sys.exit("Tugboat exited!!")
@@ -123,10 +123,12 @@ class ExcelParser(object):
                 "type": type,  # FIXME (Ian Pittwood): shadows type built-in
             }
             row += 1
-        LOG.debug("ipmi data extracted from excel:\n{}".format(
-            pprint.pformat(ipmi_data)))
-        LOG.debug("host data extracted from excel:\n{}".format(
-            pprint.pformat(hosts)))
+        LOG.debug(
+            "ipmi data extracted from excel:\n{}".format(
+                pprint.pformat(ipmi_data)))
+        LOG.debug(
+            "host data extracted from excel:\n{}".format(
+                pprint.pformat(hosts)))
         return [ipmi_data, hosts]
 
     def get_private_vlan_data(self, ws):
@@ -145,8 +147,8 @@ class ExcelParser(object):
                     vlan = vlan.lower()
                 vlan_data[vlan] = cell_value
             row += 1
-        LOG.debug("vlan data extracted from excel:\n%s" %
-                  pprint.pformat(vlan_data))
+        LOG.debug(
+            "vlan data extracted from excel:\n%s" % pprint.pformat(vlan_data))
         return vlan_data
 
     def get_private_network_data(self):
@@ -231,8 +233,9 @@ class ExcelParser(object):
             if cell_value:
                 network_data["oob"]["subnet"].append(self.sanitize(cell_value))
             col += 1
-        LOG.debug("public network data extracted from excel:\n%s" %
-                  pprint.pformat(network_data))
+        LOG.debug(
+            "public network data extracted from excel:\n%s" %
+            pprint.pformat(network_data))
         return network_data
 
     def get_site_info(self):
@@ -260,15 +263,15 @@ class ExcelParser(object):
         ntp_servers = ws.cell(row=ntp_row, column=ntp_col).value
         try:
             if dns_servers is None:
-                raise RuntimeError("No value for dns_server from: "
-                                   "{} Sheet:'{}' Row:{} Col:{}".format(
-                                       self.file_name, provided_sheetname,
-                                       dns_row, dns_col))
+                raise RuntimeError(
+                    "No value for dns_server from: "
+                    "{} Sheet:'{}' Row:{} Col:{}".format(
+                        self.file_name, provided_sheetname, dns_row, dns_col))
             if ntp_servers is None:
-                raise RuntimeError("No value for ntp_server from: "
-                                   "{} Sheet:'{}' Row:{} Col:{}".format(
-                                       self.file_name, provided_sheetname,
-                                       ntp_row, ntp_col))
+                raise RuntimeError(
+                    "No value for ntp_server from: "
+                    "{} Sheet:'{}' Row:{} Col:{}".format(
+                        self.file_name, provided_sheetname, ntp_row, ntp_col))
         except RuntimeError as rerror:
             LOG.critical(rerror)
             sys.exit("Tugboat exited!!")
@@ -380,8 +383,8 @@ class ExcelParser(object):
             },
             "site_info": site_info_data,
         }
-        LOG.debug("Location data extracted from excel:\n%s" %
-                  pprint.pformat(data))
+        LOG.debug(
+            "Location data extracted from excel:\n%s" % pprint.pformat(data))
         return data
 
     def combine_excel_design_specs(self, filenames):

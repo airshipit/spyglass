@@ -304,8 +304,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
             baremetal[rack_name][host_name] = temp_host
 
-        LOG.debug("Baremetal information:\n{}".format(
-            pprint.pformat(baremetal)))
+        LOG.debug(
+            "Baremetal information:\n{}".format(pprint.pformat(baremetal)))
 
         return baremetal
 
@@ -349,8 +349,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         domain_data = self.get_domain_name(self.region)
         site_info["domain"] = domain_data
 
-        LOG.debug("Extracted site information:\n{}".format(
-            pprint.pformat(site_info)))
+        LOG.debug(
+            "Extracted site information:\n{}".format(
+                pprint.pformat(site_info)))
 
         return site_info
 
@@ -401,8 +402,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
             network_data["vlan_network_data"][net["name"]] = tmp_net
 
-        LOG.debug("Extracted network data:\n{}".format(
-            pprint.pformat(network_data)))
+        LOG.debug(
+            "Extracted network data:\n{}".format(pprint.pformat(network_data)))
         return network_data
 
     def extract_data(self):
