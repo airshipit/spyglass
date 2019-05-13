@@ -178,13 +178,7 @@ class TestIPList(unittest.TestCase):
         IPList should automatically fill in any missing entries with the value
         set by models.DATA_DEFAULT.
         """
-        expected_message = \
-            '%s is not a valid IP address.' % models.DATA_DEFAULT
-        with self.assertLogs(level='WARNING') as test_log:
-            result = models.IPList(**self.MISSING_IP)
-            self.assertEqual(len(test_log.output), 1)
-            self.assertEqual(len(test_log.records), 1)
-            self.assertIn(expected_message, test_log.output[0])
+        result = models.IPList(**self.MISSING_IP)
         self.assertEqual(self.MISSING_IP['oob'], result.oob)
         self.assertEqual(models.DATA_DEFAULT, result.oam)
         self.assertEqual(self.MISSING_IP['calico'], result.calico)
@@ -548,6 +542,8 @@ class TestNetwork(unittest.TestCase):
 
     def test_dict_from_class(self):
         """Tests production of a dictionary from a Network object"""
+        oob = copy(self.VLAN_DATA)
+        oob.pop('vlan')
         expected_result = {
             'bgp': self.BGP_DATA,
             'vlan_network_data': {
@@ -555,7 +551,7 @@ class TestNetwork(unittest.TestCase):
                     **self.VLAN_DATA
                 },
                 'oob': {
-                    **self.VLAN_DATA
+                    **oob
                 },
                 'pxe': {
                     **self.VLAN_DATA
@@ -597,12 +593,12 @@ class TestNetwork(unittest.TestCase):
         result = models.Network(self.vlan_network_data, bgp=self.BGP_DATA)
         self.assertEqual(
             self.VLAN_DATA['vlan'],
-            result.get_vlan_data_by_name('oob').vlan)
-        new_vlan_data = {'vlan_network_data': {'oob': {'vlan': '12'}}}
+            result.get_vlan_data_by_name('oam').vlan)
+        new_vlan_data = {'vlan_network_data': {'oam': {'vlan': '12'}}}
         result.merge_additional_data(new_vlan_data)
         self.assertEqual(
-            new_vlan_data['vlan_network_data']['oob']['vlan'],
-            result.get_vlan_data_by_name('oob').vlan)
+            new_vlan_data['vlan_network_data']['oam']['vlan'],
+            result.get_vlan_data_by_name('oam').vlan)
 
     def test_get_vlan_data_by_name(self):
         """Tests retrieval of VLANNetworkData by name attribute"""
@@ -686,8 +682,10 @@ class TestSiteInfo(unittest.TestCase):
     def test_dict_from_class(self):
         """Tests production of a dictionary from a SiteInfo object"""
         expected_results = copy(self.SITE_INFO)
-        expected_results['dns'] = ','.join(expected_results['dns'])
-        expected_results['ntp'] = ','.join(expected_results['ntp'])
+        expected_results['dns'] = \
+            {'servers': ','.join(expected_results['dns'])}
+        expected_results['ntp'] = \
+            {'servers': ','.join(expected_results['ntp'])}
         expected_results['name'] = self.SITE_NAME
         result = models.SiteInfo(self.SITE_NAME, **self.SITE_INFO)
         self.assertDictEqual(expected_results, result.dict_from_class())
@@ -759,6 +757,8 @@ class TestSiteDocumentData(unittest.TestCase):
 
         site_info = SiteInfo()
         site_info.dict_from_class.return_value = mock_site_info_data
+        type(SiteInfo()).region_name = mock.PropertyMock(
+            return_value='region_name')
         network = Network()
         network.dict_from_class.return_value = mock_network_data
         baremetal = [Rack(), Rack()]
@@ -771,6 +771,7 @@ class TestSiteDocumentData(unittest.TestCase):
                 **mock_baremetal1_data
             },
             'network': mock_network_data,
+            'region_name': 'region_name',
             'site_info': mock_site_info_data,
             'storage': self.STORAGE_DICT
         }

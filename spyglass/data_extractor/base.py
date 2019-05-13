@@ -14,9 +14,8 @@
 
 import abc
 import logging
-import pprint
 
-from spyglass.utils import utils
+from spyglass.data_extractor import models
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         self.source_type = None
         self.source_name = None
         self.region = region
-        self.site_data = {}
+        self.site_data = None
 
     @abc.abstractmethod
     def set_config_opts(self, conf):
@@ -63,10 +62,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """Return list of racks in the region
 
         :param string region: Region name
-        :returns: list of rack names
+        :returns: list of Rack objects
         :rtype: list
-
-        Example: ['rack01', 'rack02']
         """
 
         return []
@@ -77,20 +74,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         :param string region: Region name
         :param string rack: Rack name
-        :returns: list of hosts information
-        :rtype: list of dict
-
-        Example: [
-                     {
-                         'name': 'host01',
-                         'type': 'controller',
-                         'host_profile': 'hp_01'
-                     },
-                     {
-                         'name': 'host02',
-                         'type': 'compute',
-                         'host_profile': 'hp_02'}
-                 ]
+        :returns: list of Host objects containing a rack's host data
+        :rtype: list of models.Host
         """
 
         return []
@@ -100,47 +85,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """Return list of networks in the region
 
         :param string region: Region name
-        :returns: list of networks and their vlans
-        :rtype: list of dict
-
-        Example: [
-                     {
-                         'name': 'oob',
-                         'vlan': '41',
-                         'subnet': '192.168.1.0/24',
-                         'gateway': '192.168.1.1'
-                     },
-                     {
-                         'name': 'pxe',
-                         'vlan': '42',
-                         'subnet': '192.168.2.0/24',
-                         'gateway': '192.168.2.1'
-                     },
-                     {
-                         'name': 'oam',
-                         'vlan': '43',
-                         'subnet': '192.168.3.0/24',
-                         'gateway': '192.168.3.1'
-                     },
-                     {
-                         'name': 'ksn',
-                         'vlan': '44',
-                         'subnet': '192.168.4.0/24',
-                         'gateway': '192.168.4.1'
-                     },
-                     {
-                         'name': 'storage',
-                         'vlan': '45',
-                         'subnet': '192.168.5.0/24',
-                         'gateway': '192.168.5.1'
-                     },
-                     {
-                         'name': 'overlay',
-                         'vlan': '45',
-                         'subnet': '192.168.6.0/24',
-                         'gateway': '192.168.6.1'
-                     }
-                 ]
+        :returns: list of network data
+        :rtype: list of models.VLANNetworkData
         """
 
         # TODO(nh863p): Expand the return type if they are rack level subnets
@@ -153,11 +99,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         :param string region: Region name
         :param string host: Host name
-        :returns: Dict of IPs per network on the host
-        :rtype: dict
-
-        Example: {'oob': {'ipv4': '192.168.1.10'},
-                  'pxe': {'ipv4': '192.168.2.10'}}
+        :returns: IPs per network on the host
+        :rtype: models.IPList
 
         The network name from get_networks is expected to be the keys of this
         dict. In case some networks are missed, they are expected to be either
@@ -171,10 +114,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """Return the DNS servers
 
         :param string region: Region name
-        :returns: List of DNS servers to be configured on host
-        :rtype: List
-
-        Example: ['8.8.8.8', '8.8.8.4']
+        :returns: DNS servers to be configured on host
+        :rtype: models.ServerList
         """
 
         return []
@@ -184,10 +125,8 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """Return the NTP servers
 
         :param string region: Region name
-        :returns: List of NTP servers to be configured on host
-        :rtype: List
-
-        Example: ['ntp1.ubuntu1.example', 'ntp2.ubuntu.example']
+        :returns: NTP servers to be configured on host
+        :rtype: models.ServerList
         """
 
         return []
@@ -198,7 +137,7 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         :param string region: Region name
         :returns: LDAP server information
-        :rtype: Dict
+        :rtype: dict
 
         Example: {'url': 'ldap.example.com',
                   'common_name': 'ldap-site1',
@@ -231,152 +170,68 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         :param string region: Region name
         :returns: Domain name
-        :rtype: string
+        :rtype: str
 
         Example: example.com
         """
 
         return ""
 
+    @abc.abstractmethod
+    def get_site_info(self, region):
+        """Return site data as a SiteInfo object
+
+        :param region: Region name
+        :return: general site data including location, domain, name, LDAP, NTP,
+            DNS, and site type
+        :rtype: models.SiteInfo
+        """
+
+        return None
+
     def extract_baremetal_information(self):
         """Get baremetal information from plugin
 
-        :returns: dict of baremetal nodes
-        :rtype: dict
-
-        Return dict should be in the format
-        {
-          'EXAMR06': {                 # rack name
-            'examr06c036': {           # host name
-              'host_profile': None,
-              'ip': {
-                'overlay': {},
-                'oob': {},
-                'calico': {},
-                'oam': {},
-                'storage': {},
-                'pxe': {}
-              },
-              'rack': 'EXAMR06',
-              'type': 'compute'
-            }
-          }
-        }
+        :returns: racks and hosts as a list of Rack objects containing Host
+                  data
+        :rtype: list of models.Rack
         """
 
         LOG.info("Extract baremetal information from plugin")
-        baremetal = {}
-        hosts = self.get_hosts(self.region)
-
-        # For each host list fill host profile and network IPs
-        for host in hosts:
-            host_name = host["name"]
-            rack_name = host["rack_name"]
-
-            if rack_name not in baremetal:
-                baremetal[rack_name] = {}
-
-            # Prepare temp dict for each host and append it to baremetal
-            # at a rack level
-            temp_host = {}
-            if host["host_profile"] is None:
-                temp_host["host_profile"] = "#CHANGE_ME"
-            else:
-                temp_host["host_profile"] = host["host_profile"]
-
-            # Get Host IPs from plugin
-            temp_host_ips = self.get_ips(self.region, host_name)
-
-            # Fill network IP for this host
-            temp_host["ip"] = {}
-            temp_host["ip"]["oob"] = \
-                temp_host_ips[host_name].get("oob", "#CHANGE_ME")
-            temp_host["ip"]["calico"] = \
-                temp_host_ips[host_name].get("calico", "#CHANGE_ME")
-            temp_host["ip"]["oam"] = \
-                temp_host_ips[host_name].get("oam", "#CHANGE_ME")
-            temp_host["ip"]["storage"] = \
-                temp_host_ips[host_name].get("storage", "#CHANGE_ME")
-            temp_host["ip"]["overlay"] = \
-                temp_host_ips[host_name].get("overlay", "#CHANGE_ME")
-            temp_host["ip"]["pxe"] = \
-                temp_host_ips[host_name].get("pxe", "#CHANGE_ME")
-
-            baremetal[rack_name][host_name] = temp_host
-
-        LOG.debug(
-            "Baremetal information:\n{}".format(pprint.pformat(baremetal)))
-
-        return baremetal
+        return self.get_racks(self.region)
 
     def extract_site_information(self):
         """Get site information from plugin
 
-        :returns: dict of site information
-        :rtpe: dict
-
-        Return dict should be in the format
-        {
-          'name': '',
-          'country': '',
-          'state': '',
-          'corridor': '',
-          'sitetype': '',
-          'dns': [],
-          'ntp': [],
-          'ldap': {},
-          'domain': None
-        }
+        :returns: site information including location, dns servers, ntp servers
+                  ldap, and domain name
+        :rtpe: models.SiteInfo
         """
 
         LOG.info("Extract site information from plugin")
-        site_info = {}
 
         # Extract location information
-        location_data = self.get_location_information(self.region)
-        if location_data is not None:
-            site_info = location_data
+        data = {
+            'region_name': self.region,
+            'dns': self.get_dns_servers(self.region),
+            'ntp': self.get_ntp_servers(self.region),
+            'ldap': self.get_ldap_information(self.region),
+            'domain': self.get_domain_name(self.region)
+        }
+        data.update(self.get_location_information(self.region) or {})
 
-        dns_data = self.get_dns_servers(self.region)
-        site_info["dns"] = dns_data
-
-        ntp_data = self.get_ntp_servers(self.region)
-        site_info["ntp"] = ntp_data
-
-        ldap_data = self.get_ldap_information(self.region)
-        site_info["ldap"] = ldap_data
-
-        domain_data = self.get_domain_name(self.region)
-        site_info["domain"] = domain_data
-
-        LOG.debug(
-            "Extracted site information:\n{}".format(
-                pprint.pformat(site_info)))
+        site_info = models.SiteInfo(**data)
 
         return site_info
 
     def extract_network_information(self):
         """Get network details from plugin like Subnets, DNS, NTP and LDAP
 
-        :returns: dict of baremetal nodes
-        :rtype: dict
-
-        Return dict should be in the format
-        {
-          'vlan_network_data': {
-            'oam': {},
-            'ingress': {},
-            'oob': {}
-            'calico': {},
-            'storage': {},
-            'pxe': {},
-            'overlay': {}
-          }
-        }
+        :returns: networking data as a Network object
+        :rtype: models.Network
         """
 
         LOG.info("Extract network information from plugin")
-        network_data = {}
         networks = self.get_networks(self.region)
 
         # We are interested in only the below networks mentioned in
@@ -391,20 +246,12 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
             "oob",
             "ingress",
         ]
-        network_data["vlan_network_data"] = {}
+        desired_networks = []
+        for network in networks:
+            if network.name in networks_to_scan:
+                desired_networks.append(network)
 
-        for net in networks:
-            tmp_net = {}
-            if net["name"] in networks_to_scan:
-                tmp_net["subnet"] = net.get("subnet", "#CHANGE_ME")
-                if net["name"] != "ingress" and net["name"] != "oob":
-                    tmp_net["vlan"] = net.get("vlan", "#CHANGE_ME")
-
-            network_data["vlan_network_data"][net["name"]] = tmp_net
-
-        LOG.debug(
-            "Extracted network data:\n{}".format(pprint.pformat(network_data)))
-        return network_data
+        return models.Network(desired_networks)
 
     def extract_data(self):
         """Extract data from plugin
@@ -414,13 +261,11 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """
 
         LOG.info("Extract data from plugin")
-        site_data = {
-            "baremetal": self.extract_baremetal_information(),
-            "site_info": self.extract_site_information(),
-            "network": self.extract_network_information()
-        }
-        self.site_data = site_data
-        return site_data
+        self.site_data = models.SiteDocumentData(
+            self.extract_site_information(),
+            self.extract_network_information(),
+            self.extract_baremetal_information())
+        return self.site_data
 
     def apply_additional_data(self, extra_data):
         """Apply any additional inputs from user
@@ -433,6 +278,4 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """
 
         LOG.info("Update site data with additional input")
-        tmp_site_data = utils.dict_merge(self.site_data, extra_data)
-        self.site_data = tmp_site_data
-        return self.site_data
+        self.site_data.merge_additional_data(extra_data)

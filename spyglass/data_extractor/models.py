@@ -31,24 +31,32 @@ def _parse_ip(addr):
     :return: addr as an IPAddress object or string
     """
     try:
-        ip = ipaddress.ip_address(addr)
-        return str(ip)
+        ipaddress.ip_network(addr)
     except ValueError:
-        LOG.warning("%s is not a valid IP address.", addr)
-        return str(addr)
+        if addr != DATA_DEFAULT:
+            LOG.warning("%s is not a valid IP address.", addr)
+    return addr
 
 
 class ServerList(object):
     """Model for a list of servers"""
 
-    def __init__(self, server_list: list):
+    def __init__(self, server_list):
         """Validates a list of server IPs and creates a list of them
 
         :param server_list: list of strings
         """
         self.servers = []
-        for server in server_list:
-            self.servers.append(_parse_ip(server))
+        if type(server_list) is list:
+            for server in server_list:
+                self.servers.append(_parse_ip(server))
+        elif type(server_list) is str:
+            for server in server_list.split(','):
+                self.servers.append(server.strip())
+        else:
+            raise ValueError(
+                'ServerList expects a str or list, but got a %s',
+                type(server_list))
 
     def __str__(self):
         """Returns server list as string for use in YAML documents"""
@@ -272,15 +280,26 @@ class VLANNetworkData(object):
         """
         self.name = name
         self.role = kwargs.get('role', self.name)
-        self.vlan = kwargs.get('vlan', None)
+        if self.role == 'oob':
+            self.vlan = None
+        else:
+            self.vlan = kwargs.get('vlan', None)
 
         self.subnet = []
-        for _subnet in kwargs.get('subnet', []):
-            self.subnet.append(_parse_ip(_subnet))
+        subnet = kwargs.get('subnet', [])
+        if type(subnet) is list:
+            for _subnet in subnet:
+                self.subnet.append(_parse_ip(_subnet))
+        else:
+            self.subnet.append(subnet)
 
         self.routes = []
-        for route in kwargs.get('routes', []):
-            self.routes.append(_parse_ip(route))
+        routes = kwargs.get('routes', [])
+        if type(routes) is list:
+            for route in routes:
+                self.routes.append(_parse_ip(route))
+        else:
+            self.routes.append(_parse_ip(routes))
 
         self.gateway = _parse_ip(kwargs.get('gateway', None))
 
@@ -302,6 +321,8 @@ class VLANNetworkData(object):
             vlan_dict[self.role]['subnet'] = self.subnet
         if self.routes:
             vlan_dict[self.role]['routes'] = self.routes
+        else:
+            vlan_dict[self.role]['routes'] = []
         if self.gateway:
             vlan_dict[self.role]['gateway'] = self.gateway
         if self.dhcp_start and self.dhcp_end:
@@ -321,9 +342,11 @@ class VLANNetworkData(object):
         if 'vlan' in config_dict:
             self.vlan = config_dict['vlan']
         if 'subnet' in config_dict:
+            self.subnet = []
             for _subnet in config_dict['subnet']:
                 self.subnet.append(_parse_ip(_subnet))
         if 'routes' in config_dict:
+            self.routes = []
             for _route in config_dict['routes']:
                 self.routes.append(_parse_ip(_route))
         if 'gateway' in config_dict:
@@ -436,6 +459,7 @@ class SiteInfo(object):
                 * url (``str``)
         """
         self.name = name
+        self.region_name = kwargs.get('region_name', DATA_DEFAULT)
         self.physical_location_id = kwargs.get(
             'physical_location_id', DATA_DEFAULT)
         self.state = kwargs.get('state', DATA_DEFAULT)
@@ -443,8 +467,13 @@ class SiteInfo(object):
         self.corridor = kwargs.get('corridor', DATA_DEFAULT)
         self.sitetype = kwargs.get('sitetype', DATA_DEFAULT)
 
-        self.dns = ServerList(kwargs.get('dns', []))
-        self.ntp = ServerList(kwargs.get('ntp', []))
+        self.dns = kwargs.get('dns', [])
+        if type(self.dns) is not ServerList:
+            self.dns = ServerList(self.dns)
+
+        self.ntp = kwargs.get('ntp', [])
+        if type(self.ntp) is not ServerList:
+            self.ntp = ServerList(self.ntp)
 
         self.domain = kwargs.get('domain', DATA_DEFAULT)
         self.ldap = kwargs.get('ldap', {})
@@ -456,11 +485,15 @@ class SiteInfo(object):
         return {
             'corridor': self.corridor,
             'country': self.country,
-            'dns': str(self.dns),
+            'dns': {
+                'servers': str(self.dns)
+            },
             'domain': self.domain,
             'ldap': self.ldap,
             'name': self.name,
-            'ntp': str(self.ntp),
+            'ntp': {
+                'servers': str(self.ntp)
+            },
             'physical_location_id': self.physical_location_id,
             'sitetype': self.sitetype,
             'state': self.state,
@@ -480,9 +513,9 @@ class SiteInfo(object):
         if 'sitetype' in config_dict:
             self.sitetype = config_dict['sitetype']
         if 'dns' in config_dict:
-            self.dns.merge(config_dict['dns']['servers'])
+            self.dns = ServerList(config_dict['dns']['servers'])
         if 'ntp' in config_dict:
-            self.ntp.merge(config_dict['ntp']['servers'])
+            self.ntp = ServerList(config_dict['ntp']['servers'])
         if 'domain' in config_dict:
             self.domain = config_dict['domain']
         if 'ldap' in config_dict:
@@ -522,6 +555,7 @@ class SiteDocumentData(object):
         document = {
             'baremetal': {},
             'network': self.network.dict_from_class(),
+            'region_name': self.site_info.region_name,
             'site_info': self.site_info.dict_from_class(),
             'storage': self.storage
         }

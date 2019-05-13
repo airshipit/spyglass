@@ -98,8 +98,7 @@ def intermediary_processor(plugin_type, **kwargs):
     additional_config = kwargs.get('site_configuration', None)
     if additional_config is not None:
         with open(additional_config, 'r') as config:
-            raw_data = config.read()
-            additional_config_data = yaml.safe_load(raw_data)
+            additional_config_data = yaml.safe_load(config)
         LOG.debug(
             "Additional config data:\n{}".format(
                 pprint.pformat(additional_config_data)))

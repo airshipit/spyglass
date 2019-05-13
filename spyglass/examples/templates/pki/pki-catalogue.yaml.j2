@@ -30,7 +30,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
           groups:
             - system:nodes
 {% endif %}
@@ -43,7 +43,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
           groups:
             - system:nodes
 {%endfor%}
@@ -80,7 +80,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - kubernetes-etcd.kube-system.svc.cluster.local
@@ -96,7 +96,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - kubernetes-etcd.kube-system.svc.cluster.local
@@ -114,7 +114,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - kubernetes-etcd.kube-system.svc.cluster.local
@@ -130,7 +130,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - kubernetes-etcd.kube-system.svc.cluster.local
@@ -152,7 +152,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - 10.96.232.136
@@ -172,7 +172,7 @@ data:
           hosts:
             - {{ host }}
             - {{ data['baremetal'][racks][host]['ip']['oam'] }}
-            - {{ data['baremetal'][racks][host]['ip']['ksn']}}
+            - {{ data['baremetal'][racks][host]['ip']['calico']}}
             - 127.0.0.1
             - localhost
             - 10.96.232.136
