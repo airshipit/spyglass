@@ -22,6 +22,7 @@ import yaml
 
 from spyglass.parser.engine import ProcessDataSource
 from spyglass.site_processors.site_processor import SiteProcessor
+from spyglass.validators.json_validator import JSONSchemaValidator
 
 LOG = logging.getLogger(__name__)
 
@@ -133,3 +134,28 @@ def generate_manifests_using_intermediary(
     LOG.info("Generating site Manifests")
     processor_engine = SiteProcessor(intermediary_yaml, manifest_dir)
     processor_engine.render_template(template_dir)
+
+
+@main.command(
+    'validate',
+    short_help='validates pegleg documents',
+    help='Validates pegleg documents against their schema.')
+@click.option(
+    '-d',
+    '--document-path',
+    'document_path',
+    type=click.Path(exists=True, readable=True),
+    required=True,
+    help='Path to the documents to validate.')
+@click.option(
+    '-p',
+    '--schema-path',
+    'schema_path',
+    type=click.Path(exists=True, readable=True),
+    required=True,
+    help=(
+        'Path to a schema file or directory of schema files used to '
+        'validate documents.'))
+def validate_manifests_against_schemas(document_path, schema_path):
+    validator = JSONSchemaValidator(document_path, schema_path)
+    validator.validate()

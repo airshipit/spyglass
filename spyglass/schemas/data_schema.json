@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/schema#",
+  "metadata": {
+    "name": "spyglass/Intermediary/v1"
+  },
   "title": "All",
   "description": "All information",
   "type": "object",
