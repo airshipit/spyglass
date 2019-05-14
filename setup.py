@@ -12,35 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import find_packages
-from setuptools import setup
+import setuptools
 
-setup(
-    name='spyglass',
-    version='0.0.1',
-    description='Generate Airship specific yaml manifests from data sources',
-    url='https://opendev.org/airship/spyglass.git',
-    python_requires='>=3.5.0',
-    license='Apache 2.0',
-    packages=find_packages(),
-    install_requires=[
-        'jsonschema',
-        'Click',
-        'openpyxl',
-        'netaddr',
-        'pyyaml',
-        'jinja2',
-    ],
-    entry_points={
-        'console_scripts': [
-            'spyglass=spyglass.cli:main',
-        ],
-        'data_extractor_plugins': [
-            'formation='
-            'spyglass.data_extractor.plugins.formation:FormationPlugin',
-            'tugboat='
-            'spyglass.data_extractor.plugins.tugboat.tugboat:TugboatPlugin',
-        ]
-    },
-    include_package_data=True,
-)
+setuptools.setup(setup_requires=['pbr>=2.0.0'], pbr=True)
