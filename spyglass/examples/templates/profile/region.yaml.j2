@@ -2,7 +2,7 @@
 schema: 'drydock/Region/v1'
 metadata:
   schema: 'metadata/Document/v1'
-  name: {{ data['region_name'] }}
+  name: {{ data.site_info.region_name }}
   layeringDefinition:
     abstract: false
     layer: site
@@ -18,7 +18,7 @@ metadata:
         path: .authorized_keys[1]
       src:
         schema: deckhand/PublicKey/v1
-        name: {{ data['region_name'] }}_ssh_public_key
+        name: {{ data.site_info.region_name }}_ssh_public_key
         path: .
     - dest:
         path: .repositories.main_archive

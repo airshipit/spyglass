@@ -11,7 +11,6 @@
 schema: shipyard/DeploymentStrategy/v1
 metadata:
   schema: metadata/Document/v1
-  replacement: true
   name: deployment-strategy
   layeringDefinition:
     abstract: false
@@ -44,13 +43,13 @@ data:
       selectors:
         # NEWSITE-CHANGEME: The following should be a list of the computes in the site's first rack
         - node_names:
-{% for rack in data['baremetal'].keys() %}
-{% for host in data['baremetal'][rack].keys()%}
-{% if rack == 'rack03' or rack == 'rack04' %}
-          - {{ host }}
-{% endif %}
-{% endfor %}
-{% endfor %}
+        {% for rack in data.baremetal %}
+          {% for host in rack.hosts %}
+            {% if rack.name == 'rack03' or rack.name == 'rack04' %}
+          - {{ host.name }}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
           node_labels: []
           node_tags: []
           rack_names: []
@@ -61,13 +60,13 @@ data:
       selectors:
         # NEWSITE-CHANGEME: The following should be a list of the computes in the site's second rack
         - node_names:
-{% for rack in data['baremetal'].keys() %}
-{% for host in data['baremetal'][rack].keys()%}
-{% if rack == 'rack05' or rack == 'rack06' %}
-          - {{ host }}
-{% endif %}
-{% endfor %}
-{% endfor %}
+        {% for rack in data.baremetal %}
+          {% for host in rack.hosts %}
+            {% if rack.name == 'rack05' or rack.name == 'rack06' %}
+          - {{ host.name }}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
           node_labels: []
           node_tags: []
           rack_names: []

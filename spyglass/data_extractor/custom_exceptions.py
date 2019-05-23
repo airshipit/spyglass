@@ -59,3 +59,7 @@ class TokenGenerationError(BaseError):
 
 class FormationConnectionError(BaseError):
     pass
+
+
+class InvalidIntermediary(BaseError):
+    pass

@@ -13,83 +13,70 @@ metadata:
         path: .
   storagePolicy: cleartext
   substitutions:
-{% set count = [0] %}
-{% for rack in data.baremetal.keys() %}
-{% for host in data["baremetal"][rack] %}
-{% if data["baremetal"][rack][host]["type"]  == 'controller' %}
+{% for host in data.get_baremetal_host_by_type('controller') %}
     - src:
         schema: pegleg/CommonAddresses/v1
         name: common-addresses
-        path: .masters[{{ count[0] }}].hostname
+        path: .masters[{{ loop.index - 1 }}].hostname
       dest:
-        path: .values.nodes[{{ count[0] }}].name
+        path: .values.nodes[{{ loop.index - 1 }}].name
     - src:
         schema: deckhand/Certificate/v1
-        name: calico-etcd-{{ host }}
+        name: calico-etcd-{{ host.name }}
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.client.cert
+        path: .values.nodes[{{ loop.index - 1 }}].tls.client.cert
     - src:
         schema: deckhand/CertificateKey/v1
-        name: calico-etcd-{{ host }}
+        name: calico-etcd-{{ host.name }}
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.client.key
+        path: .values.nodes[{{ loop.index - 1 }}].tls.client.key
     - src:
         schema: deckhand/Certificate/v1
-        name: calico-etcd-{{ host }}
+        name: calico-etcd-{{ host.name }}
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.peer.cert
+        path: .values.nodes[{{ loop.index - 1 }}].tls.peer.cert
     - src:
         schema: deckhand/CertificateKey/v1
-        name: calico-etcd-{{ host }}-peer
+        name: calico-etcd-{{ host.name }}-peer
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.peer.key
-
-    {% if count.append(count.pop() + 1) %}{% endif %} {# increment count by 1 #}
-
-{% endif %}
-{% endfor %}
+        path: .values.nodes[{{ loop.index - 1 }}].tls.peer.key
 {% endfor %}
 
-{% for rack in data.baremetal.keys() %}
-{% for host in data["baremetal"][rack] %}
-{% if data["baremetal"][rack][host]["type"]  == 'genesis' %}
+{% for host in data.get_baremetal_host_by_type('genesis') %}
     - src:
         schema: pegleg/CommonAddresses/v1
         name: common-addresses
         path: .genesis.hostname
       dest:
-        path: .values.nodes[{{ count[0] }}].name
+        path: .values.nodes[{{ loop.index - 1 }}].name
     - src:
         schema: deckhand/Certificate/v1
-        name: calico-etcd-{{ host }}
+        name: calico-etcd-{{ host.name }}
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.client.cert
+        path: .values.nodes[{{ loop.index - 1 }}].tls.client.cert
     - src:
         schema: deckhand/CertificateKey/v1
-        name: calico-etcd-{{ host }}
+        name: calico-etcd-{{ host.name }}
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.client.key
+        path: .values.nodes[{{ loop.index - 1 }}].tls.client.key
     - src:
         schema: deckhand/Certificate/v1
-        name: calico-etcd-{{ host }}-peer
+        name: calico-etcd-{{ host.name }}-peer
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.peer.cert
+        path: .values.nodes[{{ loop.index - 1 }}].tls.peer.cert
     - src:
         schema: deckhand/CertificateKey/v1
-        name: calico-etcd-{{ host }}-peer
+        name: calico-etcd-{{ host.name }}-peer
         path: .
       dest:
-        path: .values.nodes[{{ count[0] }}].tls.peer.key
-
-{% endif %}
-{% endfor %}
+        path: .values.nodes[{{ loop.index - 1 }}].tls.peer.key
 {% endfor %}
 
 data: {}
