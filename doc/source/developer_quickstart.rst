@@ -1,5 +1,5 @@
 ..
-      Copyright 2018 AT&T Intellectual Property.
+      Copyright 2019 AT&T Intellectual Property.
       All Rights Reserved.
 
       Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -25,43 +25,42 @@ airship-spyglass directory.
 
    .. code-block:: console
 
-   sudo apt install -y python3-pip
-   sudo apt install -y tox
+       sudo apt install -y python3-pip
+       sudo apt install -y tox
 
 2. Set up an environment with tox.
 
    .. code-block:: console
 
-   tox -e py36 --notest
+       tox -e py36 --notest
 
 3. Enter the tox environment.
 
    .. code-block:: console
 
-   source .tox/py36/bin/activate
+       source .tox/py36/bin/activate
 
 4. Install spyglass in the tox environment.
 
    .. code-block:: console
 
-   pip install -e .
+       pip install -e .
 
 5. Run spyglass on the example files to generate an intermediate document.
 
    .. code-block:: console
 
-   mkdir intermediate
-   spyglass -g -s airship-seaworthy -t tugboat \
-   -idir intermediate \
-   --excel_spec spyglass/examples/excel_spec.yaml \
-   --excel spyglass/examples/SiteDesignSpec_v0.1.xlsx \
-   --additional_config spyglass/examples/site_config.yaml \
-   --template_dir spyglass/examples/templates/
+       mkdir intermediate
+       spyglass m -s airship-seaworthy -p tugboat -d intermediate \
+                  --excel-spec spyglass/examples/excel_spec.yaml \
+                  --excel-file spyglass/examples/SiteDesignSpec_v0.1.xlsx \
+                  --site-configuration spyglass/examples/site_config.yaml \
+                  --template-dir spyglass/examples/templates/
 
 6. Run spyglass on the intermediate document to generate manifests.
 
    .. code-block:: console
 
-   mkdir manifest_dir
-   spyglass -m -i intermediate/airship-seaworthy_intermediary.yaml \
-   -mdir manifest_dir/ -tdir spyglass/examples/templates/
+       mkdir manifest_dir
+       spyglass mi intermediate/airship-seaworthy_intermediary.yaml \
+                   -m manifest_dir/ -t spyglass/examples/templates/

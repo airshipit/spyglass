@@ -1,5 +1,5 @@
 ..
-      Copyright 2018 AT&T Intellectual Property.
+      Copyright 2019 AT&T Intellectual Property.
       All Rights Reserved.
 
       Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -28,7 +28,7 @@ for a site deployment. These site manifest YAML files generated
 by spyglass will be saved in a Git repository, from where Pegleg
 can access and aggregate them. This aggregated file can then be
 fed to Shipyard for site deployment / updates.
-Reference: https://review.opendev.org/#/c/605227
+Reference: https://airshipit.readthedocs.io/projects/specs/en/latest/specs/approved/data_config_generator.html
 
 Architecture
 ------------
@@ -75,9 +75,9 @@ Supported Features
 Future Work
 -----------
 1) Schema based manifest generation instead of Jinja2 templates. It shall
-be possible to cleanly transition to this schema based generation keeping a unique
-mapping between schema and generated manifests. Currently this is managed by
-considering a mapping of j2 templates with schemas and site type.
+be possible to cleanly transition to this schema based generation keeping a
+unique mapping between schema and generated manifests. Currently this is
+managed by considering a mapping of j2 templates with schemas and site type.
 
 List of Generated Site Manifests:
 ---------------------------------
@@ -129,72 +129,10 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-    git clone https://opendev.org/airship/spyglass.git
+        git clone https://opendev.org/airship/spyglass.git
 
 2. Install the required packages in spyglass:
 
    .. code-block:: console
 
-     pip3 install -r airship-spyglass/requirements.txt
-
-
-CLI Options
------------
-
-Usage: spyglass [OPTIONS]
-
-Options:
-  -s, --site TEXT                 Specify the site for which manifests to be
-                                  generated
-  -t, --type TEXT                 Specify the plugin type formation or tugboat
-  -f, --formation_url TEXT        Specify the formation url
-  -u, --formation_user TEXT       Specify the formation user id
-  -p, --formation_password TEXT   Specify the formation user password
-  -i, --intermediary PATH         Intermediary file path  generate manifests,
-                                  use -m also with this option
-  -d, --additional_config PATH    Site specific configuraton details
-  -g, --generate_intermediary     Dump intermediary file from passed excel and
-                                  excel spec
-  -idir, --intermediary_dir PATH  The path where intermediary file needs to be
-                                  generated
-  -m, --generate_manifests        Generate manifests from the generated
-                                  intermediary file
-  -mdir, --manifest_dir PATH      The path where manifest files needs to be
-                                  generated
-  -x, --excel PATH                Path to engineering excel file, to be passed
-                                  with generate_intermediary
-  -e, --excel_spec PATH           Path to excel spec, to be passed with
-                                  generate_intermediary
-  -l, --loglevel INTEGER          Loglevel NOTSET:0 ,DEBUG:10,     INFO:20,
-                                  WARNING:30, ERROR:40, CRITICAL:50  [default:
-                                  20]
-  --help                          Show this message and exit.
-
---------
-Examples
---------
-
-1. Running Spyglass with  Remote Data Source Plugin
-
-spyglass -mg --type formation -f <URL> -u <user_id> -p <password> -d <site_config> -s <sitetype> --template_dir=<j2 template dir>
-
-2. Running Spyglass with Excel Plugin
-
-spyglass -mg --type tugboat -x <Excel File> -e <Excel Spec> -d <Site Config> -s <Region> --template_dir=<j2 template dir>
-
-for example:
-  2.1 Generating intermediary and manifests
-    spyglass -mg -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
-
-  2.2 Generating intermediary without manifests
-    spyglass -g -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy
-
-  2.3 Generating manifests without intermediary
-    spyglass -m -t tugboat -x SiteDesignSpec_v1.1.xlsx -e excel_spec_upstream.yaml -d site_config.yaml -s airship-seaworthy --template_dir=<j2 template dir>
-
-  2.4 Generating manifests using intermediary
-    spyglass -mi <intermediary.yaml> --template_dir=<j2 template dir>
-
-Where sample 'excel_spec_upstream.yaml', 'SiteDesignSpec_v0.1.xlsx'
-'site_config.yaml' and J2 templates can be found under 'spyglass/examples'
-folder
+        pip3 install -r airship-spyglass/requirements.txt
