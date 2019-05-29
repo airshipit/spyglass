@@ -108,11 +108,12 @@ class TugboatPlugin(BaseDataSourcePlugin):
         host_list = []
         for rack in rackwise_hosts.keys():
             for host in rackwise_hosts[rack]:
-                host_list.append({
-                    "rack_name": rack,
-                    "name": host,
-                    "host_profile": ipmi_data[host]["host_profile"],
-                })
+                host_list.append(
+                    {
+                        "rack_name": rack,
+                        "name": host,
+                        "host_profile": ipmi_data[host]["host_profile"],
+                    })
         return host_list
 
     def get_networks(self, region):
@@ -152,8 +153,9 @@ class TugboatPlugin(BaseDataSourcePlugin):
                 tmp_vlan["name"] = "ingress"
                 tmp_vlan["subnet"] = net_val
             vlan_list.append(tmp_vlan)
-        LOG.debug("vlan list extracted from tugboat:\n{}".format(
-            pprint.pformat(vlan_list)))
+        LOG.debug(
+            "vlan list extracted from tugboat:\n{}".format(
+                pprint.pformat(vlan_list)))
         return vlan_list
 
     def get_ips(self, region, host=None):

@@ -35,8 +35,9 @@ class NoSpecMatched(BaseError):
 
     def display_error(self):
         # FIXME (Ian Pittwood): use log instead of print
-        print("No spec matched. Following are the available specs:\n".format(
-            self.specs))
+        print(
+            "No spec matched. Following are the available specs:\n".format(
+                self.specs))
         sys.exit(1)
 
 

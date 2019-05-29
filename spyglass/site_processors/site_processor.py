@@ -51,17 +51,17 @@ class SiteProcessor(BaseProcessor):
 
         for dirpath, dirs, files in os.walk(template_dir_abspath):
             for filename in files:
-                j2_env = Environment(autoescape=True,
-                                     loader=FileSystemLoader(dirpath),
-                                     trim_blocks=True)
+                j2_env = Environment(
+                    autoescape=True,
+                    loader=FileSystemLoader(dirpath),
+                    trim_blocks=True)
                 j2_env.filters["get_role_wise_nodes"] = \
                     self.get_role_wise_nodes
                 templatefile = os.path.join(dirpath, filename)
                 outdirs = dirpath.split("templates")[1]
 
-                outfile_path = "{}{}{}".format(site_manifest_dir,
-                                               self.yaml_data["region_name"],
-                                               outdirs)
+                outfile_path = "{}{}{}".format(
+                    site_manifest_dir, self.yaml_data["region_name"], outdirs)
                 outfile_yaml = templatefile.split(".j2")[0].split("/")[-1]
                 outfile = outfile_path + "/" + outfile_yaml
                 outfile_dir = os.path.dirname(outfile)

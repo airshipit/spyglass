@@ -308,27 +308,29 @@ class FormationPlugin(BaseDataSourcePlugin):
         zone_id = self._get_zone_id_by_name(zone)
         device_api = formation_client.DevicesApi(self.formation_api_client)
         control_hosts = device_api.zones_zone_id_control_nodes_get(zone_id)
-        compute_hosts = device_api.zones_zone_id_devices_get(zone_id,
-                                                             type="KVM")
+        compute_hosts = device_api.zones_zone_id_devices_get(
+            zone_id, type="KVM")
 
         hosts_list = []
         for host in control_hosts:
             self.device_name_id_mapping[host.aic_standard_name] = host.id
-            hosts_list.append({
-                "name": host.aic_standard_name,
-                "type": "controller",
-                "rack_name": host.rack_name,
-                "host_profile": host.host_profile_name,
-            })
+            hosts_list.append(
+                {
+                    "name": host.aic_standard_name,
+                    "type": "controller",
+                    "rack_name": host.rack_name,
+                    "host_profile": host.host_profile_name,
+                })
 
         for host in compute_hosts:
             self.device_name_id_mapping[host.aic_standard_name] = host.id
-            hosts_list.append({
-                "name": host.aic_standard_name,
-                "type": "compute",
-                "rack_name": host.rack_name,
-                "host_profile": host.host_profile_name,
-            })
+            hosts_list.append(
+                {
+                    "name": host.aic_standard_name,
+                    "type": "compute",
+                    "rack_name": host.rack_name,
+                    "host_profile": host.host_profile_name,
+                })
         """
         for host in itertools.chain(control_hosts, compute_hosts):
             self.device_name_id_mapping[host.aic_standard_name] = host.id
@@ -406,8 +408,9 @@ class FormationPlugin(BaseDataSourcePlugin):
                     name = self._get_network_name_from_vlan_name(
                         vlan_.vlan.name)
                     ipv4 = vlan_.vlan.ipv4[0].ip
-                    LOG.debug("vlan:{},name:{},ip:{},vlan_name:{}".format(
-                        vlan_.vlan.vlan_id, name, ipv4, vlan_.vlan.name))
+                    LOG.debug(
+                        "vlan:{},name:{},ip:{},vlan_name:{}".format(
+                            vlan_.vlan.vlan_id, name, ipv4, vlan_.vlan.name))
                     # TODD(pg710r) This code needs to extended to support ipv4
                     # and ipv6
                     # ip_[host][name] = {'ipv4': ipv4}
