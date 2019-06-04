@@ -20,6 +20,7 @@ from click_plugins import with_plugins
 import pkg_resources
 import yaml
 
+from spyglass import exceptions
 from spyglass.parser.engine import ProcessDataSource
 from spyglass.site_processors.site_processor import SiteProcessor
 from spyglass.validators.json_validator import JSONSchemaValidator
@@ -77,20 +78,14 @@ def main(*, verbose):
 def intermediary_processor(plugin_type, **kwargs):
     LOG.info("Generating Intermediary yaml")
     plugin_type = plugin_type
-    plugin_class = None
 
-    # Discover the plugin and load the plugin class
+    # Load the plugin class
     LOG.info("Load the plugin class")
-    for entry_point in \
-            pkg_resources.iter_entry_points('data_extractor_plugins'):
-        LOG.debug("Entry point '%s' found", entry_point.name)
-        if entry_point.name == plugin_type:
-            plugin_class = entry_point.load()
-
-    if plugin_class is None:
-        LOG.error(
-            "Unsupported Plugin type. Plugin type:{}".format(plugin_type))
-        exit()
+    try:
+        plugin_class = pkg_resources.load_entry_point(
+            "spyglass", "data_extractor_plugins", plugin_type)
+    except ImportError:
+        raise exceptions.UnsupportedPlugin()
 
     # Extract data from plugin data source
     LOG.info("Extract data from plugin data source")
