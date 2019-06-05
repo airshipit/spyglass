@@ -1,4 +1,4 @@
-ARG FROM=python:3.6
+ARG FROM=ubuntu:16.04
 FROM ${FROM}
 
 LABEL org.opencontainers.image.authors='airship-discuss@lists.airshipit.org, irc://#airshipit@freenode'
@@ -8,9 +8,34 @@ LABEL org.opencontainers.image.source='https://opendev.org/airship/spyglass'
 LABEL org.opencontainers.image.vendor='The Airship Authors'
 LABEL org.opencontainers.image.licenses='Apache-2.0'
 
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+RUN set -ex \
+    && apt-get update -qq \
+    && apt-get install -y --no-install-recommends \
+         ca-certificates \
+         curl \
+         gcc \
+         git \
+         libssl-dev \
+         netbase \
+         python3-dev \
+         python3-pip \
+         python3-setuptools \
+    && python3 -m pip install -U pip \
+    && apt-get autoremove -yqq --purge \
+    && apt-get clean \
+    && rm -rf \
+         /tmp/* \
+         /usr/share/doc \
+         /usr/share/doc-base \
+         /usr/share/man \
+         /var/lib/apt/lists/* \
+         /var/tmp/*
+
 VOLUME /var/spyglass
 WORKDIR /var/spyglass
-
 
 COPY requirements.txt /opt/spyglass/requirements.txt
 RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt
