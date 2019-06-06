@@ -56,7 +56,8 @@ def test_document_schema_matching():
     for pair in validator.document_schema_pairs:
         no_path_pairs.append(
             (os.path.split(pair[0])[1], os.path.split(pair[1])[1]))
-    assert no_path_pairs == expected_pairs
+    for pair in expected_pairs:
+        assert pair in no_path_pairs
 
 
 def test_document_schema_matching_no_files():

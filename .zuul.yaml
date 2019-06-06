@@ -12,6 +12,9 @@
 - project:
     templates:
       - docs-on-readthedocs
+      - openstack-python36-jobs
+      - openstack-python37-jobs
+      - openstack-cover-jobs
     vars:
       rtd_webhook_id: '86525'
       rtd_project_name: 'airship-spyglass'

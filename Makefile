@@ -45,11 +45,17 @@ run_images: run_spyglass
 run_spyglass: build_spyglass
 	tools/spyglass.sh --help
 
+.PHONY: tests
+tests: run_tests
+
 .PHONY: security
 security:
 	tox -e bandit
 
-# TODO (alexanderhughes) add tox -e py36 tests once implemented in Spyglass
+# Run all unit tests under spyglass
+.PHONY: run_tests
+run_tests:
+	tox -e py36
 
 # Perform Linting
 .PHONY: lint
