@@ -18,15 +18,15 @@
     check:
       jobs:
         - openstack-tox-pep8
-        - spyglass-docker-build-gate
+        - spyglass-docker-build-gate-ubuntu_xenial
     gate:
       jobs:
         - openstack-tox-pep8
-        - spyglass-docker-build-gate
+        - spyglass-docker-build-gate-ubuntu_xenial
     post:
       jobs:
-        - spyglass-docker-publish
         - spyglass-upload-git-mirror
+        - spyglass-docker-publish-ubuntu_xenial
 
 - nodeset:
     name: spyglass-single-node
@@ -35,25 +35,27 @@
         label: ubuntu-xenial
 
 - job:
-    name: spyglass-docker-build-gate
+    name: spyglass-docker-build-gate-ubuntu_xenial
     timeout: 1800
     run: tools/gate/playbooks/docker-image-build.yaml
     nodeset: spyglass-single-node
     vars:
       publish: false
+      distro: ubuntu_xenial
       tags:
         dynamic:
           patch_set: true
 
 - job:
-    name: spyglass-docker-publish
+    name: spyglass-docker-publish-ubuntu_xenial
     timeout: 1800
     run: tools/gate/playbooks/docker-image-build.yaml
-    nodeset: armada-single-node
+    nodeset: spyglass-single-node
     secrets:
       - airship_spyglass_quay_creds
     vars:
       publish: true
+      distro: ubuntu_xenial
       tags:
         dynamic:
           branch: true

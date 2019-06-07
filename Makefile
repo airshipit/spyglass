@@ -12,20 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SPYGLASS_BUILD_CTX  ?= .
-IMAGE_NAME        ?= spyglass
-IMAGE_PREFIX      ?= airshipit
-DOCKER_REGISTRY   ?= quay.io
-IMAGE_TAG         ?= latest
-PROXY             ?= http://proxy.foo.com:8000
-NO_PROXY          ?= localhost,127.0.0.1,.svc.cluster.local
-USE_PROXY         ?= false
-PUSH_IMAGE        ?= false
+SPYGLASS_BUILD_CTX  ?= spyglass
+IMAGE_NAME          ?= spyglass
+IMAGE_PREFIX        ?= airshipit
+DOCKER_REGISTRY     ?= quay.io
+IMAGE_TAG           ?= latest
+HELM                ?= helm
+PROXY               ?= http://proxy.foo.com:8000
+NO_PROXY            ?= localhost,127.0.0.1,.svc.cluster.local
+USE_PROXY           ?= false
+PUSH_IMAGE          ?= false
 # use this variable for image labels added in internal build process
-LABEL             ?= org.airshipit.build=community
-COMMIT            ?= $(shell git rev-parse HEAD)
-IMAGE             ?= $(DOCKER_REGISTRY)/$(IMAGE_PREFIX)/$(IMAGE_NAME):$(IMAGE_TAG)
-PYTHON_BASE_IMAGE ?= python:3.6
+LABEL               ?= org.airshipit.build=community
+COMMIT              ?= $(shell git rev-parse HEAD)
+DISTRO              ?= ubuntu_xenial
+IMAGE               ?= $(DOCKER_REGISTRY)/$(IMAGE_PREFIX)/$(IMAGE_NAME):$(IMAGE_TAG)-${DISTRO}
+PYTHON_BASE_IMAGE   ?= python:3.6
+BASE_IMAGE          ?=
+
 export
 
 # Build all docker images for this project
@@ -55,6 +59,8 @@ lint: py_lint
 .PHONY: format
 format: py_format
 
+_BASE_IMAGE_ARG := $(if $(BASE_IMAGE),--build-arg FROM="${BASE_IMAGE}" ,)
+
 .PHONY: build_spyglass
 build_spyglass:
 ifeq ($(USE_PROXY), true)
@@ -62,8 +68,8 @@ ifeq ($(USE_PROXY), true)
 		--label "org.opencontainers.image.revision=$(COMMIT)" \
 		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
 		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
-		-f images/spyglass/Dockerfile \
-		--build-arg FROM=$(PYTHON_BASE_IMAGE) \
+		-f images/spyglass/Dockerfile.$(DISTRO) \
+		$(_BASE_IMAGE_ARG) \
 		--build-arg http_proxy=$(PROXY) \
 		--build-arg https_proxy=$(PROXY) \
 		--build-arg HTTP_PROXY=$(PROXY) \
@@ -76,8 +82,8 @@ else
 		--label "org.opencontainers.image.revision=$(COMMIT)" \
 		--label "org.opencontainers.image.created=$(shell date --rfc-3339=seconds --utc)" \
 		--label "org.opencontainers.image.title=$(IMAGE_NAME)" \
-		-f images/spyglass/Dockerfile \
-		--build-arg FROM=$(PYTHON_BASE_IMAGE) \
+		-f images/spyglass/Dockerfile.$(DISTRO) \
+		$(_BASE_IMAGE_ARG) \
 		--build-arg ctx_base=$(SPYGLASS_BUILD_CTX) .
 endif
 ifeq ($(PUSH_IMAGE), true)

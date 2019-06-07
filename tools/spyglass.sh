@@ -3,7 +3,7 @@
 set -e
 
 : ${WORKSPACE:=$(pwd)}
-: ${IMAGE:=quay.io/airshipit/spyglass:latest}
+: ${IMAGE:=quay.io/airshipit/spyglass:latest-ubuntu_xenial}
 
 : ${TERM_OPTS:=-t}
 
