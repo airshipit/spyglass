@@ -19,14 +19,17 @@
       jobs:
         - openstack-tox-pep8
         - spyglass-docker-build-gate-ubuntu_xenial
+        - spyglass-docker-build-gate-ubuntu_bionic
     gate:
       jobs:
         - openstack-tox-pep8
         - spyglass-docker-build-gate-ubuntu_xenial
+        - spyglass-docker-build-gate-ubuntu_bionic
     post:
       jobs:
         - spyglass-upload-git-mirror
         - spyglass-docker-publish-ubuntu_xenial
+        - spyglass-docker-publish-ubuntu_bionic
 
 - nodeset:
     name: spyglass-single-node
@@ -47,6 +50,18 @@
           patch_set: true
 
 - job:
+    name: spyglass-docker-build-gate-ubuntu_bionic
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: spyglass-single-node
+    vars:
+      publish: false
+      distro: ubuntu_bionic
+      tags:
+        dynamic:
+          patch_set: true
+
+- job:
     name: spyglass-docker-publish-ubuntu_xenial
     timeout: 1800
     run: tools/gate/playbooks/docker-image-build.yaml
@@ -56,6 +71,23 @@
     vars:
       publish: true
       distro: ubuntu_xenial
+      tags:
+        dynamic:
+          branch: true
+          commit: true
+        static:
+          - latest
+
+- job:
+    name: spyglass-docker-publish-ubuntu_bionic
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: spyglass-single-node
+    secrets:
+      - airship_spyglass_quay_creds
+    vars:
+      publish: true
+      distro: ubuntu_bionic
       tags:
         dynamic:
           branch: true
