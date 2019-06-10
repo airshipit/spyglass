@@ -36,7 +36,7 @@ VOLUME /var/spyglass
 WORKDIR /var/spyglass
 
 COPY requirements.txt /opt/spyglass/requirements.txt
-RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt
+RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt --user
 
 COPY . /opt/spyglass
-RUN pip3 install -e /opt/spyglass
+RUN pip3 install -e /opt/spyglass --user
