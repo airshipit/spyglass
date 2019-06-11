@@ -49,6 +49,13 @@ MANIFEST_DIR_OPTION = click.option(
     required=False,
     help='Path to place created manifest files.')
 
+FORCE_OPTION = click.option(
+    '--force',
+    'force',
+    is_flag=True,
+    default=False,
+    help="Forces manifests to be written, regardless of undefined data.")
+
 
 @click.option(
     '-v',
@@ -124,15 +131,16 @@ def intermediary_processor(plugin_type, **kwargs):
     type=click.Path(exists=True, readable=True, dir_okay=False))
 @TEMPLATE_DIR_OPTION
 @MANIFEST_DIR_OPTION
+@FORCE_OPTION
 def generate_manifests_using_intermediary(
-        *, intermediary_file, template_dir, manifest_dir):
+        *, intermediary_file, template_dir, manifest_dir, force):
     LOG.info("Loading intermediary from user provided input")
     with open(intermediary_file, 'r') as f:
         raw_data = f.read()
         intermediary_yaml = yaml.safe_load(raw_data)
 
     LOG.info("Generating site Manifests")
-    processor_engine = SiteProcessor(intermediary_yaml, manifest_dir)
+    processor_engine = SiteProcessor(intermediary_yaml, manifest_dir, force)
     processor_engine.render_template(template_dir)
 
 
