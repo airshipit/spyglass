@@ -57,7 +57,7 @@ class ServerList(object):
     def __iter__(self):
         yield from self.servers
 
-    def merge(self, server_list: str):
+    def merge(self, server_list):
         """Merges a comma separated server list into the object
 
         This method is used to merge additional servers into the list. This is
@@ -106,7 +106,7 @@ class IPList(object):
             'overlay': self.overlay,
             'pxe': self.pxe,
             'storage': self.storage
-        }
+        }.items()
 
     def set_ip_by_role(self, role: str, new_value):
         if role == 'oob':
@@ -187,12 +187,14 @@ class Host(object):
         return {
             self.name: {
                 'host_profile': self.host_profile,
-                'ip': self.ip,
+                'ip': self.ip.dict_from_class(),
                 'type': self.type
             }
         }
 
     def merge_additional_data(self, config_dict: dict):
+        if 'rack_name' in config_dict:
+            self.rack_name = config_dict['rack_name']
         if 'type' in config_dict:
             self.type = config_dict['type']
         if 'host_profile' in config_dict:
@@ -218,7 +220,7 @@ class Rack(object):
         """Creates a writeable dict structure from the object"""
         rack_as_dict = {self.name: {}}
         for host in self.hosts:
-            rack_as_dict.update(host.dict_from_class())
+            rack_as_dict[self.name].update(host.dict_from_class())
         return rack_as_dict
 
     def merge_additional_data(self, config_dict: dict):
@@ -257,9 +259,16 @@ class VLANNetworkData(object):
 
         :Keyword Arguments:
             * *role* (``str``) - Role of the data entry, defaults to name
-            * *vlan* (``str``, ``int``) -
-            * *type* (``str``) - Host type
-            * *ip* (``IPList``) - List of IP addresses for baremetal host
+            * *vlan* (``str``, ``int``) - virtual LAN ID number as str or int
+            * *subnet* (``list``) - list of subnet IP addresses as strings
+            * *routes* (``list``) - list of routes IP addresses as strings
+            * *gateway* - gateway address
+            * *dhcp_start* - DHCP range start
+            * *dhcp_end* - DHCP range end
+            * *static_start* - static IP range start
+            * *static_end* - static IP range end
+            * *reserved_start* - reserved IP range start
+            * *reserved_end* - reserved IP range end
         """
         self.name = name
         self.role = kwargs.get('role', self.name)
@@ -307,6 +316,8 @@ class VLANNetworkData(object):
         return vlan_dict
 
     def merge_additional_data(self, config_dict: dict):
+        if 'role' in config_dict:
+            self.role = config_dict['role']
         if 'vlan' in config_dict:
             self.vlan = config_dict['vlan']
         if 'subnet' in config_dict:
@@ -320,15 +331,15 @@ class VLANNetworkData(object):
         if 'dhcp_start' in config_dict:
             self.dhcp_start = config_dict['dhcp_start']
         if 'dhcp_end' in config_dict:
-            self.dhcp_start = config_dict['dhcp_end']
+            self.dhcp_end = config_dict['dhcp_end']
         if 'static_start' in config_dict:
-            self.dhcp_start = config_dict['static_start']
+            self.static_start = config_dict['static_start']
         if 'static_end' in config_dict:
-            self.dhcp_start = config_dict['static_end']
+            self.static_end = config_dict['static_end']
         if 'reserved_start' in config_dict:
-            self.dhcp_start = config_dict['reserved_start']
+            self.reserved_start = config_dict['reserved_start']
         if 'reserved_end' in config_dict:
-            self.dhcp_start = config_dict['reserved_end']
+            self.reserved_end = config_dict['reserved_end']
 
 
 class Network(object):
@@ -445,11 +456,11 @@ class SiteInfo(object):
         return {
             'corridor': self.corridor,
             'country': self.country,
-            'dns': self.dns,
+            'dns': str(self.dns),
             'domain': self.domain,
             'ldap': self.ldap,
             'name': self.name,
-            'ntp': self.ntp,
+            'ntp': str(self.ntp),
             'physical_location_id': self.physical_location_id,
             'sitetype': self.sitetype,
             'state': self.state,
