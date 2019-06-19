@@ -70,6 +70,7 @@
 - job:
     name: spyglass-docker-build-gate-opensuse
     timeout: 1800
+    voting: false
     run: tools/gate/playbooks/docker-image-build.yaml
     nodeset: spyglass-single-node
     vars:
@@ -116,6 +117,7 @@
 - job:
     name: spyglass-docker-publish-opensuse
     timeout: 1800
+    voting: false
     run: tools/gate/playbooks/docker-image-build.yaml
     nodeset: spyglass-single-node
     secrets:
