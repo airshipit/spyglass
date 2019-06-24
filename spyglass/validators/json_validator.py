@@ -19,7 +19,7 @@ import os
 from jsonschema import Draft7Validator
 import yaml
 
-from spyglass.validators import exceptions
+from spyglass import exceptions
 from spyglass.validators.validator import BaseDocumentValidator
 
 LOG = logging.getLogger(__name__)
@@ -43,11 +43,11 @@ class JSONSchemaValidator(BaseDocumentValidator):
 
         # Check that given paths are valid
         if not os.path.exists(document_path):
-            LOG.error('Document path: %s does not exist.', document_path)
-            raise exceptions.PathDoesNotExistError()
+            raise exceptions.PathDoesNotExistError(
+                file_type='Document', path=document_path)
         if not os.path.exists(schema_path):
-            LOG.error('Schema path: %s does not exist.', document_path)
-            raise exceptions.PathDoesNotExistError()
+            raise exceptions.PathDoesNotExistError(
+                file_type='Schema', path=schema_path)
 
         # Extract list of document file paths from path
         if os.path.isdir(document_path):
@@ -57,17 +57,17 @@ class JSONSchemaValidator(BaseDocumentValidator):
 
             # Directory should not be empty
             if not self.documents:
-                LOG.error(
-                    'No files with %s extension found in document path '
-                    '%s', document_extension, document_path)
-                raise exceptions.DirectoryEmptyError()
+                raise exceptions.DirectoryEmptyError(
+                    ext=document_extension, path=document_path)
         elif os.path.splitext(document_path) == document_extension:
             # Single files can just be appended to the list to process the same
             # so long as the extension matches
             self.documents.append(document_path)
         else:
             # Throw error if unexpected file type given
-            raise exceptions.UnexpectedFileType()
+            raise exceptions.UnexpectedFileType(
+                found_ext=os.path.splitext(document_path),
+                expected_ext=document_extension)
 
         # Extract list of schema file paths from path
         if os.path.isdir(schema_path):
@@ -77,16 +77,16 @@ class JSONSchemaValidator(BaseDocumentValidator):
 
             # Directory should not be empty
             if not self.schemas:
-                LOG.error(
-                    'No files with %s extension found in document path '
-                    '%s', document_extension, document_path)
-                raise exceptions.DirectoryEmptyError()
+                raise exceptions.DirectoryEmptyError(
+                    ext=schema_extension, path=schema_path)
         elif os.path.splitext(schema_path) == schema_extension:
             # Single files can just be appended to the list to process the same
             self.schemas.append(schema_path)
         else:
             # Throw error if unexpected file type given
-            raise exceptions.UnexpectedFileType()
+            raise exceptions.UnexpectedFileType(
+                found_ext=os.path.splitext(schema_path),
+                expected_ext=schema_extension)
 
         # Initialize pairs list for next step
         self.document_schema_pairs = []

@@ -16,7 +16,7 @@ from copy import deepcopy
 import ipaddress
 import logging
 
-from spyglass.data_extractor.custom_exceptions import InvalidIntermediary
+from spyglass.exceptions import InvalidIntermediary
 
 DATA_DEFAULT = "#CHANGE_ME"
 
@@ -629,8 +629,7 @@ class SiteDocumentData(object):
 
 def _validate_key_in_intermediary_dict(key: str, dictionary: dict):
     if key not in dictionary:
-        raise InvalidIntermediary(
-            '%s is not defined in the given intermediary file.' % key)
+        raise InvalidIntermediary(key=key)
 
 
 def site_document_data_factory(intermediary_dict: dict) -> SiteDocumentData:
