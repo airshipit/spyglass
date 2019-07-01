@@ -18,6 +18,8 @@ import shutil
 
 import jinja2
 
+from spyglass.data_extractor.models import site_document_data_factory
+from spyglass.data_extractor.models import SiteDocumentData
 from spyglass.site_processors.base import BaseProcessor
 
 LOG = logging.getLogger(__name__)
@@ -25,9 +27,12 @@ LOG = logging.getLogger(__name__)
 
 class SiteProcessor(BaseProcessor):
 
-    def __init__(self, intermediary_yaml, manifest_dir, force_write):
+    def __init__(self, site_data, manifest_dir, force_write):
         super().__init__()
-        self.yaml_data = intermediary_yaml
+        if isinstance(site_data, SiteDocumentData):
+            self.site_data = site_data
+        else:
+            self.site_data = site_document_data_factory(site_data)
         self.manifest_dir = manifest_dir
         self.force_write = force_write
 
@@ -38,7 +43,7 @@ class SiteProcessor(BaseProcessor):
         calico) are generated in a single file. Rack specific
         configs( pxe and oob) are generated per rack.
         """
-        # Check of manifest_dir exists
+        # Check if manifest_dir exists
         if self.manifest_dir is not None:
             site_manifest_dir = os.path.join(
                 self.manifest_dir, 'pegleg_manifests', 'site')
@@ -66,16 +71,16 @@ class SiteProcessor(BaseProcessor):
                     autoescape=True,
                     loader=loader,
                     trim_blocks=True,
+                    lstrip_blocks=True,
                     undefined=logging_undefined)
-                j2_env.filters["get_role_wise_nodes"] = \
-                    self.get_role_wise_nodes
                 templatefile = os.path.join(dirpath, filename)
                 LOG.debug("Template file: %s", templatefile)
                 outdirs = dirpath.split(template_folder_name)[1].lstrip(os.sep)
                 LOG.debug("outdirs: %s", outdirs)
 
                 outfile_path = os.path.join(
-                    site_manifest_dir, self.yaml_data["region_name"], outdirs)
+                    site_manifest_dir, self.site_data.site_info.region_name,
+                    outdirs)
                 LOG.debug("outfile path: %s", outfile_path)
                 outfile_yaml = os.path.split(templatefile)[1]
                 outfile_yaml = os.path.splitext(outfile_yaml)[0]
@@ -90,7 +95,7 @@ class SiteProcessor(BaseProcessor):
                     out = open(outfile, "w")
                     created_file_list.append(outfile)
                     LOG.info("Rendering {}".format(outfile_yaml))
-                    rendered = template_j2.render(data=self.yaml_data)
+                    rendered = template_j2.render(data=self.site_data)
                     out.write(rendered)
                     out.close()
                 except IOError as ioe:

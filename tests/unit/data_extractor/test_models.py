@@ -13,10 +13,17 @@
 # limitations under the License.
 
 from copy import copy
+import os
 import unittest
 from unittest import mock
 
+import yaml
+
+from spyglass.data_extractor.custom_exceptions import InvalidIntermediary
 from spyglass.data_extractor import models
+
+FIXTURE_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'shared')
 
 
 class TestParseIp(unittest.TestCase):
@@ -340,11 +347,7 @@ class TestRack(unittest.TestCase):
     """Tests for the Rack model"""
 
     RACK_NAME = 'test_rack1'
-    HOST_DATA = {
-        'rack_name': RACK_NAME,
-        'host_profile': 'host',
-        'type': 'compute'
-    }
+    HOST_DATA = {'rack_name': RACK_NAME, 'host_profile': 'host'}
 
     @mock.patch('spyglass.data_extractor.models.IPList', autospec=True)
     def setUp(self, MockIPList):
@@ -353,9 +356,9 @@ class TestRack(unittest.TestCase):
         self.HOST_DATA['ip'] = MockIPList()
         self.HOST_DATA['ip'].dict_from_class.return_value = 'success'
         self.hosts = [
-            models.Host('test_host1', **self.HOST_DATA),
-            models.Host('test_host2', **self.HOST_DATA),
-            models.Host('test_host3', **self.HOST_DATA),
+            models.Host('test_host1', **self.HOST_DATA, type='genesis'),
+            models.Host('test_host2', **self.HOST_DATA, type='compute'),
+            models.Host('test_host3', **self.HOST_DATA, type='controller'),
         ]
 
     def test___init__(self):
@@ -407,6 +410,15 @@ class TestRack(unittest.TestCase):
         result = models.Rack(self.RACK_NAME, self.hosts)
         self.assertEqual(
             self.hosts[1], result.get_host_by_name(self.hosts[1].name))
+
+    def test_get_host_by_type(self):
+        """Tests retrieval of a Rack's host(s) by type"""
+        result = models.Rack(self.RACK_NAME, self.hosts)
+        self.assertEqual(self.hosts[0], result.get_host_by_type('genesis')[0])
+        self.assertEqual(self.hosts[1], result.get_host_by_type('compute')[0])
+        self.assertEqual(
+            self.hosts[2],
+            result.get_host_by_type('controller')[0])
 
 
 class TestVLANNetworkData(unittest.TestCase):
@@ -820,3 +832,162 @@ class TestSiteDocumentData(unittest.TestCase):
         type(Rack()).name = mock.PropertyMock(side_effect=['rack1', 'rack3'])
         result = models.SiteDocumentData(site_info, network, baremetal)
         self.assertIsNone(result.get_baremetal_rack_by_name('rack2'))
+
+    @mock.patch('spyglass.data_extractor.models.SiteInfo')
+    @mock.patch('spyglass.data_extractor.models.Network')
+    @mock.patch('spyglass.data_extractor.models.Rack')
+    @mock.patch('spyglass.data_extractor.models.Host')
+    def test_get_baremetal_rack_by_name_multiple(
+            self, Host, Rack, Network, SiteInfo):
+        """Tests retrieval of baremetal host(s) by type"""
+        site_info = SiteInfo()
+        network = Network()
+        baremetal = [Rack(), Rack()]
+        Rack().get_host_by_type.return_value = [Host()]
+        result = models.SiteDocumentData(site_info, network, baremetal)
+        self.assertEqual(2, len(result.get_baremetal_host_by_type('genesis')))
+        self.assertEqual(2, len(result.get_baremetal_host_by_type('computer')))
+        self.assertEqual(
+            2, len(result.get_baremetal_host_by_type('controller')))
+
+
+class TestValidateKeyInIntermediaryDict(unittest.TestCase):
+    """Tests the _validate_key_in_intermediary_dict function"""
+
+    def test__validate_key_in_intermediary_dict(self):
+        test_dictionary = {'test_key': 'value'}
+        key = 'test_key'
+        self.assertIsNone(
+            models._validate_key_in_intermediary_dict(key, test_dictionary))
+
+    def test__validate_key_in_intermediary_dict_key_dne(self):
+        test_dictionary = {'test_key': 'value'}
+        key = 'not_test_key'
+        with self.assertRaises(InvalidIntermediary):
+            models._validate_key_in_intermediary_dict(key, test_dictionary)
+
+
+class TestSiteDocumentDataFactory(unittest.TestCase):
+    """Tests the site_document_data_factory function"""
+
+    def setUp(self) -> None:
+        test_intermediary_path = os.path.join(
+            FIXTURE_DIR, 'test_intermediary.yaml')
+        with open(test_intermediary_path, 'r') as f:
+            self.intermediary_dict = yaml.safe_load(f)
+
+    def test_site_document_data_factory(self):
+        site_document_data = models.site_document_data_factory(
+            self.intermediary_dict)
+
+        # Check correct return type
+        self.assertIsInstance(site_document_data, models.SiteDocumentData)
+
+    def test_site_document_data_factory_saves_storage(self):
+        site_document_data = models.site_document_data_factory(
+            self.intermediary_dict)
+
+        # Check that storage was saved without changes in the SiteDocumentData
+        self.assertDictEqual(
+            self.intermediary_dict['storage'], site_document_data.storage)
+
+    def test_site_document_data_factory_saves_site_info(self):
+        site_document_data = models.site_document_data_factory(
+            self.intermediary_dict)
+
+        # Check that site info saved correctly in SiteInfo object
+        site_info_dict = self.intermediary_dict['site_info']
+        self.assertIsInstance(site_document_data.site_info, models.SiteInfo)
+        self.assertEqual(
+            site_info_dict['name'], site_document_data.site_info.name)
+        self.assertEqual(
+            self.intermediary_dict['region_name'],
+            site_document_data.site_info.region_name)
+        self.assertEqual(
+            site_info_dict['state'], site_document_data.site_info.state)
+        self.assertEqual(
+            site_info_dict['physical_location_id'],
+            site_document_data.site_info.physical_location_id)
+        self.assertEqual(
+            site_info_dict['country'], site_document_data.site_info.country)
+        self.assertEqual(
+            site_info_dict['corridor'], site_document_data.site_info.corridor)
+        self.assertEqual(
+            site_info_dict['sitetype'], site_document_data.site_info.sitetype)
+        self.assertEqual(
+            site_info_dict['domain'], site_document_data.site_info.domain)
+        self.assertDictEqual(
+            site_info_dict['ldap'], site_document_data.site_info.ldap)
+        self.assertEqual(
+            site_info_dict['dns']['servers'],
+            str(site_document_data.site_info.dns))
+        self.assertEqual(
+            site_info_dict['ntp']['servers'],
+            str(site_document_data.site_info.ntp))
+
+    def test_site_document_data_factory_saves_network_data(self):
+        site_document_data = models.site_document_data_factory(
+            self.intermediary_dict)
+
+        # Check that network data saved correctly into a Network object
+        network_dict = self.intermediary_dict['network']
+        self.assertIsInstance(site_document_data.network, models.Network)
+        self.assertDictEqual(
+            network_dict['bgp'], site_document_data.network.bgp)
+        for network_type, network_data \
+                in network_dict['vlan_network_data'].items():
+            vlan_network_data = \
+                site_document_data.network.get_vlan_data_by_name(network_type)
+            self.assertIsInstance(vlan_network_data, models.VLANNetworkData)
+            self.assertEqual(network_type, vlan_network_data.name)
+            self.assertEqual(network_type, vlan_network_data.role)
+            self.assertEqual(network_data['subnet'], vlan_network_data.subnet)
+            if 'routes' in network_data:
+                self.assertEqual(
+                    network_data['routes'], vlan_network_data.routes)
+            if 'gateway' in network_data:
+                self.assertEqual(
+                    network_data['gateway'], vlan_network_data.gateway)
+            if 'vlan' in network_data:
+                self.assertEqual(network_data['vlan'], vlan_network_data.vlan)
+            if 'dhcp_start' in network_data and 'dhcp_end' in network_data:
+                self.assertEqual(
+                    network_data['dhcp_start'], vlan_network_data.dhcp_start)
+                self.assertEqual(
+                    network_data['dhcp_end'], vlan_network_data.dhcp_end)
+            if 'static_start' in network_data and 'static_end' in network_data:
+                self.assertEqual(
+                    network_data['static_start'],
+                    vlan_network_data.static_start)
+                self.assertEqual(
+                    network_data['static_end'], vlan_network_data.static_end)
+            if 'reserved_start' in network_data \
+                    and 'reserved_end' in network_data:
+                self.assertEqual(
+                    network_data['reserved_start'],
+                    vlan_network_data.reserved_start)
+                self.assertEqual(
+                    network_data['reserved_end'],
+                    vlan_network_data.reserved_end)
+
+    def test_site_document_data_factory_saves_baremetal_data(self):
+        site_document_data = models.site_document_data_factory(
+            self.intermediary_dict)
+
+        # Check that baremetal racks saved correctly into Rack objects
+        for rack_name, hosts \
+                in self.intermediary_dict['baremetal'].items():
+            rack = site_document_data.get_baremetal_rack_by_name(rack_name)
+            for host_name, host_data in hosts.items():
+                host = rack.get_host_by_name(host_name)
+                self.assertEqual(host_name, host.name)
+                self.assertEqual(rack_name, host.rack_name)
+                self.assertEqual(host_data['type'], host.type)
+                self.assertEqual(host_data['host_profile'], host.host_profile)
+                self.assertEqual(host_data['ip']['oob'], host.ip.oob)
+                self.assertEqual(host_data['ip']['oam'], host.ip.oam)
+                self.assertEqual(host_data['ip']['calico'], host.ip.calico)
+                self.assertEqual(host_data['ip']['overlay'], host.ip.overlay)
+                self.assertEqual(host_data['ip']['pxe'], host.ip.pxe)
+                self.assertEqual(host_data['ip']['storage'], host.ip.storage)
+            self.assertEqual(rack_name, rack.name)

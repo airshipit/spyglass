@@ -6,102 +6,69 @@ metadata:
   layeringDefinition:
     abstract: false
     layer: site
+    parentSelector:
+      name: common-addresses-global
+    actions:
+      - method: replace
+        path: .dns.upstream_servers
+      - method: merge
+        path: .
   storagePolicy: cleartext
+  replacement: true
 data:
   calico:
-    ip_autodetection_method: interface=bond1.{{ data['network']['vlan_network_data']['calico']['vlan']}}
+    ip_autodetection_method: interface=bond1.{{ data.network.get_vlan_data_by_name('calico').vlan }}
     etcd:
       service_ip: 10.96.232.136
     ip_rule:
-      gateway: {{ data['network']['vlan_network_data']['calico']['gateway']}}
+      gateway: {{ data.network.get_vlan_data_by_name('calico').gateway }}
       overlap_cidr: 10.96.0.0/15
     bgp:
       ipv4:
-        public_service_cidr: {{ data['network']['vlan_network_data']['ingress']['subnet'][0] }}
-        ingress_vip: {{ data['network']['bgp']['ingress_vip'] }}
+        public_service_cidr: {{ data.network.get_vlan_data_by_name('ingress').subnet[0] }}
+        ingress_vip: {{ data.network.bgp['ingress_vip'] }}
         peers:
-{% for peer in data['network']['bgp']['peers'] %}
+          {% for peer in data.network.bgp['peers'] %}
           - {{ peer }}
-{% endfor %}
+          {% endfor %}
   dns:
-    cluster_domain: cluster.local
     service_ip: 10.96.0.10
     upstream_servers:
-{% for server in (data['site_info']['dns']['servers']).split(',') %}
+    {% for server in data.site_info.dns.servers %}
       - {{ server }}
-{% endfor %}
-    upstream_servers_joined: {{ data['site_info']['dns']['servers']}}
-    ingress_domain: {{ data['site_info']['domain']|lower }}
+    {% endfor %}
+    upstream_servers_joined: {{ data.site_info.dns.__str__() }}
+    node_domain: {{ data.site_info.domain | lower }}
+    ingress_domain: {{ data.site_info.domain | lower }}
 
   genesis:
-    hostname: {{ (data|get_role_wise_nodes)['genesis']['name'] }}
-{% for rack in data['baremetal'] %}
-{% for host  in data['baremetal'][rack] %}
-{% if data['baremetal'][rack][host]['type'] == 'genesis' %}
-    ip: {{ data['baremetal'][rack][host]['ip']['calico'] }}
-{% endif %}
-{% endfor %}
-{% endfor %}
+    hostname: {{ data.get_baremetal_host_by_type('genesis')[0].name }}
+    ip: {{ data.get_baremetal_host_by_type('genesis')[0].ip.calico }}
+
   bootstrap:
-    ip: {{ (data|get_role_wise_nodes)['genesis']['pxe'] }}
+    ip: {{ data.get_baremetal_host_by_type('genesis')[0].ip.pxe }}
 
   kubernetes:
     api_service_ip: 10.96.0.1
     etcd_service_ip: 10.96.0.2
     pod_cidr: 10.97.0.0/16
     service_cidr: 10.96.0.0/16
-    # misc k8s port settings
-    apiserver_port: 6443
-    haproxy_port: 6553
-    service_node_port_range: 30000-32767
-
-  # etcd port settings
-  etcd:
-    container_port: 2379
-    haproxy_port: 2378
 
   masters:
-{% for host in (data|get_role_wise_nodes)['masters'] %}
-    - hostname: {{ host }}
-{% endfor %}
-  # NEWSITE-CHANGEME: Environment proxy information.
-  # NOTE: Reference Airship sites do not deploy behind a proxy, so this proxy section
-  # should be commented out.
-  # However if you are in a lab that requires proxy, ensure that these proxy
-  # settings are correct and reachable in your environment; otherwise update
-  # them with the correct values for your environment.
-  proxy:
-    http: ""
-    https: ""
-    no_proxy: []
-
-  node_ports:
-    drydock_api: 30000
-    maas_api: 30001
-    maas_proxy: 31800  # hardcoded in MAAS
-    shipyard_api: 30003
-    airflow_web: 30004
-  ntp:
-    servers_joined: {{ data['site_info']['ntp']['servers'] }}
-
-  ldap:
-    base_url: {{ (data['site_info']['ldap']['url']|string).split('//')[1] }}
-    url: {{ data['site_info']['ldap']['url'] }}
-    auth_path: DC=test,DC=test,DC=com?sAMAccountName?sub?memberof=CN={{ data['site_info']['ldap']['common_name'] }},OU=Application,OU=Groups,DC=test,DC=test,DC=com
-    common_name: {{ data['site_info']['ldap']['common_name'] }}
-    subdomain: {{ data['site_info']['ldap']['subdomain'] }}
-    domain: {{ (data['site_info']['ldap']['url']|string).split('.')[1] }}
+  {% for host in data.get_baremetal_host_by_type('controller') %}
+    - hostname: {{ host.name }}
+  {% endfor %}
 
   storage:
     ceph:
-      public_cidr: {{ data['network']['vlan_network_data']['storage']['subnet'] }}
-      cluster_cidr: {{ data['network']['vlan_network_data']['storage']['subnet'] }}
+      public_cidr: {{ data.network.get_vlan_data_by_name('storage').subnet[0] }}
+      cluster_cidr: {{ data.network.get_vlan_data_by_name('storage').subnet[0] }}
 
   neutron:
-    tunnel_device: 'bond1.{{ data['network']['vlan_network_data']['overlay']['vlan'] }}'
-    external_iface: 'bond1'
+    tunnel_device: "bond1.{{ data.network.get_vlan_data_by_name('overlay').vlan }}"
+    external_iface: "bond1"
 
   openvswitch:
-    external_iface: 'bond1'
+    external_iface: "bond1"
 ...
 

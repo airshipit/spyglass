@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from copy import deepcopy
 import ipaddress
 import logging
+
+from spyglass.data_extractor.custom_exceptions import InvalidIntermediary
 
 DATA_DEFAULT = "#CHANGE_ME"
 
@@ -252,6 +255,19 @@ class Rack(object):
             if host.name == name:
                 return host
         return None
+
+    def get_host_by_type(self, host_type: str):
+        """Gets host(s) on rack by role
+
+        :param host_type: Role of the host(s) to be retrieved
+        :return: list of hosts
+        :rtype: list
+        """
+        matching_hosts = []
+        for host in self.hosts:
+            if host.type == host_type:
+                matching_hosts.append(host)
+        return matching_hosts
 
 
 class VLANNetworkData(object):
@@ -594,3 +610,99 @@ class SiteDocumentData(object):
             if rack.name == name:
                 return rack
         return None
+
+    def get_baremetal_host_by_type(self, *args):
+        """Return baremetal host(s) with matching type
+
+        :param args: type(s) of the baremetal host
+        :return: Host object(s) matching the specified host_type
+        :rtype: list
+        """
+        host_list = []
+        for rack in self.baremetal:
+            rack_hosts = []
+            for arg in args:
+                rack_hosts.extend(rack.get_host_by_type(arg))
+            host_list.extend(rack_hosts)
+        return host_list
+
+
+def _validate_key_in_intermediary_dict(key: str, dictionary: dict):
+    if key not in dictionary:
+        raise InvalidIntermediary(
+            '%s is not defined in the given intermediary file.' % key)
+
+
+def site_document_data_factory(intermediary_dict: dict) -> SiteDocumentData:
+    """Uses intermediary file data to create a SiteDocumentData object
+
+    :param intermediary_dict: A loaded intermediary file dictionary
+    :return: all intermediary dictionary data returned as an object
+    """
+    # Validate baremetal in intermediary
+    _validate_key_in_intermediary_dict('baremetal', intermediary_dict)
+
+    # Pull out baremetal data into Rack and Host objects
+    rack_list = []
+    for rack, hosts in intermediary_dict['baremetal'].items():
+        host_list = []
+        for host_name, host_data in hosts.items():
+            host_ip_list = IPList(**host_data['ip'])
+            host_kwargs = {
+                'rack_name': rack,
+                'host_profile': host_data['host_profile'],
+                'type': host_data['type'],
+                'ip': host_ip_list
+            }
+            new_host = Host(host_name, **host_kwargs)
+            host_list.append(new_host)
+        new_rack = Rack(rack, host_list)
+        rack_list.append(new_rack)
+
+    # Validate network in intermediary
+    _validate_key_in_intermediary_dict('network', intermediary_dict)
+    # Validate vlan_network_data in intermediary
+    _validate_key_in_intermediary_dict(
+        'vlan_network_data', intermediary_dict['network'])
+    # Validate bgp in intermediary
+    _validate_key_in_intermediary_dict('bgp', intermediary_dict['network'])
+
+    # Pull out network data into Network object
+    vlan_data_list = []
+    for network_type, network_data in \
+            intermediary_dict['network']['vlan_network_data'].items():
+        vlan_data_list.append(VLANNetworkData(network_type, **network_data))
+    network = Network(vlan_data_list, bgp=intermediary_dict['network']['bgp'])
+
+    # Validate site_info in intermediary
+    _validate_key_in_intermediary_dict('site_info', intermediary_dict)
+    # Validate dns in intermediary
+    _validate_key_in_intermediary_dict('dns', intermediary_dict['site_info'])
+    # Validate ntp in intermediary
+    _validate_key_in_intermediary_dict('ntp', intermediary_dict['site_info'])
+    # Validate region_name in intermediary
+    _validate_key_in_intermediary_dict('region_name', intermediary_dict)
+
+    # Pull out site_info into a SiteInfo object
+    dns_server_list = ServerList(
+        intermediary_dict['site_info']['dns']['servers'].split(','))
+    ntp_server_list = ServerList(
+        intermediary_dict['site_info']['ntp']['servers'].split(','))
+    site_info_dict = deepcopy(intermediary_dict['site_info'])
+    site_info_dict.pop('dns')
+    site_info_dict.pop('ntp')
+    site_info_dict['dns'] = dns_server_list
+    site_info_dict['ntp'] = ntp_server_list
+    site_info_dict['region_name'] = intermediary_dict['region_name']
+    site_info = SiteInfo(**site_info_dict)
+
+    # Validate storage in intermediary
+    _validate_key_in_intermediary_dict('storage', intermediary_dict)
+
+    # Create and return SiteDocumentData object
+    site_document_data = SiteDocumentData(
+        site_info=site_info,
+        network=network,
+        baremetal=rack_list,
+        storage=intermediary_dict['storage'])
+    return site_document_data

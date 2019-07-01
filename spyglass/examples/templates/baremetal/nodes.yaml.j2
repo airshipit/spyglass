@@ -1,50 +1,46 @@
-{% set control_count = [1] %}
-{% for rack in data['baremetal'].keys() %}
-{% for host in data['baremetal'][rack].keys()%}
-{% if data['baremetal'][rack][host]['type'] != 'genesis' %}
+{% for rack in data.baremetal %}
+{% for host in rack.hosts %}
+{% if host.type != 'genesis' %}
 ---
 schema: 'drydock/BaremetalNode/v1'
 metadata:
   schema: 'metadata/Document/v1'
-  name: {{ host }}
+  name: {{ host.name }}
   layeringDefinition:
     abstract: false
     layer: site
   storagePolicy: cleartext
 data:
-  oob:
-    account: 'root'
-{% if data['baremetal'][rack][host]['host_profile'] == 'cp' %}
-{% if control_count.append(control_count.pop()+1) %} {% endif %}
-{% if control_count[0] < 4 %}
-  host_profile: nc-{{data['baremetal'][rack][host]['host_profile']}}-primary
-{% else %}
-  host_profile: nc-{{data['baremetal'][rack][host]['host_profile']}}-secondary
-{% endif %}
-{% else %}
-  host_profile: nc-{{data['baremetal'][rack][host]['host_profile']}}
-{% endif %}
+  {% if host.host_profile == 'cp' %}
+  {% if loop.index - 1 < 4 %}
+  host_profile: nc-{{ host.host_profile }}-primary
+  {% else %}
+  host_profile: nc-{{ host.host_profile }}-secondary
+  {% endif %}
+  {% else %}
+  host_profile: nc-{{ host.host_profile }}
+  {% endif %}
   addressing:
     - network: oob
-      address: {{ data['baremetal'][rack][host]['ip']['oob'] }}
+      address: {{ host.ip.oob }}
     - network: oam
-      address: {{ data['baremetal'][rack][host]['ip']['oam'] }}
+      address: {{ host.ip.oam }}
     - network: pxe
-      address: {{ data['baremetal'][rack][host]['ip']['pxe'] }}
+      address: {{ host.ip.pxe }}
     - network: storage
-      address: {{ data['baremetal'][rack][host]['ip']['storage'] }}
+      address: {{ host.ip.storage }}
     - network: calico
-      address: {{ data['baremetal'][rack][host]['ip']['calico'] }}
+      address: {{ host.ip.calico }}
     - network: overlay
-      address: {{ data['baremetal'][rack][host]['ip']['overlay'] }}
+      address: {{ host.ip.overlay }}
   metadata:
-    rack: RACK{{rack[-2:] }}
+    rack: {{ rack.name }}
     tags:
-{% if data['baremetal'][rack][host]['type'] == 'compute' %}
-        - 'workers'
-{% else %}
-        - 'masters'
-{% endif %}
+    {% if host.type == 'compute' %}
+      - 'workers'
+    {% else %}
+      - 'masters'
+    {% endif %}
 ...
 {% endif %}
 {%endfor%}

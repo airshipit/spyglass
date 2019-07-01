@@ -18,5 +18,5 @@ data:
     conf:
       pool:
         target:
-          osd: {{ data['storage']['ceph']['controller']['osd_count'] }}
+          osd: {{ data.storage['ceph']['controller']['osd_count'] }}
 ...

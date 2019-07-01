@@ -1,28 +1,4 @@
 ---
-schema: 'drydock/NetworkLink/v1'
-metadata:
-  schema: 'metadata/Document/v1'
-  name: oob
-  layeringDefinition:
-    abstract: false
-    layer: site
-  storagePolicy: cleartext
-data:
-  # MaaS doesnt own this network like it does the others, so the noconfig label
-  # is specified.
-  labels:
-    noconfig: enabled
-  bonding:
-    mode: disabled
-  mtu: 1500
-  linkspeed: auto
-  trunking:
-    mode: disabled
-    default_network: oob
-  allowed_networks:
-    - oob
-...
----
 schema: 'drydock/Network/v1'
 metadata:
   schema: 'metadata/Document/v1'
@@ -30,42 +6,33 @@ metadata:
   layeringDefinition:
     abstract: false
     layer: site
+    parentSelector:
+      network_role: oob
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
   storagePolicy: cleartext
 data:
-  cidr: {{ data['network']['vlan_network_data']['oob']['subnet'] }}
+  cidr: {{ data.network.get_vlan_data_by_name('oob').subnet[0] }}
   routes:
     - subnet: '0.0.0.0/0'
-      gateway: {{ data['network']['vlan_network_data']['oob']['gateway'] }}
+      gateway: {{ data.network.get_vlan_data_by_name('oob').gateway }}
       metric: 100
   ranges:
+    - type: reserved
+      start: {{ data.network.get_vlan_data_by_name('oob').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('oob').reserved_end }}
     - type: static
-      start: {{ data['network']['vlan_network_data']['oob']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['oob']['static_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('oob').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('oob').static_end }}
+    - type: dhcp
+      start: {{ data.network.get_vlan_data_by_name('oob').dhcp_start }}
+      end: {{ data.network.get_vlan_data_by_name('oob').dhcp_end }}
 ...
 
 ---
 schema: 'drydock/NetworkLink/v1'
-metadata:
-  schema: 'metadata/Document/v1'
-  name: pxe
-  layeringDefinition:
-    abstract: false
-    layer: site
-  storagePolicy: cleartext
-data:
-  bonding:
-    mode: disabled
-  mtu: 1500
-  linkspeed: auto
-  trunking:
-    mode: disabled
-    default_network: pxe
-  allowed_networks:
-    - pxe
-...
-
----
-schema: 'drydock/Network/v1'
 metadata:
   schema: 'metadata/Document/v1'
   name: pxe
@@ -80,56 +47,21 @@ metadata:
         path: .
   storagePolicy: cleartext
 data:
-  cidr: {{ data['network']['vlan_network_data']['pxe']['subnet'] }}
+  cidr: {{ data.network.get_vlan_data_by_name('pxe').subnet[0] }}
   routes:
-{% for other_subnet in data['network']['vlan_network_data']['pxe']['routes'] %}
-    - subnet: {{ other_subnet }}
-      gateway: {{ data['network']['vlan_network_data']['pxe']['gateway'] }}
+    - subnet: '0.0.0.0/0'
+      gateway: {{ data.network.get_vlan_data_by_name('pxe').gateway }}
       metric: 100
-{% endfor %}
   ranges:
     - type: reserved
-      start: {{ data['network']['vlan_network_data']['pxe']['reserved_start'] }}
-      end: {{ data['network']['vlan_network_data']['pxe']['reserved_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('pxe').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('pxe').reserved_end }}
     - type: static
-      start: {{ data['network']['vlan_network_data']['pxe']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['pxe']['static_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('pxe').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('pxe').static_end }}
     - type: dhcp
-      start: {{ data['network']['vlan_network_data']['pxe']['dhcp_start'] }}
-      end: {{ data['network']['vlan_network_data']['pxe']['dhcp_end'] }}
-...
-
----
-schema: 'drydock/NetworkLink/v1'
-metadata:
-  schema: 'metadata/Document/v1'
-  name: data
-  layeringDefinition:
-    abstract: false
-    layer: site
-  storagePolicy: cleartext
-data:
-  bonding:
-    mode: 802.3ad
-    hash: layer3+4
-    peer_rate: fast
-    mon_rate: 100
-    up_delay: 1000
-    down_delay: 3000
-  # NEWSITE-CHANGEME: Ensure the network switches in the environment are
-  # configured for this MTU or greater. Even if switches are configured for or
-  # can support a slightly higher MTU, there is no need (and negliable benefit)
-  # to squeeze every last byte into the MTU (e.g., 9216 vs 9100). Leave MTU at
-  # 9100 for maximum compatibility.
-  mtu: 9100
-  linkspeed: auto
-  trunking:
-    mode: 802.1q
-  allowed_networks:
-    - oam
-    - storage
-    - overlay
-    - calico
+      start: {{ data.network.get_vlan_data_by_name('pxe').dhcp_start }}
+      end: {{ data.network.get_vlan_data_by_name('pxe').dhcp_end }}
 ...
 
 ---
@@ -148,27 +80,24 @@ metadata:
         path: .
   storagePolicy: cleartext
 data:
-  cidr: {{ data['network']['vlan_network_data']['oam']['subnet'] }}
-{% set flag = [0] %}
-{% for route in data['network']['vlan_network_data']['oam']['routes'] %}
-{% if flag[0] == 0 %}
+  cidr: {{ data.network.get_vlan_data_by_name('oam').subnet[0] }}
+  {% if data.network.get_vlan_data_by_name('oam').routes %}
   routes:
-{% endif %}
-{% if flag.append(flag.pop() + 1) %} {% endif %}
+  {% for route in data.network.get_vlan_data_by_name('oam').routes %}
     - subnet: {{ route }}
-      gateway: {{ data['network']['vlan_network_data']['oam']['gateway'] }}
+      gateway: {{ data.network.get_vlan_data_by_name('oam').gateway }}
       metric: 100
-{% endfor %}
-{% if flag[0] == 0 %}
-  routes:[]
-{% endif %}
+  {% endfor %}
+  {% else %}
+  routes: []
+  {% endif %}
   ranges:
     - type: reserved
-      start: {{ data['network']['vlan_network_data']['oam']['reserved_start'] }}
-      end: {{ data['network']['vlan_network_data']['oam']['reserved_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('oam').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('oam').reserved_end }}
     - type: static
-      start: {{ data['network']['vlan_network_data']['oam']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['oam']['static_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('oam').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('oam').static_end }}
 ...
 
 ---
@@ -187,40 +116,14 @@ metadata:
         path: .
   storagePolicy: cleartext
 data:
-  cidr: {{ data['network']['vlan_network_data']['storage']['subnet'] }}
+  cidr: {{ data.network.get_vlan_data_by_name('storage').subnet[0] }}
   ranges:
     - type: reserved
-      start: {{ data['network']['vlan_network_data']['storage']['reserved_start'] }}
-      end: {{ data['network']['vlan_network_data']['storage']['reserved_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('storage').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('storage').reserved_end }}
     - type: static
-      start: {{ data['network']['vlan_network_data']['storage']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['storage']['static_end'] }}
-...
-
----
-schema: 'drydock/Network/v1'
-metadata:
-  schema: 'metadata/Document/v1'
-  name: overlay
-  layeringDefinition:
-    abstract: false
-    layer: site
-    parentSelector:
-      network_role: os-overlay
-      topology: cruiser
-    actions:
-      - method: merge
-        path: .
-  storagePolicy: cleartext
-data:
-  cidr: {{ data['network']['vlan_network_data']['overlay']['subnet'] }}
-  ranges:
-    - type: reserved
-      start: {{ data['network']['vlan_network_data']['overlay']['reserved_start'] }}
-      end: {{ data['network']['vlan_network_data']['overlay']['reserved_end'] }}
-    - type: static
-      start: {{ data['network']['vlan_network_data']['overlay']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['overlay']['static_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('storage').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('storage').static_end }}
 ...
 
 ---
@@ -239,13 +142,38 @@ metadata:
         path: .
   storagePolicy: cleartext
 data:
-  cidr: {{ data['network']['vlan_network_data']['calico']['subnet'] }}
+  cidr: {{ data.network.get_vlan_data_by_name('calico').subnet[0] }}
   ranges:
     - type: reserved
-      start: {{ data['network']['vlan_network_data']['calico']['reserved_start'] }}
-      end: {{ data['network']['vlan_network_data']['calico']['reserved_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('calico').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('calico').reserved_end }}
     - type: static
-      start: {{ data['network']['vlan_network_data']['calico']['static_start'] }}
-      end: {{ data['network']['vlan_network_data']['calico']['static_end'] }}
+      start: {{ data.network.get_vlan_data_by_name('calico').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('calico').static_end }}
 ...
 
+---
+schema: 'drydock/Network/v1'
+metadata:
+  schema: 'metadata/Document/v1'
+  name: overlay
+  layeringDefinition:
+    abstract: false
+    layer: site
+    parentSelector:
+      network_role: os-overlay
+      topology: cruiser
+    actions:
+      - method: merge
+        path: .
+  storagePolicy: cleartext
+data:
+  cidr: {{ data.network.get_vlan_data_by_name('overlay').subnet[0] }}
+  ranges:
+    - type: reserved
+      start: {{ data.network.get_vlan_data_by_name('overlay').reserved_start }}
+      end: {{ data.network.get_vlan_data_by_name('overlay').reserved_end }}
+    - type: static
+      start: {{ data.network.get_vlan_data_by_name('overlay').static_start }}
+      end: {{ data.network.get_vlan_data_by_name('overlay').static_end }}
+...
