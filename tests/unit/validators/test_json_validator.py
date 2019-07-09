@@ -16,7 +16,7 @@ import os
 
 import pytest
 
-from spyglass.validators.exceptions import PathDoesNotExistError
+from spyglass.exceptions import PathDoesNotExistError
 from spyglass.validators.json_validator import JSONSchemaValidator
 
 FIXTURE_DIR = os.path.join(

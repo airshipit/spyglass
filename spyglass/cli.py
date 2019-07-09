@@ -81,11 +81,13 @@ def intermediary_processor(plugin_type, **kwargs):
 
     # Load the plugin class
     LOG.info("Load the plugin class")
+    entry_point = "data_extractor_plugins"
     try:
         plugin_class = pkg_resources.load_entry_point(
-            "spyglass", "data_extractor_plugins", plugin_type)
+            "spyglass", entry_point, plugin_type)
     except ImportError:
-        raise exceptions.UnsupportedPlugin()
+        raise exceptions.UnsupportedPlugin(
+            plugin_name=plugin_type, entry_point=entry_point)
 
     # Extract data from plugin data source
     LOG.info("Extract data from plugin data source")

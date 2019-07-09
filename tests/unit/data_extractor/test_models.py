@@ -19,8 +19,8 @@ from unittest import mock
 
 import yaml
 
-from spyglass.data_extractor.custom_exceptions import InvalidIntermediary
 from spyglass.data_extractor import models
+from spyglass.exceptions import InvalidIntermediary
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'shared')
