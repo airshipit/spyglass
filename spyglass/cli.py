@@ -34,6 +34,30 @@ CONTEXT_SETTINGS = {
     'help_option_names': ['-h', '--help'],
 }
 
+SITE_CONFIGURATION_FILE_OPTION = click.option(
+    '-c',
+    '--site-configuration',
+    'site_configuration',
+    type=click.Path(exists=True, readable=True, dir_okay=False),
+    required=False,
+    help='Path to site specific configuration details YAML file.')
+
+INTERMEDIARY_DIR_OPTION = click.option(
+    '-d',
+    '--intermediary-dir',
+    'intermediary_dir',
+    type=click.Path(exists=True, file_okay=False, writable=True),
+    default='./',
+    help='Directory in which the intermediary file will be created.')
+
+SITE_NAME_CONFIGURATION_OPTION = click.option(
+    '-s',
+    '--site-name',
+    'site_name',
+    type=click.STRING,
+    required=False,
+    help='Name of the site for which the intermediary is being generated.')
+
 TEMPLATE_DIR_OPTION = click.option(
     '-t',
     '--template-dir',
