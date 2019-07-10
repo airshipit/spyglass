@@ -57,7 +57,7 @@ def _get_intermediary_data():
 
 
 @mock.patch('spyglass.parser.engine.ProcessDataSource', autospec=True)
-@mock.patch('spyglass_plugin_xls.excel.ExcelPlugin', autospec=True)
+@mock.patch('spyglass_plugin_xls.excel.ExcelPlugin', autospec=False)
 def test_intermediary_processor(mock_excel_plugin, mock_process_data_source):
     """Tests that the intermediary processor produces expected results"""
     plugin_name = 'excel'

@@ -91,9 +91,7 @@ def intermediary_processor(plugin_type, **kwargs):
 
     # Extract data from plugin data source
     LOG.info("Extract data from plugin data source")
-    data_extractor = plugin_class(kwargs['site_name'])
-    plugin_conf = data_extractor.get_plugin_conf(**kwargs)
-    data_extractor.set_config_opts(plugin_conf)
+    data_extractor = plugin_class(kwargs['site_name'], **kwargs)
     data_extractor.extract_data()
 
     # Apply any additional_config provided by user

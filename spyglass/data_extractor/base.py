@@ -23,39 +23,11 @@ LOG = logging.getLogger(__name__)
 class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
     """Provide basic hooks for data source plugins"""
 
-    def __init__(self, region):
+    def __init__(self, region, **kwargs):
         self.source_type = None
         self.source_name = None
         self.region = region
         self.site_data = None
-
-    @abc.abstractmethod
-    def set_config_opts(self, conf):
-        """Placeholder to set configuration options specific to each plugin.
-
-        :param dict conf: Configuration options as dict
-
-        Example: conf = { 'excel_spec': 'spec1.yaml',
-                          'excel_path': 'excel.xls' }
-
-        Each plugin will have their own config opts.
-        """
-
-        return
-
-    @abc.abstractmethod
-    def get_plugin_conf(self, kwargs):
-        """Validate and returns the plugin config parameters.
-
-        If validation fails, Spyglass exits.
-
-        :param char kwargs: Spyglass CLI parameters.
-        :returns plugin conf if successfully validated.
-
-        Each plugin implements their own validation mechanism.
-        """
-
-        return {}
 
     @abc.abstractmethod
     def get_racks(self, region):
