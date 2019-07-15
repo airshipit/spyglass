@@ -86,7 +86,7 @@ def test_intermediary_processor_additional_config(
     mock_excel_plugin.return_value.site_data = {}
     result = intermediary_processor(plugin_name, **data)
     assert type(result) == ProcessDataSource
-    mock_excel_plugin.return_value.apply_additional_data.\
+    mock_excel_plugin.return_value.get_data.\
         assert_called_once_with(_get_site_config_data())
 
 

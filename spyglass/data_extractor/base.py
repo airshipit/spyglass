@@ -27,13 +27,18 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         self.source_type = None
         self.source_name = None
         self.region = region
-        self.site_data = None
+        self.raw_data = None
+        self.data = None
 
     @abc.abstractmethod
-    def get_racks(self, region):
+    def load_raw_data(self):
+        """Loads raw data from data source"""
+        return
+
+    @abc.abstractmethod
+    def parse_racks(self):
         """Return list of racks in the region
 
-        :param string region: Region name
         :returns: list of Rack objects
         :rtype: list
         """
@@ -41,10 +46,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
-    def get_hosts(self, region, rack=None):
+    def parse_hosts(self, rack=None):
         """Return list of hosts in the region
 
-        :param string region: Region name
         :param string rack: Rack name
         :returns: list of Host objects containing a rack's host data
         :rtype: list of models.Host
@@ -53,10 +57,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
-    def get_networks(self, region):
+    def parse_networks(self):
         """Return list of networks in the region
 
-        :param string region: Region name
         :returns: list of network data
         :rtype: list of models.VLANNetworkData
         """
@@ -66,10 +69,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
-    def get_ips(self, region, host):
+    def parse_ips(self, host):
         """Return list of IPs on the host
 
-        :param string region: Region name
         :param string host: Host name
         :returns: IPs per network on the host
         :rtype: models.IPList
@@ -82,7 +84,7 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return {}
 
     @abc.abstractmethod
-    def get_dns_servers(self, region):
+    def parse_dns_servers(self):
         """Return the DNS servers
 
         :param string region: Region name
@@ -93,10 +95,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
-    def get_ntp_servers(self, region):
+    def parse_ntp_servers(self):
         """Return the NTP servers
 
-        :param string region: Region name
         :returns: NTP servers to be configured on host
         :rtype: models.ServerList
         """
@@ -104,10 +105,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
-    def get_ldap_information(self, region):
+    def parse_ldap_information(self):
         """Return the LDAP server information
 
-        :param string region: Region name
         :returns: LDAP server information
         :rtype: dict
 
@@ -120,10 +120,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return {}
 
     @abc.abstractmethod
-    def get_location_information(self, region):
+    def parse_location_information(self):
         """Return location information
 
-        :param string region: Region name
         :returns: Dict of location information
         :rtype: dict
 
@@ -137,10 +136,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         return {}
 
     @abc.abstractmethod
-    def get_domain_name(self, region):
+    def parse_domain_name(self):
         """Return the Domain name
 
-        :param string region: Region name
         :returns: Domain name
         :rtype: str
 
@@ -149,19 +147,7 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         return ""
 
-    @abc.abstractmethod
-    def get_site_info(self, region):
-        """Return site data as a SiteInfo object
-
-        :param region: Region name
-        :return: general site data including location, domain, name, LDAP, NTP,
-            DNS, and site type
-        :rtype: models.SiteInfo
-        """
-
-        return None
-
-    def extract_baremetal_information(self):
+    def parse_baremetal_information(self):
         """Get baremetal information from plugin
 
         :returns: racks and hosts as a list of Rack objects containing Host
@@ -170,9 +156,9 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """
 
         LOG.info("Extract baremetal information from plugin")
-        return self.get_racks(self.region)
+        return self.parse_racks()
 
-    def extract_site_information(self):
+    def parse_site_information(self):
         """Get site information from plugin
 
         :returns: site information including location, dns servers, ntp servers
@@ -185,18 +171,18 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         # Extract location information
         data = {
             'region_name': self.region,
-            'dns': self.get_dns_servers(self.region),
-            'ntp': self.get_ntp_servers(self.region),
-            'ldap': self.get_ldap_information(self.region),
-            'domain': self.get_domain_name(self.region)
+            'dns': self.parse_dns_servers(),
+            'ntp': self.parse_ntp_servers(),
+            'ldap': self.parse_ldap_information(),
+            'domain': self.parse_domain_name()
         }
-        data.update(self.get_location_information(self.region) or {})
+        data.update(self.parse_location_information() or {})
 
         site_info = models.SiteInfo(**data)
 
         return site_info
 
-    def extract_network_information(self):
+    def parse_network_information(self):
         """Get network details from plugin like Subnets, DNS, NTP and LDAP
 
         :returns: networking data as a Network object
@@ -204,7 +190,7 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """
 
         LOG.info("Extract network information from plugin")
-        networks = self.get_networks(self.region)
+        networks = self.parse_networks()
 
         # We are interested in only the below networks mentioned in
         # networks_to_scan, so look for these networks from the data
@@ -225,21 +211,13 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
 
         return models.Network(desired_networks)
 
-    def extract_data(self):
-        """Extract data from plugin
+    def parse_data_objects(self):
+        """Parses raw data into SiteDocumentData object"""
+        self.data = models.SiteDocumentData(
+            self.parse_site_information(), self.parse_network_information(),
+            self.parse_baremetal_information())
 
-        Gather data related to baremetal, networks, storage and other site
-        related information from plugin
-        """
-
-        LOG.info("Extract data from plugin")
-        self.site_data = models.SiteDocumentData(
-            self.extract_site_information(),
-            self.extract_network_information(),
-            self.extract_baremetal_information())
-        return self.site_data
-
-    def apply_additional_data(self, extra_data):
+    def merge_additional_data(self, extra_data):
         """Apply any additional inputs from user
 
         In case plugin does not provide some data, user can specify
@@ -250,4 +228,18 @@ class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
         """
 
         LOG.info("Update site data with additional input")
-        self.site_data.merge_additional_data(extra_data)
+        self.data.merge_additional_data(extra_data)
+
+    def get_data(self, extra_data=None):
+        """Extract and return SiteDocumentData object
+
+        Load raw data, parse data objects, merge additional data if
+        necessary, and return the resulting SiteDocumentData object
+        """
+
+        LOG.info("Extract data from plugin")
+        self.load_raw_data()
+        self.parse_data_objects()
+        if extra_data:
+            self.merge_additional_data(extra_data)
+        return self.data

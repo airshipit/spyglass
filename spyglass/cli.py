@@ -116,7 +116,6 @@ def intermediary_processor(plugin_type, **kwargs):
     # Extract data from plugin data source
     LOG.info("Extract data from plugin data source")
     data_extractor = plugin_class(kwargs['site_name'], **kwargs)
-    data_extractor.extract_data()
 
     # Apply any additional_config provided by user
     additional_config = kwargs.get('site_configuration', None)
@@ -126,17 +125,17 @@ def intermediary_processor(plugin_type, **kwargs):
         LOG.debug(
             "Additional config data:\n{}".format(
                 pprint.pformat(additional_config_data)))
+    else:
+        additional_config_data = None
 
-        LOG.info(
-            "Apply additional configuration from:{}".format(additional_config))
-        data_extractor.apply_additional_data(additional_config_data)
-        LOG.debug(pprint.pformat(data_extractor.site_data))
+    # Extract data into data objects
+    data_extractor.get_data(additional_config_data)
+    LOG.debug(pprint.pformat(data_extractor.data.dict_from_class()))
 
     # Apply design rules to the data
     LOG.info("Apply design rules to the extracted data")
     process_input_ob = ProcessDataSource(kwargs['site_name'])
-    process_input_ob.load_extracted_data_from_data_source(
-        data_extractor.site_data)
+    process_input_ob.load_extracted_data_from_data_source(data_extractor.data)
     return process_input_ob
 
 
