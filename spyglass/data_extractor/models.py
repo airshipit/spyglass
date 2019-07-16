@@ -120,6 +120,7 @@ class IPList(object):
         }.items()
 
     def set_ip_by_role(self, role: str, new_value):
+        # TODO(ian-pittwood): use setattr here?
         if role == 'oob':
             self.oob = _parse_ip(new_value)
         elif role == 'oam':

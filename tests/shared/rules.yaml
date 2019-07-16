@@ -1,0 +1,38 @@
+###########################
+# Global Rules            #
+###########################
+#Rule1:  ip_alloc_offset
+#        Specifies the number of ip addresses to offset from
+#        the start of subnet allocation pool while allocating it to host.
+#        -for vlan it is set to 12 as default.
+#        -for oob it is 10
+#        -for all gateway ip addresss it is set to 1.
+#        -for ingress vip it is 1
+#        -for static end (non pxe) it is -1( means one but last ip of the pool)
+#        -for dhcp end (pxe only) it is -2( 3rd from the last ip of the pool)
+#Rule2:  host_profile_interfaces.
+#        Specifies the network interfaces type and
+#        and their names for a particular hw profile
+#Rule3: hardware_profile
+#       This specifies the profile details  bases on sitetype.
+#       It specifies the profile name and host type for compute,
+#       controller along with hw type
+---
+rule_ip_alloc_offset:
+  name: ip_alloc_offset
+  ip_alloc_offset:
+    default: 12
+    oob: 10
+    gateway: 1
+    ingress_vip: 1
+    static_ip_end: -2
+    dhcp_ip_end: -2
+rule_hardware_profile:
+  name: hardware_profile
+  hardware_profile:
+    foundry:
+      profile_name:
+        compute: dp-r720
+        ctrl: cp-r720
+      hw_type: dell_r720
+...
