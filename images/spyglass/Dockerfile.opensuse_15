@@ -1,4 +1,4 @@
-ARG FROM=opensuse/leap:15.0
+ARG FROM=opensuse/leap:15.1
 FROM ${FROM}
 
 LABEL org.opencontainers.image.authors='airship-discuss@lists.airshipit.org, irc://#airshipit@freenode'
@@ -39,4 +39,4 @@ COPY requirements.txt /opt/spyglass/requirements.txt
 RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt --user
 
 COPY . /opt/spyglass
-RUN pip3 install -e /opt/spyglass --user
+RUN pip3 install -e /opt/spyglass
