@@ -21,12 +21,14 @@
     check:
       jobs:
         - openstack-tox-pep8
+        - spyglass-dependency-vulnerability-check
         - spyglass-docker-build-gate-ubuntu_xenial
         - spyglass-docker-build-gate-ubuntu_bionic
         - spyglass-docker-build-gate-opensuse
     gate:
       jobs:
         - openstack-tox-pep8
+        - spyglass-dependency-vulnerability-check
         - spyglass-docker-build-gate-ubuntu_xenial
         - spyglass-docker-build-gate-ubuntu_bionic
         - spyglass-docker-build-gate-opensuse
@@ -42,6 +44,15 @@
     nodes:
       - name: primary
         label: ubuntu-xenial
+
+- job:
+    name: spyglass-dependency-vulnerability-check
+    parent: openstack-tox
+    voting: false
+    timeout: 600
+    nodeset: spyglass-single-node
+    vars:
+      tox_envlist: safety
 
 - job:
     name: spyglass-docker-build-gate-ubuntu_xenial
