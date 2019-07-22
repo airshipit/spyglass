@@ -41,6 +41,7 @@ class ProcessDataSource(object):
         return raw_data
 
     def _initialize_intermediary(self):
+        # TODO(ian-pittwood): Define these in init, remove this function
         self.host_type = {}
         self.data = {
             "network": {},
@@ -73,6 +74,8 @@ class ProcessDataSource(object):
         return network_subnets
 
     def _get_genesis_node_details(self):
+        # TODO(ian-pittwood): Use get_baremetal_host_by_type instead
+        # TODO(ian-pittwood): Below should be docstring, not comment
         # Get genesis host node details from the hosts based on host type
         for rack in self.data.baremetal:
             for host in rack.hosts:
@@ -90,6 +93,7 @@ class ProcessDataSource(object):
         The method validates this with regex pattern defined for each
         data type.
         """
+        # TODO(ian-pittwood): Implement intermediary validation or remove
 
         LOG.info("Validating Intermediary data")
         # Performing a deep copy
@@ -139,6 +143,12 @@ class ProcessDataSource(object):
         """
 
         LOG.info("Apply design rules")
+        # TODO(ian-pittwood): Use more robust path creation methods such
+        #                      as os.path.join. We may also want to let
+        #                      users specify these in cli opts. We also need
+        #                      better guidelines over how to write these rules
+        #                      and how they are applied.
+
         rules_dir = resource_filename("spyglass", "config/")
         rules_file = rules_dir + "rules.yaml"
         rules_data_raw = self._read_file(rules_file)
@@ -158,6 +168,10 @@ class ProcessDataSource(object):
         # information is already present in plugin data.
         # This function shall be defined if plugin data source
         # doesn't provide host profile information.
+
+        # TODO(ian-pittwood): Should be implemented as it is outside of
+        #                      our plugin packages. Logic can be implemented
+        #                      to ensure proper data processing.
         pass
 
     def _apply_rule_hardware_profile(self, rule_data):
@@ -212,6 +226,7 @@ class ProcessDataSource(object):
 
         host_idx = 0
         LOG.info("Update baremetal host ip's")
+        # TODO(ian-pittwood): this can be redone to be cleaner with models
         for rack in self.data.baremetal:
             for host in rack.hosts:
                 for net_type, net_ip in iter(host.ip):
@@ -219,6 +234,7 @@ class ProcessDataSource(object):
                     host.ip.set_ip_by_role(
                         net_type, str(ips[host_idx + default_ip_offset]))
                 host_idx += 1
+        return
 
     def _update_vlan_net_data(self, rule_data):
         """Offset allocation rules to determine ip address range(s)
@@ -296,6 +312,8 @@ class ProcessDataSource(object):
                 pprint.pformat(vlan_network_data_.dict_from_class())))
 
     def load_extracted_data_from_data_source(self, extracted_data):
+        # TODO(ian-pittwood): Remove this and use init
+
         """Function called from cli.py to pass extracted data
 
         from input data source
