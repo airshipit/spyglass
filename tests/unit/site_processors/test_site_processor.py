@@ -64,6 +64,31 @@ class TestSiteProcessor(unittest.TestCase):
     @mock.patch(
         'spyglass.data_extractor.models.SiteDocumentData',
         spec=models.SiteDocumentData)
+    def test___init__(self, SiteDocumentData):
+        site_data = SiteDocumentData()
+        _out_dir = mkdtemp()
+        obj = SiteProcessor(site_data, _out_dir, force_write=False)
+        self.assertEqual(site_data, obj.site_data)
+        self.assertEqual(_out_dir, obj.manifest_dir)
+        self.assertFalse(obj.force_write)
+
+    @mock.patch(
+        'spyglass.site_processors.site_processor.site_document_data_factory',
+        autospec=True,
+        return_value='success')
+    def test___init___use_site_document_data_factory(
+            self, site_document_data_factory):
+        site_data = {}
+        _out_dir = mkdtemp()
+        obj = SiteProcessor(site_data, _out_dir, force_write=False)
+        site_document_data_factory.assert_called_once_with(site_data)
+        self.assertEqual('success', obj.site_data)
+        self.assertEqual(_out_dir, obj.manifest_dir)
+        self.assertFalse(obj.force_write)
+
+    @mock.patch(
+        'spyglass.data_extractor.models.SiteDocumentData',
+        spec=models.SiteDocumentData)
     @mock.patch('spyglass.data_extractor.models.SiteInfo')
     @mock.patch('spyglass.data_extractor.models.ServerList')
     def test_render_template(self, ServerList, SiteInfo, SiteDocumentData):
