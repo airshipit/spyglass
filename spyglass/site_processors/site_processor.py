@@ -26,7 +26,6 @@ LOG = logging.getLogger(__name__)
 
 
 class SiteProcessor(BaseProcessor):
-
     def __init__(self, site_data, manifest_dir, force_write):
         super().__init__()
         if isinstance(site_data, SiteDocumentData):

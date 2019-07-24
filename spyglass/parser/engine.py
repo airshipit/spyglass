@@ -28,7 +28,6 @@ LOG = logging.getLogger(__name__)
 
 
 class ProcessDataSource(object):
-
     def __init__(self, site_type):
         # Initialize intermediary and save site type
         self._initialize_intermediary()
