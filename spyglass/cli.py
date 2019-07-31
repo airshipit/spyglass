@@ -134,8 +134,8 @@ def intermediary_processor(plugin_type, **kwargs):
 
     # Apply design rules to the data
     LOG.info("Apply design rules to the extracted data")
-    process_input_ob = ProcessDataSource(kwargs['site_name'])
-    process_input_ob.load_extracted_data_from_data_source(data_extractor.data)
+    process_input_ob = ProcessDataSource(
+        kwargs['site_name'], data_extractor.data)
     return process_input_ob
 
 
