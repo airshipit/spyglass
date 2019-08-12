@@ -22,6 +22,8 @@ RUN set -x \
          python3-pip \
          python3-setuptools \
          which \
+    && zypper --non-interactive --no-gpg-checks ar -f https://download.opensuse.org/repositories/devel:languages:python/openSUSE_Leap_15.1/devel:languages:python.repo \
+    && zypper --non-interactive --no-gpg-checks install python3-six-1.12.0-lp151.80.1.noarch \
     && python3 -m pip install -U pip \
     && zypper clean -a \
     && rm -rf \
@@ -35,8 +37,9 @@ RUN set -x \
 VOLUME /var/spyglass
 WORKDIR /var/spyglass
 
-COPY requirements.txt /opt/spyglass/requirements.txt
-RUN pip3 install --no-cache-dir -r /opt/spyglass/requirements.txt --user
+COPY Pipfile /var/spyglass/Pipfile
+COPY Pipfile.lock /var/spyglass/Pipfile.lock
+RUN pip3 install pipenv && pipenv install --system --deploy --ignore-pipfile
 
 COPY . /opt/spyglass
 RUN pip3 install -e /opt/spyglass

@@ -8,7 +8,7 @@ pbr = ">=2.0.0"
 pytest = "*"
 pytest-xdist = "*"
 pytest-cov = "*"
-yapf = ">=0.27.0"
+yapf = "~=0.27.0"
 hacking = ">=1.1.0"
 bandit = ">=1.6.0"
 tox = "*"
@@ -20,7 +20,7 @@ jsonschema = "~=3.0.1"
 netaddr = "~=0.7.19"
 spyglass-plugin-xls = {git = "https://opendev.org/airship/spyglass-plugin-xls.git"}
 Jinja2 = "~=2.10.1"
-PyYAML = "~=5.1.1"
+PyYAML = "==5.1.1"
 
 [requires]
 python_version = "3.6"
