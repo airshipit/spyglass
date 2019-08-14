@@ -43,7 +43,6 @@ def _parse_ip(addr):
 
 class ServerList(object):
     """Model for a list of servers"""
-
     def __init__(self, server_list):
         """Validates a list of server IPs and creates a list of them
 
@@ -84,7 +83,6 @@ class ServerList(object):
 
 class IPList(object):
     """Model for IP addresses for a baremetal host"""
-
     def __init__(
             self,
             oob=DATA_DEFAULT,
@@ -173,7 +171,6 @@ class IPList(object):
 
 class Host(object):
     """Model for a baremetal host"""
-
     def __init__(self, name, **kwargs):
         """Stores data for a baremetal host
 
@@ -218,7 +215,6 @@ class Host(object):
 
 class Rack(object):
     """Model for a baremetal rack"""
-
     def __init__(self, name: str, host_list: list):
         """Stores data for the top-level, baremetal rack
 
@@ -273,7 +269,6 @@ class Rack(object):
 
 class VLANNetworkData(object):
     """Model for single entry of VLAN Network Data"""
-
     def __init__(self, name: str, **kwargs):
         """Stores single entry of VLAN Network Data
 
@@ -384,7 +379,6 @@ class VLANNetworkData(object):
 
 class Network(object):
     """Model for network configurations"""
-
     def __init__(self, vlan_network_data: list, **kwargs):
         """Stores data for Airship network configurations
 
@@ -450,7 +444,6 @@ class Network(object):
 
 class SiteInfo(object):
     """Model for general site information"""
-
     def __init__(self, name, **kwargs):
         """Stores general site information such as location data and site name
 
@@ -542,7 +535,6 @@ class SiteInfo(object):
 
 class SiteDocumentData(object):
     """High level model for site data"""
-
     def __init__(
             self,
             site_info: SiteInfo,

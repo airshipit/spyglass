@@ -17,7 +17,6 @@ import abc
 
 class BaseDocumentValidator(metaclass=abc.ABCMeta):
     """Abstract class for document validation"""
-
     def __init__(self):
         self.documents = []
         self.schemas = []

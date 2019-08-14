@@ -114,3 +114,6 @@ AUTHORS
 
 # Ansible
 *.retry
+
+# *nix pyenv
+*~

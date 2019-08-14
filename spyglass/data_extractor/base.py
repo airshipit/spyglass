@@ -22,7 +22,6 @@ LOG = logging.getLogger(__name__)
 
 class BaseDataSourcePlugin(metaclass=abc.ABCMeta):
     """Provide basic hooks for data source plugins"""
-
     def __init__(self, region, **kwargs):
         self.source_type = None
         self.source_name = None

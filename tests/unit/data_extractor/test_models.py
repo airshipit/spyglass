@@ -28,7 +28,6 @@ FIXTURE_DIR = os.path.join(
 
 class TestParseIp(unittest.TestCase):
     """Tests the _parse_ip validator for Spyglass models"""
-
     def test__parse_ip(self):
         """Tests basic function of _parse_ip validator"""
         addr = '10.23.0.1'
@@ -853,7 +852,6 @@ class TestSiteDocumentData(unittest.TestCase):
 
 class TestValidateKeyInIntermediaryDict(unittest.TestCase):
     """Tests the _validate_key_in_intermediary_dict function"""
-
     def test__validate_key_in_intermediary_dict(self):
         test_dictionary = {'test_key': 'value'}
         key = 'test_key'
@@ -869,7 +867,6 @@ class TestValidateKeyInIntermediaryDict(unittest.TestCase):
 
 class TestSiteDocumentDataFactory(unittest.TestCase):
     """Tests the site_document_data_factory function"""
-
     def setUp(self) -> None:
         test_intermediary_path = os.path.join(
             FIXTURE_DIR, 'test_intermediary.yaml')

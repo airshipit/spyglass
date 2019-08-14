@@ -30,7 +30,6 @@ LOG_FORMAT = '%(asctime)s %(levelname)-8s %(name)s:' \
 
 class JSONSchemaValidator(BaseDocumentValidator):
     """Validator for validating documents using jsonschema"""
-
     def __init__(
             self,
             document_path,
