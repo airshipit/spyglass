@@ -28,31 +28,25 @@ LOG = logging.getLogger(__name__)
 
 
 class ProcessDataSource(object):
-    def __init__(self, site_type):
+    def __init__(self, region, extracted_data):
         # Initialize intermediary and save site type
-        self._initialize_intermediary()
-        self.region_name = site_type
+        self.host_type = {}
+        self.sitetype = None
+        self.genesis_node = None
+        self.network_subnets = None
+        self.region_name = region
+
+        LOG.info("Loading plugin data source")
+        self.data = extracted_data
+        LOG.debug(
+            "Extracted data from plugin:\n{}".format(
+                pprint.pformat(extracted_data)))
 
     @staticmethod
     def _read_file(file_name):
         with open(file_name, "r") as f:
             raw_data = f.read()
         return raw_data
-
-    def _initialize_intermediary(self):
-        # TODO(ian-pittwood): Define these in init, remove this function
-        self.host_type = {}
-        self.data = {
-            "network": {},
-            "baremetal": {},
-            "region_name": "",
-            "storage": {},
-            "site_info": {},
-        }
-        self.sitetype = None
-        self.genesis_node = None
-        self.region_name = None
-        self.network_subnets = None
 
     def _get_network_subnets(self):
         """Extract subnet information for networks.
@@ -73,13 +67,9 @@ class ProcessDataSource(object):
         return network_subnets
 
     def _get_genesis_node_details(self):
-        # TODO(ian-pittwood): Use get_baremetal_host_by_type instead
-        # TODO(ian-pittwood): Below should be docstring, not comment
-        # Get genesis host node details from the hosts based on host type
-        for rack in self.data.baremetal:
-            for host in rack.hosts:
-                if host.type == "genesis":
-                    self.genesis_node = host
+        """Get genesis host node details from the hosts based on host type"""
+        for host in self.data.get_baremetal_host_by_type('genesis'):
+            self.genesis_node = host
         LOG.debug(
             "Genesis Node Details:\n{}".format(
                 pprint.pformat(self.genesis_node)))
@@ -142,36 +132,21 @@ class ProcessDataSource(object):
         """
 
         LOG.info("Apply design rules")
-        # TODO(ian-pittwood): Use more robust path creation methods such
-        #                      as os.path.join. We may also want to let
-        #                      users specify these in cli opts. We also need
-        #                      better guidelines over how to write these rules
-        #                      and how they are applied.
+        # TODO(ian-pittwood): We may want to let users specify these in cli
+        #                     opts. We also need better guidelines over how
+        #                     to write these rules and how they are applied.
 
         rules_dir = resource_filename("spyglass", "config/")
-        rules_file = rules_dir + "rules.yaml"
+        rules_file = os.path.join(rules_dir, "rules.yaml")
         rules_data_raw = self._read_file(rules_file)
         rules_yaml = yaml.safe_load(rules_data_raw)
-        rules_data = {}
-        rules_data.update(rules_yaml)
-        for rule in rules_data.keys():
-            rule_name = rules_data[rule]["name"]
+        for rule in rules_yaml.keys():
+            rule_name = rules_yaml[rule]["name"]
             function_str = "_apply_rule_" + rule_name
-            rule_data_name = rules_data[rule][rule_name]
+            rule_data_name = rules_yaml[rule][rule_name]
             function = getattr(self, function_str)
             function(rule_data_name)
             LOG.info("Applying rule:{}".format(rule_name))
-
-    def _apply_rule_host_profile_interfaces(self, rule_data):
-        # TODO(pg710r)Nothing to do as of now since host profile
-        # information is already present in plugin data.
-        # This function shall be defined if plugin data source
-        # doesn't provide host profile information.
-
-        # TODO(ian-pittwood): Should be implemented as it is outside of
-        #                      our plugin packages. Logic can be implemented
-        #                      to ensure proper data processing.
-        pass
 
     def _apply_rule_hardware_profile(self, rule_data):
         """Apply rules to define host type from hardware profile info.
@@ -225,7 +200,6 @@ class ProcessDataSource(object):
 
         host_idx = 0
         LOG.info("Update baremetal host ip's")
-        # TODO(ian-pittwood): this can be redone to be cleaner with models
         for rack in self.data.baremetal:
             for host in rack.hosts:
                 for net_type, net_ip in iter(host.ip):
@@ -309,27 +283,6 @@ class ProcessDataSource(object):
         LOG.debug(
             "Updated vlan network data:\n{}".format(
                 pprint.pformat(vlan_network_data_.dict_from_class())))
-
-    def load_extracted_data_from_data_source(self, extracted_data):
-        # TODO(ian-pittwood): Remove this and use init
-
-        """Function called from cli.py to pass extracted data
-
-        from input data source
-        """
-
-        LOG.info("Loading plugin data source")
-        self.data = extracted_data
-        LOG.debug(
-            "Extracted data from plugin:\n{}".format(
-                pprint.pformat(extracted_data)))
-
-        # Uncomment following segment for debugging purpose.
-        # extracted_file = "extracted_file.yaml"
-        # yaml_file = yaml.dump(extracted_data, default_flow_style=False)
-        # with open(extracted_file, 'w') as f:
-        #     f.write(yaml_file)
-        # f.close()
 
     def dump_intermediary_file(self, intermediary_dir):
         """Writing intermediary yaml"""

@@ -32,12 +32,14 @@ class TestProcessDataSource(unittest.TestCase):
     REGION_NAME = 'test'
 
     def test___init__(self):
-        with mock.patch.object(
-                ProcessDataSource,
-                '_initialize_intermediary') as mock__initialize_intermediary:
-            obj = ProcessDataSource(self.REGION_NAME)
+        expected_data = 'data'
+        obj = ProcessDataSource(self.REGION_NAME, expected_data)
         self.assertEqual(self.REGION_NAME, obj.region_name)
-        mock__initialize_intermediary.assert_called_once()
+        self.assertDictEqual({}, obj.host_type)
+        self.assertEqual(expected_data, obj.data)
+        self.assertIsNone(obj.sitetype)
+        self.assertIsNone(obj.genesis_node)
+        self.assertIsNone(obj.network_subnets)
 
     def test__read_file(self):
         test_file = os.path.join(FIXTURE_DIR, 'site_config.yaml')
@@ -45,24 +47,6 @@ class TestProcessDataSource(unittest.TestCase):
             expected_data = f.read()
         data = ProcessDataSource._read_file(test_file)
         self.assertEqual(expected_data, data)
-
-    def test__initialize_intermediary(self):
-        expected_data = {
-            "network": {},
-            "baremetal": {},
-            "region_name": "",
-            "storage": {},
-            "site_info": {},
-        }
-
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj._initialize_intermediary()
-        self.assertDictEqual({}, obj.host_type)
-        self.assertDictEqual(expected_data, obj.data)
-        self.assertIsNone(obj.sitetype)
-        self.assertIsNone(obj.genesis_node)
-        self.assertIsNone(obj.region_name)
-        self.assertIsNone(obj.network_subnets)
 
     def test__get_network_subnets(self):
         expected_result = {
@@ -73,8 +57,7 @@ class TestProcessDataSource(unittest.TestCase):
             'pxe': IPNetwork('30.30.4.0/25'),
             'storage': IPNetwork('30.31.1.0/25')
         }
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         result = obj._get_network_subnets()
         self.assertDictEqual(expected_result, result)
 
@@ -82,8 +65,7 @@ class TestProcessDataSource(unittest.TestCase):
         expected_result = self.site_document_data.get_baremetal_host_by_type(
             'genesis')[0]
 
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj._get_genesis_node_details()
         self.assertEqual(expected_result, obj.genesis_node)
 
@@ -95,22 +77,16 @@ class TestProcessDataSource(unittest.TestCase):
     @mock.patch.object(ProcessDataSource, '_apply_rule_hardware_profile')
     def test__apply_design_rules(
             self, mock_rule_hw_profile, mock_rule_ip_alloc_offset):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj._apply_design_rules()
         mock_rule_hw_profile.assert_called_once()
         mock_rule_ip_alloc_offset.assert_called_once()
-
-    @unittest.skip('Not implemented.')
-    def test__apply_rule_host_profiles_interfaces(self):
-        pass
 
     def test__apply_rule_hardware_profile(self):
         input_rules = self.rules_data['rule_hardware_profile'][
             'hardware_profile']
 
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj._apply_rule_hardware_profile(input_rules)
         self.assertEqual(
             1, len(obj.data.get_baremetal_host_by_type('genesis')))
@@ -132,8 +108,7 @@ class TestProcessDataSource(unittest.TestCase):
     def test__apply_rule_ip_alloc_offset(
             self, mock__get_network_subnets, mock__update_vlan_net_data,
             mock__update_baremetal_host_ip_data):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj._apply_rule_ip_alloc_offset(self.rules_data)
         self.assertEqual('success', obj.network_subnets)
         mock__get_network_subnets.assert_called_once()
@@ -142,8 +117,7 @@ class TestProcessDataSource(unittest.TestCase):
             self.rules_data)
 
     def test__update_baremetal_host_ip_data(self):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj.network_subnets = obj._get_network_subnets()
         ip_alloc_offset_rules = self.rules_data['rule_ip_alloc_offset'][
             'ip_alloc_offset']
@@ -163,8 +137,7 @@ class TestProcessDataSource(unittest.TestCase):
         ip_alloc_offset_rules = self.rules_data['rule_ip_alloc_offset'][
             'ip_alloc_offset']
 
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         obj.network_subnets = obj._get_network_subnets()
         obj._update_vlan_net_data(ip_alloc_offset_rules)
 
@@ -211,14 +184,12 @@ class TestProcessDataSource(unittest.TestCase):
                 self.assertEqual([], vlan.routes)
 
     def test_load_extracted_data_from_data_source(self):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         self.assertEqual(self.site_document_data, obj.data)
 
     @mock.patch('yaml.dump', return_value='success')
     def test_dump_intermediary_file(self, mock_dump):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         mock_open = mock.mock_open()
         with mock.patch('spyglass.parser.engine.open', mock_open):
             obj.dump_intermediary_file(None)
@@ -232,8 +203,7 @@ class TestProcessDataSource(unittest.TestCase):
     @mock.patch.object(ProcessDataSource, '_get_genesis_node_details')
     def test_generate_intermediary_yaml(
             self, mock__apply_design_rules, mock__get_genesis_node_details):
-        obj = ProcessDataSource(self.REGION_NAME)
-        obj.load_extracted_data_from_data_source(self.site_document_data)
+        obj = ProcessDataSource(self.REGION_NAME, self.site_document_data)
         result = obj.generate_intermediary_yaml()
         self.assertEqual(self.site_document_data, result)
         mock__apply_design_rules.assert_called_once()
