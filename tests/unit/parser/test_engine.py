@@ -19,6 +19,7 @@ from unittest import mock
 from netaddr import IPNetwork
 from pytest import mark
 
+from spyglass import exceptions
 from spyglass.parser.engine import ProcessDataSource
 
 FIXTURE_DIR = os.path.join(
@@ -27,6 +28,7 @@ FIXTURE_DIR = os.path.join(
 
 @mark.usefixtures('tmpdir')
 @mark.usefixtures('site_document_data_objects')
+@mark.usefixtures('invalid_site_document_data_objects')
 @mark.usefixtures('rules_data')
 class TestProcessDataSource(unittest.TestCase):
     REGION_NAME = 'test'
@@ -69,9 +71,20 @@ class TestProcessDataSource(unittest.TestCase):
         obj._get_genesis_node_details()
         self.assertEqual(expected_result, obj.genesis_node)
 
-    @unittest.skip('Not in use.')
     def test__validate_intermediary_data(self):
-        pass
+        schema_path = os.path.join(FIXTURE_DIR, 'intermediary_schema.json')
+        obj = ProcessDataSource(
+            self.REGION_NAME, self.site_document_data, schema_path, False)
+        result = obj._validate_intermediary_data()
+        self.assertIsNone(result)
+
+    def test__validate_intermediary_data_invalid(self):
+        schema_path = os.path.join(FIXTURE_DIR, 'intermediary_schema.json')
+        obj = ProcessDataSource(
+            self.REGION_NAME, self.invalid_site_document_data, schema_path,
+            False)
+        with self.assertRaises(exceptions.IntermediaryValidationException):
+            obj._validate_intermediary_data()
 
     @mock.patch.object(ProcessDataSource, '_apply_rule_ip_alloc_offset')
     @mock.patch.object(ProcessDataSource, '_apply_rule_hardware_profile')

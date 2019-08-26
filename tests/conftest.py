@@ -30,6 +30,15 @@ def site_document_data_objects(request):
 
 
 @pytest.fixture(scope='class')
+def invalid_site_document_data_objects(request):
+    with open(os.path.join(FIXTURE_DIR, 'invalid_intermediary.yaml'),
+              'r') as f:
+        yaml_data = yaml.safe_load(f)
+    request.cls.invalid_site_document_data = site_document_data_factory(
+        yaml_data)
+
+
+@pytest.fixture(scope='class')
 def rules_data(request):
     with open(os.path.join(FIXTURE_DIR, 'rules.yaml'), 'r') as f:
         request.cls.rules_data = yaml.safe_load(f)

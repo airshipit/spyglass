@@ -79,7 +79,22 @@ FORCE_OPTION = click.option(
     'force',
     is_flag=True,
     default=False,
-    help="Forces manifests to be written, regardless of undefined data.")
+    help='Forces manifests to be written, regardless of undefined data.')
+
+INTERMEDIARY_SCHEMA_OPTION = click.option(
+    '--intermediary-schema',
+    'intermediary_schema',
+    type=click.Path(exists=True, readable=True, dir_okay=False),
+    default=pkg_resources.resource_filename(
+        'spyglass', "schemas/intermediary_schema.json"),
+    help='Path to the intermediary schema to be used for validation.')
+
+NO_INTERMEDIARY_VALIDATION_OPTION = click.option(
+    '--no-validation',
+    'no_validation',
+    is_flag=True,
+    default=False,
+    help='Skips validation on generated intermediary data.')
 
 
 @click.option(
@@ -135,7 +150,9 @@ def intermediary_processor(plugin_type, **kwargs):
     # Apply design rules to the data
     LOG.info("Apply design rules to the extracted data")
     process_input_ob = ProcessDataSource(
-        kwargs['site_name'], data_extractor.data)
+        kwargs['site_name'], data_extractor.data,
+        kwargs.get('intermediary_schema', None),
+        kwargs.get('no_validation', False))
     return process_input_ob
 
 

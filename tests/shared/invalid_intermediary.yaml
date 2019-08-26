@@ -1,0 +1,216 @@
+baremetal:
+  rack72:
+    cab2r72c12:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.12
+        oam: 10.0.220.12
+        oob: 10.0.220.140
+        overlay: 30.19.0.12
+        pxe: 30.30.4.12
+        storage: 30.31.1.12
+      type: compute
+    cab2r72c13:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.13
+        oam: 10.0.220.13
+        oob: 10.0.220.141
+        overlay: 30.19.0.13
+        pxe: 30.30.4.13
+        storage: 30.31.1.13
+      type: compute
+    cab2r72c14:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.14
+        oam: 10.0.220.14
+        oob: 10.0.220.142
+        overlay: 30.19.0.14
+        pxe: 30.30.4.14
+        storage: 30.31.1.14
+      type: compute
+    cab2r72c15:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.15
+        oam: 10.0.220.15
+        oob: 10.0.220.143
+        overlay: 30.19.0.15
+        pxe: 30.30.4.15
+        storage: 30.31.1.15
+      type: compute
+    cab2r72c16:
+      host_profile: cp-r720
+      ip:
+        calico: 30.29.1.16
+        oam: 10.0.220.16
+        oob: 10.0.220.144
+        overlay: 30.19.0.16
+        pxe: 30.30.4.16
+        storage: 30.31.1.16
+      name: cab2r72c16
+      type: genesis
+    cab2r72c17:
+      host_profile: cp-r720
+      ip:
+        calico: 30.29.1.17
+        oam: 10.0.220.17
+        oob: 10.0.220.145
+        overlay: 30.19.0.17
+        pxe: 30.30.4.17
+        storage: 30.31.1.17
+      type: controller
+  rack73:
+    cab2r73c12:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.18
+        oam: 10.0.220.18
+        oob: 10.0.220.146
+        overlay: 30.19.0.18
+        pxe: 30.30.4.18
+        storage: 30.31.1.18
+      type: compute
+    cab2r73c13:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.19
+        oam: 10.0.220.19
+        oob: 10.0.220.147
+        overlay: 30.19.0.19
+        pxe: 30.30.4.19
+        storage: 30.31.1.19
+      type: compute
+    cab2r73c14:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.20
+        oam: 10.0.220.20
+        oob: 10.0.220.148
+        overlay: 30.19.0.20
+        pxe: 30.30.4.20
+        storage: 30.31.1.20
+      type: compute
+    cab2r73c15:
+      host_profile: dp-r720
+      ip:
+        calico: 30.29.1.21
+        oam: 10.0.220.21
+        oob: 10.0.220.149
+        overlay: 30.19.0.21
+        pxe: 30.30.4.21
+        storage: 30.31.1.21
+      type: compute
+    cab2r73c16:
+      host_profile: cp-r720
+      ip:
+        calico: 30.29.1.22
+        oam: 10.0.220.22
+        oob: 10.0.220.150
+        overlay: 30.19.0.22
+        pxe: 30.30.4.22
+        storage: 30.31.1.22
+      type: controller
+    cab2r73c17:
+      host_profile: cp-r720
+      ip:
+        calico: 30.29.1.23
+        oam: 10.0.220.23
+        oob: 10.0.220.151
+        overlay: 30.19.0.23
+        pxe: 30.30.4.23
+        storage: 30.31.1.23
+      type: controller
+network:
+  bgp:
+    asnumber: 64671
+    ingress_vip: 132.68.226.73
+    peer_asnumber: 64688
+    peers:
+    - 172.29.0.2
+    - 172.29.0.3
+    public_service_cidr: 132.68.226.72/29
+  vlan_network_data:
+    calico:
+      gateway: 30.29.1.1
+      reserved_end: 30.29.1.12
+      reserved_start: 30.29.1.1
+      routes: []
+      static_end: 30.29.1.126
+      static_start: 30.29.1.13
+      subnet:
+      - 30.29.1.0/25
+      vlan: '22'
+    ingress:
+      subnet:
+      - 132.68.226.72/29
+    oob:
+      gateway: 10.0.220.129
+      reserved_end: 10.0.220.138
+      reserved_start: 10.0.220.129
+      routes: []
+      static_end: 10.0.220.158
+      static_start: 10.0.220.139
+      subnet:
+      - 10.0.220.128/27
+      - 10.0.220.160/27
+      - 10.0.220.192/27
+      - 10.0.220.224/27
+    overlay:
+      gateway: 30.19.0.1
+      reserved_end: 30.19.0.12
+      reserved_start: 30.19.0.1
+      routes: []
+      static_end: 30.19.0.126
+      static_start: 30.19.0.13
+      subnet:
+      - 30.19.0.0/25
+      vlan: '24'
+    pxe:
+      dhcp_end: 30.30.4.126
+      dhcp_start: 30.30.4.64
+      gateway: 30.30.4.1
+      reserved_end: 30.30.4.12
+      reserved_start: 30.30.4.1
+      routes: []
+      static_end: 30.30.4.63
+      static_start: 30.30.4.13
+      subnet:
+      - 30.30.4.0/25
+      - 30.30.4.128/25
+      - 30.30.5.0/25
+      - 30.30.5.128/25
+      vlan: '21'
+    storage:
+      gateway: 30.31.1.1
+      reserved_end: 30.31.1.12
+      reserved_start: 30.31.1.1
+      routes: []
+      static_end: 30.31.1.126
+      static_start: 30.31.1.13
+      subnet:
+      - 30.31.1.0/25
+      vlan: '23'
+region_name: test
+site_info:
+  corridor: c1
+  country: SampleCountry
+  dns:
+    servers: 8.8.8.8,8.8.4.4,208.67.222.222
+  domain: atlantafoundry.com
+  ldap:
+    common_name: test
+    domain: example
+    subdomain: test
+    url: ldap://ldap.example.com
+  name: SampleSiteName
+  ntp:
+    servers: 10.10.10.10,20.20.20.20,30.30.30.30
+  physical_location_id: XXXXXX21
+  sitetype: foundry
+  state: New Jersey
+storage:
+  ceph:
+    controller:
+      osd_count: 6

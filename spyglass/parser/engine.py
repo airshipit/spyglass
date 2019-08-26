@@ -12,29 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import json
 import logging
 import os
 import pprint
-import sys
 
-import jsonschema
+from jsonschema import Draft7Validator
 from netaddr import IPNetwork
 from pkg_resources import resource_filename
 import yaml
+
+from spyglass import exceptions
 
 LOG = logging.getLogger(__name__)
 
 
 class ProcessDataSource(object):
-    def __init__(self, region, extracted_data):
+    def __init__(
+            self,
+            region,
+            extracted_data,
+            intermediary_schema=None,
+            no_validation=True):
         # Initialize intermediary and save site type
         self.host_type = {}
         self.sitetype = None
         self.genesis_node = None
         self.network_subnets = None
         self.region_name = region
+        self.no_validation = no_validation
+        if intermediary_schema and not self.no_validation:
+            with open(intermediary_schema, 'r') as loaded_schema:
+                self.intermediary_schema = json.load(loaded_schema)
 
         LOG.info("Loading plugin data source")
         self.data = extracted_data
@@ -74,53 +83,24 @@ class ProcessDataSource(object):
             "Genesis Node Details:\n{}".format(
                 pprint.pformat(self.genesis_node)))
 
-    @staticmethod
-    def _validate_intermediary_data(data):
+    def _validate_intermediary_data(self):
         """Validates the intermediary data before generating manifests.
 
         It checks whether the data types and data format are as expected.
         The method validates this with regex pattern defined for each
         data type.
         """
-        # TODO(ian-pittwood): Implement intermediary validation or remove
 
         LOG.info("Validating Intermediary data")
-        # Performing a deep copy
-        temp_data = copy.deepcopy(data)
-        # Converting baremetal dict to list.
-        baremetal_list = []
-        for rack in temp_data.baremetal:
-            temp = [{k: v} for k, v in temp_data["baremetal"][rack].items()]
-            baremetal_list = baremetal_list + temp
-
-        temp_data["baremetal"] = baremetal_list
-        schema_dir = resource_filename("spyglass", "schemas/")
-        schema_file = schema_dir + "data_schema.json"
-        json_data = json.loads(json.dumps(temp_data))
-        with open(schema_file, "r") as f:
-            json_schema = json.load(f)
-        try:
-            # Suppressing writing of data2.json. Can use it for debugging
-            # with open('data2.json', 'w') as outfile:
-            #     json.dump(temp_data, outfile, sort_keys=True, indent=4)
-            jsonschema.validate(json_data, json_schema)
-        except jsonschema.exceptions.ValidationError as e:
-            LOG.error("Validation Error")
-            LOG.error("Message:{}".format(e.message))
-            LOG.error("Validator_path:{}".format(e.path))
-            LOG.error("Validator_pattern:{}".format(e.validator_value))
-            LOG.error("Validator:{}".format(e.validator))
-            sys.exit()
-        except jsonschema.exceptions.SchemaError as e:
-            LOG.error("Schema Validation Error!!")
-            LOG.error("Message:{}".format(e.message))
-            LOG.error("Schema:{}".format(e.schema))
-            LOG.error("Validator_value:{}".format(e.validator_value))
-            LOG.error("Validator:{}".format(e.validator))
-            LOG.error("path:{}".format(e.path))
-            sys.exit()
+        validator = Draft7Validator(self.intermediary_schema)
+        errors = sorted(
+            validator.iter_errors(self.data.dict_from_class()),
+            key=lambda e: e.path)
+        if errors:
+            raise exceptions.IntermediaryValidationException(errors=errors)
 
         LOG.info("Data validation Passed!")
+        return
 
     def _apply_design_rules(self):
         """Applies design rules from rules.yaml
@@ -309,5 +289,6 @@ class ProcessDataSource(object):
         self._apply_design_rules()
         self._get_genesis_node_details()
         # This will validate the extracted data from different sources.
-        # self._validate_intermediary_data(self.data)
+        if not self.no_validation and self.intermediary_schema:
+            self._validate_intermediary_data()
         return self.data

@@ -8,7 +8,7 @@
   "type": "object",
   "properties": {
     "baremetal": {
-      "type": "array",
+      "type": "object",
       "items": {
         "type": "object",
         "$ref": "#/definitions/baremetal_list"
