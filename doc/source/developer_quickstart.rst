@@ -28,30 +28,36 @@ airship-spyglass directory.
        sudo apt install -y python3-pip
        sudo apt install -y tox
 
-2. Set up an environment with tox.
+2. Install Pipenv.
+
+    .. code-block:: console
+
+        pip3 install pipenv
+
+2. Set up an environment with Pipenv
 
    .. code-block:: console
 
-       tox -e py36 --notest
+       pipenv install
 
-3. Enter the tox environment.
+3. Enter the Pipenv environment.
 
    .. code-block:: console
 
-       source .tox/py36/bin/activate
+       pipenv shell
 
 4. Install spyglass in the tox environment.
 
    .. code-block:: console
 
-       pip install -e .
+       pip3 install .
 
 5. Run spyglass on the example files to generate an intermediate document.
 
    .. code-block:: console
 
        mkdir intermediate
-       spyglass m -s airship-seaworthy -p tugboat -d intermediate \
+       spyglass excel documents -s airship-seaworthy -d intermediate -i \
                   --excel-spec spyglass/examples/excel_spec.yaml \
                   --excel-file spyglass/examples/SiteDesignSpec_v0.1.xlsx \
                   --site-configuration spyglass/examples/site_config.yaml \

@@ -32,6 +32,11 @@ CLI Options
 
 Enable debug logging.
 
+Excel Plugin
+************
+
+Commands available under the excel plugin package.
+
 Generate Intermediary
 ---------------------
 
@@ -39,26 +44,13 @@ Generates an intermediary file from passed excel data.
 
 .. code-block:: bash
 
-    ./spyglass.sh i -p <plugin_type> -x <engineering_excel_file> \
-                    -e <excel_spec> -c <additional_site_config> -s <site_name>
+    ./spyglass.sh excel intermediary -x <engineering_excel_file> \
+                    -e <excel_spec> \
+                    -c <additional_site_config> \
+                    -s <site_name>
 
 Options
 ^^^^^^^
-
-**-p / --plugin-type** "tugboat" by default.
-
-The plugin to use to open engineering data. Two plugins are available by
-default: "tugboat" and "formation". Tugboat can be used for reading Excel data.
-Formation can be used to read data from remote sources.
-
-**-f / --formation-target** (Required for "formation" plugin).
-
-Target remote for the formation plugin. Accepts a url and a username and
-password to access the url.
-
-::
-
-  -f <remote_url> <username> <password>
 
 **-d / --intermediary-dir** (Optional).
 
@@ -79,6 +71,14 @@ engineering excel files. Must be a readable file in YAML format.
 **-c / --site-configuration** (Optional).
 
 Path to site specific configuration YAML. Must be a readable file.
+
+**--intermediary-schema** (Optional).
+
+Path to the intermediary schema to be used for validation.
+
+**--no-validation** (Optional).
+
+Skips validation on generated intermediary data.
 
 **-s / --site-name** (Optional).
 
@@ -92,31 +92,16 @@ Intermediary data is always generated, but will not be saved unless specified.
 
 .. code-block:: bash
 
-    ./spyglass.sh m -t <plugin_type> -x <engineering_excel_file> \
+    ./spyglass.sh excel documents -x <engineering_excel_file> \
                     -e <excel_spec> -c <additional_site_config> \
                     -s <site_name> -t <j2_template_directory>
 
 Options
 ^^^^^^^
 
-**-i / --save-intermediary** (Optional). False by default.
+**-i / --generate-intermediary** (Optional). False by default.
 
 Saves the intermediary file used to make the manifests created by the command.
-
-**-p / --plugin-type** "tugboat" by default.
-
-The plugin to use to open engineering data. Two plugins are available by
-default: "tugboat" and "formation". Tugboat can be used for reading Excel data.
-Formation can be used to read data from remote sources.
-
-**-f / --formation-target** (Required for "formation" plugin).
-
-Target remote for the formation plugin. Requires a url, a username, and a
-password to access the url.
-
-::
-
-  -f <remote_url> <username> <password>
 
 **-d / --intermediary-dir** (Optional).
 
@@ -137,6 +122,14 @@ engineering excel files. Must be a readable file in YAML format.
 **-c / --site-configuration** (Optional).
 
 Path to site specific configuration YAML. Must be a readable file.
+
+**--intermediary-schema** (Optional).
+
+Path to the intermediary schema to be used for validation.
+
+**--no-validation** (Optional).
+
+Skips validation on generated intermediary data.
 
 **-s / --site-name** (Optional).
 
@@ -151,6 +144,9 @@ Must be a readable directory with Jinja2 files using the .j2 extension.
 
 Path where generated manifest files should be written. Must be a writeable
 directory.
+
+General
+*******
 
 Generate Manifests from Intermediary
 ------------------------------------
@@ -180,48 +176,74 @@ Must be a readable directory with Jinja2 files using the .j2 extension.
 
 **-m / --manifest-dir** (Optional).
 
-Path where generated manifest files should be written. Must be a writeable directory.
+Path where generated manifest files should be written. Must be a writeable
+directory.
+
+**--force** (Optional).
+
+Forces manifests to be written, regardless of undefined data.
+
+Validate Documents
+------------------
+
+Validates pegleg documents against their schema.
+
+.. code-block:: bash
+
+    spyglass validate -d <DOCUMENT_PATH> -p <SCHEMA_PATH>
+
+Options
+^^^^^^^
+
+**-d / --document-path**
+
+Path to the document(s) to validate.
+
+**-p / --schema-path**
+
+Path to a schema or directory of schema files used to validate documents in
+document path.
 
 Examples
 ========
 
 Running Spyglass with Excel Plugin
-----------------------------------
+**********************************
 
 .. code-block:: bash
 
-    spyglass m -i -p tugboat -x <Excel File> -e <Excel Spec> -c <Site Config> \
-               -s <Region> -t <j2 template dir>
+    spyglass excel documents -i -x <Excel File> -e <Excel Spec> \
+               -c <Site Config> -s <Site Name> -t <j2 template dir>
 
 Generating intermediary and manifests
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------
 
 .. code-block:: bash
 
-    spyglass m -i -p tugboat -x SiteDesignSpec_v0.1.xlsx \
+    spyglass excel documents -i -x SiteDesignSpec_v0.1.xlsx \
                -e excel_spec_upstream.yaml -c site_config.yaml \
                -s airship-seaworthy -t <j2 template dir>
 
 Generating intermediary without manifests
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 .. code-block:: bash
 
-    spyglass i -p tugboat -x SiteDesignSpec_v0.1.xlsx \
+    spyglass excel intermediary -x SiteDesignSpec_v0.1.xlsx \
                -e excel_spec_upstream.yaml -c site_config.yaml \
                -s airship-seaworthy
 
 Generating manifests without intermediary
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 .. code-block:: bash
 
-    spyglass m -p tugboat -x SiteDesignSpec_v0.1.xlsx \
+    spyglass excel documents -x SiteDesignSpec_v0.1.xlsx \
                -e excel_spec_upstream.yaml -c site_config.yaml \
-               -s airship-seaworthy --template_dir=<j2 template dir>
+               -s airship-seaworthy -t <j2 template dir>
 
 Generating manifests using intermediary
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+***************************************
 
 .. code-block:: bash
 
@@ -230,3 +252,10 @@ Generating manifests using intermediary
 Where sample 'excel_spec_upstream.yaml', 'SiteDesignSpec_v0.1.xlsx'
 'site_config.yaml' and J2 templates can be found under 'spyglass/examples'
 folder.
+
+Validate Documents
+******************
+
+.. code-block:: bash
+
+    spyglass validate -d <DOCUMENT_PATH> -p <SCHEMA_PATH>

@@ -1,6 +1,6 @@
 
 What is Spyglass?
-----------------
+-----------------
 
 Spyglass is the data extractor tool which can interface with
 different input data sources to generate site manifest YAML files.
