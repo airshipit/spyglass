@@ -130,4 +130,4 @@ Before using Spyglass you must:
 
    .. code-block:: console
 
-        pip3 install -r spyglass/requirements.txt
+        pip3 install pipenv && pipenv install
