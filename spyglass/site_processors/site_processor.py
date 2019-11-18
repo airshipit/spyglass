@@ -59,7 +59,7 @@ class SiteProcessor(BaseProcessor):
             logging_undefined = \
                 jinja2.make_logging_undefined(LOG, base=jinja2.StrictUndefined)
 
-        template_folder_name = os.path.split(template_dir)[1]
+        template_folder_name = os.path.split(template_dir.rstrip(os.sep))[1]
         created_file_list = []
         created_dir_list = []
 
