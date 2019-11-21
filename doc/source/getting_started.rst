@@ -25,10 +25,10 @@ Spyglass is a data extraction tool which can interface with
 different input data sources to generate site manifest YAML files.
 The data sources will provide all the configuration data needed
 for a site deployment. These site manifest YAML files generated
-by spyglass will be saved in a Git repository, from where Pegleg
+by Spyglass will be saved in a Git repository, from where Pegleg
 can access and aggregate them. This aggregated file can then be
 fed to Shipyard for site deployment / updates.
-Reference: https://airshipit.readthedocs.io/projects/specs/en/latest/specs/approved/data_config_generator.html
+Reference: `airship-specs`_
 
 Architecture
 ------------
@@ -39,7 +39,7 @@ Architecture
         |           |           |  +-------+  |
         |           |   +------>|  |Generic|  |
     +-----------+   |   |       |  |Object |  |
-    |Tugboat(Xl)| I |   |       |  +-------+  |
+    |Excel      | I |   |       |  +-------+  |
     |Plugin     | N |   |       |     |       |
     +-----------+ T |   |       |     |       |
         |         E |   |       |  +------+   |
@@ -65,7 +65,7 @@ Architecture
 
 Supported Features
 ------------------
-1. Spyglass XLS Plugin: https://opendev.org/airship/spyglass-plugin-xls
+1. Spyglass Excel Plugin: https://opendev.org/airship/spyglass-plugin-xls
 
 Future Work
 -----------
@@ -76,7 +76,7 @@ managed by considering a mapping of j2 templates with schemas and site type.
 
 List of Generated Site Manifests:
 ---------------------------------
-The spyglass uses the plugin data source to generate the following site
+The Spyglass uses the plugin data source to generate the following site
 manifests:
 
 - site-definition.yaml
@@ -126,8 +126,10 @@ Before using Spyglass you must:
 
         git clone https://opendev.org/airship/spyglass.git
 
-2. Install the required packages in spyglass:
+2. Install the required packages in Spyglass:
 
    .. code-block:: console
 
         pip3 install pipenv && pipenv install
+
+.. _airship-specs: https://airshipit.readthedocs.io/projects/specs/en/latest/specs/1.x/approved/data_config_generator.html

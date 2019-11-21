@@ -84,6 +84,7 @@
     timeout: 1800
     run: tools/gate/playbooks/docker-image-build.yaml
     nodeset: spyglass-single-node
+    voting: false
     vars:
       publish: false
       distro: opensuse_15
@@ -132,6 +133,7 @@
     nodeset: spyglass-single-node
     secrets:
       - airship_spyglass_quay_creds
+    voting: false
     vars:
       publish: true
       distro: opensuse_15

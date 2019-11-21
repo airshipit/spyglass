@@ -28,19 +28,19 @@ The Spyglass CLI is used in conjunction with the script ``tools/spyglass.sh``.
 CLI Options
 ===========
 
-**-v / --verbose** (Optional). False by default.
+**-v / \\-\\-verbose** (Optional). False by default.
 
 Enable debug logging.
 
 Excel Plugin
 ************
 
-Commands available under the excel plugin package.
+Commands available under the Excel plugin package.
 
 Generate Intermediary
 ---------------------
 
-Generates an intermediary file from passed excel data.
+Generates an intermediary file from passed Excel data.
 
 .. code-block:: bash
 
@@ -52,42 +52,42 @@ Generates an intermediary file from passed excel data.
 Options
 ^^^^^^^
 
-**-d / --intermediary-dir** (Optional).
+**-d / \\-\\-intermediary-dir** (Optional).
 
 Path where the intermediary file will be created. Must be a writeable
 directory.
 
-**-x / --excel-file** (Required for "tugboat" plugin).
+**-x / \\-\\-excel-file** (Required for Excel plugin).
 
-Path to the engineering excel file. Multiple files can be included, provided
+Path to the engineering Excel file. Multiple files can be included, provided
 they follow the same specification. Must be readable file(s) in a Microsoft
 Excel supported format (.xls, .xslx, etc...).
 
-**-e / --excel-spec** (Required for "tugboat" plugin).
+**-e / \\-\\-excel-spec** (Required for Excel plugin).
 
 Path to the specification YAML that defines the content of the provided
-engineering excel files. Must be a readable file in YAML format.
+engineering Excel files. Must be a readable file in YAML format.
 
-**-c / --site-configuration** (Optional).
+**-c / \\-\\-site-configuration** (Optional).
 
 Path to site specific configuration YAML. Must be a readable file.
 
-**--intermediary-schema** (Optional).
+**\\-\\-intermediary-schema** (Optional).
 
 Path to the intermediary schema to be used for validation.
 
-**--no-validation** (Optional).
+**\\-\\-no-validation** (Optional).
 
 Skips validation on generated intermediary data.
 
-**-s / --site-name** (Optional).
+**-s / \\-\\-site-name** (Optional).
 
 Name of the site for which the intermediary is generated.
 
 Generate Manifests
 ------------------
 
-Generates manifests from intermediary file created from passed excel data.
+Generates manifests from intermediary file created from passed Excel data.
 Intermediary data is always generated, but will not be saved unless specified.
 
 .. code-block:: bash
@@ -99,48 +99,48 @@ Intermediary data is always generated, but will not be saved unless specified.
 Options
 ^^^^^^^
 
-**-i / --generate-intermediary** (Optional). False by default.
+**-i / \\-\\-generate-intermediary** (Optional). False by default.
 
 Saves the intermediary file used to make the manifests created by the command.
 
-**-d / --intermediary-dir** (Optional).
+**-d / \\-\\-intermediary-dir** (Optional).
 
 Path where the intermediary file will be created. Must be a writeable
 directory.
 
-**-x / --excel-file** (Required for "tugboat" plugin).
+**-x / \\-\\-excel-file** (Required for Excel plugin).
 
-Path to the engineering excel file. Multiple files can be included, provided
+Path to the engineering Excel file. Multiple files can be included, provided
 they follow the same specification. Must be readable file(s) in a Microsoft
 Excel supported format (.xls, .xslx, etc...).
 
-**-e / --excel-spec** (Required for "tugboat" plugin).
+**-e / \\-\\-excel-spec** (Required for Excel plugin).
 
 Path to the specification YAML that defines the content of the provided
-engineering excel files. Must be a readable file in YAML format.
+engineering Excel files. Must be a readable file in YAML format.
 
-**-c / --site-configuration** (Optional).
+**-c / \\-\\-site-configuration** (Optional).
 
 Path to site specific configuration YAML. Must be a readable file.
 
-**--intermediary-schema** (Optional).
+**\\-\\-intermediary-schema** (Optional).
 
 Path to the intermediary schema to be used for validation.
 
-**--no-validation** (Optional).
+**\\-\\-no-validation** (Optional).
 
 Skips validation on generated intermediary data.
 
-**-s / --site-name** (Optional).
+**-s / \\-\\-site-name** (Optional).
 
 Name of the site for which the intermediary is generated.
 
-**-t / --template-dir** (Required).
+**-t / \\-\\-template-dir** (Required).
 
 Path to the Jinja2 template files that will be used to generate manifest files.
 Must be a readable directory with Jinja2 files using the .j2 extension.
 
-**-m / --manifest-dir** (Optional).
+**-m / \\-\\-manifest-dir** (Optional).
 
 Path where generated manifest files should be written. Must be a writeable
 directory.
@@ -169,17 +169,17 @@ manifests.
 Options
 ^^^^^^^
 
-**-t / --template-dir** (Required).
+**-t / \\-\\-template-dir** (Required).
 
 Path to the Jinja2 template files that will be used to generate manifest files.
 Must be a readable directory with Jinja2 files using the .j2 extension.
 
-**-m / --manifest-dir** (Optional).
+**-m / \\-\\-manifest-dir** (Optional).
 
 Path where generated manifest files should be written. Must be a writeable
 directory.
 
-**--force** (Optional).
+**\\-\\-force** (Optional).
 
 Forces manifests to be written, regardless of undefined data.
 
@@ -195,11 +195,11 @@ Validates pegleg documents against their schema.
 Options
 ^^^^^^^
 
-**-d / --document-path**
+**-d / \\-\\-document-path**
 
 Path to the document(s) to validate.
 
-**-p / --schema-path**
+**-p / \\-\\-schema-path**
 
 Path to a schema or directory of schema files used to validate documents in
 document path.
@@ -220,27 +220,33 @@ Generating intermediary and manifests
 
 .. code-block:: bash
 
-    spyglass excel documents -i -x SiteDesignSpec_v0.1.xlsx \
-               -e excel_spec_upstream.yaml -c site_config.yaml \
-               -s airship-seaworthy -t <j2 template dir>
+    spyglass excel documents -i \
+           -x ../spyglass-plugin-xls/spyglass_plugin_xls/examples/SiteDesignSpec_v0.1.xlsx \
+           -e ../spyglass-plugin-xls/spyglass_plugin_xls/examples/excel_spec.yaml \
+           -c spyglass/examples/site_config.yaml \
+           -s airship-seaworthy -t spyglass/examples/templates/
 
 Generating intermediary without manifests
 -----------------------------------------
 
 .. code-block:: bash
 
-    spyglass excel intermediary -x SiteDesignSpec_v0.1.xlsx \
-               -e excel_spec_upstream.yaml -c site_config.yaml \
-               -s airship-seaworthy
+    spyglass excel intermediary \
+           -x ../spyglass-plugin-xls/spyglass_plugin_xls/examples/SiteDesignSpec_v0.1.xlsx \
+           -e ../spyglass-plugin-xls/spyglass_plugin_xls/examples/excel_spec.yaml \
+           -c spyglass/examples/site_config.yaml \
+           -s airship-seaworthy
 
 Generating manifests without intermediary
 -----------------------------------------
 
 .. code-block:: bash
 
-    spyglass excel documents -x SiteDesignSpec_v0.1.xlsx \
-               -e excel_spec_upstream.yaml -c site_config.yaml \
-               -s airship-seaworthy -t <j2 template dir>
+    spyglass excel documents \
+           -x ../spyglass-plugin-xls/spyglass_plugin_xls/examples/SiteDesignSpec_v0.1.xlsx \
+           -e ../spyglass-plugin-xls/spyglass_plugin_xls/examples/excel_spec.yaml \
+           -c spyglass/examples/site_config.yaml \
+           -s airship-seaworthy -t spyglass/examples/templates/
 
 Generating manifests using intermediary
 ***************************************
@@ -249,8 +255,9 @@ Generating manifests using intermediary
 
     spyglass mi <intermediary.yaml> -t <j2 template dir>
 
-Where sample 'excel_spec_upstream.yaml', 'SiteDesignSpec_v0.1.xlsx'
-'site_config.yaml' and J2 templates can be found under 'spyglass/examples'
+Where sample `excel_spec.yaml` and `SiteDesignSpec_v0.1.xlsx` can be found in
+spyglass-plugin-xls in the `spyglass_plugin_xls/examples` folder. The Jinja2
+templates and `site_config.yaml` can be found in the `spyglass/examples`
 folder.
 
 Validate Documents

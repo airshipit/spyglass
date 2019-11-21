@@ -18,52 +18,56 @@
 Developer Quickstart Guide
 ==========================
 
-To run your first spyglass job, follow these steps from inside the
-airship-spyglass directory.
+1. Clone the Spyglass directory. (Perform the following steps from inside the
+spyglass directory)
 
-1. Install external dependencies if not already installed.
+   .. code-block:: console
+
+       git clone https://opendev.org/airship/spyglass.git
+
+2. Install external dependencies if not already installed.
 
    .. code-block:: console
 
        sudo apt install -y python3-pip
        sudo apt install -y tox
 
-2. Install Pipenv.
+3. Install Pipenv.
 
-    .. code-block:: console
+   .. code-block:: console
 
-        pip3 install pipenv
+       pip3 install pipenv
 
-2. Set up an environment with Pipenv
+4. Set up an environment with Pipenv
 
    .. code-block:: console
 
        pipenv install
 
-3. Enter the Pipenv environment.
+5. Enter the Pipenv environment.
 
    .. code-block:: console
 
        pipenv shell
 
-4. Install spyglass in the tox environment.
+6. Install spyglass in the tox environment.
 
    .. code-block:: console
 
        pip3 install .
 
-5. Run spyglass on the example files to generate an intermediate document.
+7. Run spyglass on the example files to generate an intermediate document.
 
    .. code-block:: console
 
        mkdir intermediate
        spyglass excel documents -s airship-seaworthy -d intermediate -i \
-                  --excel-spec spyglass/examples/excel_spec.yaml \
-                  --excel-file spyglass/examples/SiteDesignSpec_v0.1.xlsx \
-                  --site-configuration spyglass/examples/site_config.yaml \
-                  --template-dir spyglass/examples/templates/
+           --excel-spec ../spyglass-plugin-xls/spyglass_plugin_xls/examples/excel_spec.yaml \
+           --excel-file ../spyglass-plugin-xls/spyglass_plugin_xls/examples/SiteDesignSpec_v0.1.xlsx \
+           --site-configuration spyglass/examples/site_config.yaml \
+           --template-dir spyglass/examples/templates/
 
-6. Run spyglass on the intermediate document to generate manifests.
+8. Run spyglass on the intermediate document to generate manifests.
 
    .. code-block:: console
 
