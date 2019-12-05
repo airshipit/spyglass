@@ -32,6 +32,7 @@ class ProcessDataSource(object):
             self,
             region,
             extracted_data,
+            rules_config,
             intermediary_schema=None,
             no_validation=True):
         # Initialize intermediary and save site type
@@ -40,6 +41,7 @@ class ProcessDataSource(object):
         self.genesis_node = None
         self.network_subnets = None
         self.region_name = region
+        self.rules = rules_config
         self.no_validation = no_validation
         if intermediary_schema and not self.no_validation:
             with open(intermediary_schema, 'r') as loaded_schema:
@@ -110,14 +112,16 @@ class ProcessDataSource(object):
         information. The method calls corresponding rule handler function
         based on rule name and applies them to appropriate data objects.
         """
-
-        LOG.info("Apply design rules")
         # TODO(ian-pittwood): We may want to let users specify these in cli
         #                     opts. We also need better guidelines over how
         #                     to write these rules and how they are applied.
-
-        rules_dir = resource_filename("spyglass", "config/")
-        rules_file = os.path.join(rules_dir, "rules.yaml")
+        if self.rules is None:
+            LOG.info("Apply design rules: Default")
+            rules_dir = resource_filename("spyglass", "config/")
+            rules_file = os.path.join(rules_dir, "rules.yaml")
+        else:
+            LOG.info("Apply design rules: " + str(self.rules))
+            rules_file = self.rules
         rules_data_raw = self._read_file(rules_file)
         rules_yaml = yaml.safe_load(rules_data_raw)
         for rule in rules_yaml.keys():
