@@ -65,7 +65,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'spyglass'
-copyright = '2018 AT&T Intellectual Property.'
+copyright = '2019 Spyglass Authors.'
 author = 'Spyglass Authors'
 
 # The version info for the project you're documenting, acts as replacement for
