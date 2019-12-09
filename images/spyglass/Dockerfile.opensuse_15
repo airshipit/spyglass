@@ -28,6 +28,7 @@ RUN set -x \
     && zypper --non-interactive install python3-six-1.12.0-lp151.80.1.noarch
 RUN pip3 install -U pip \
     && zypper clean -a \
+    && useradd -u 1000 -g users -d /opt/spyglass airship \
     && rm -rf \
          /tmp/* \
          /usr/share/doc \
@@ -45,3 +46,5 @@ RUN pip3 install pipenv && pipenv install --system --deploy --ignore-pipfile
 
 COPY . /opt/spyglass
 RUN pip3 install -e /opt/spyglass
+
+USER airship

@@ -26,6 +26,7 @@ RUN set -ex \
     && python3 -m pip install -U pip \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
+    && useradd -u 1000 -g users -d /opt/spyglass airship \
     && rm -rf \
          /tmp/* \
          /usr/share/doc \
@@ -44,3 +45,5 @@ RUN pip3 install pipenv \
 
 COPY . /opt/spyglass
 RUN pip3 install -e /opt/spyglass
+
+USER airship
