@@ -1,19 +1,3 @@
-..
-      Copyright 2019 AT&T Intellectual Property.
-      All Rights Reserved.
-
-      Licensed under the Apache License, Version 2.0 (the "License"); you may
-      not use this file except in compliance with the License. You may obtain
-      a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-      Unless required by applicable law or agreed to in writing, software
-      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-      License for the specific language governing permissions and limitations
-      under the License.
-
 ===============
 Getting Started
 ===============
@@ -65,11 +49,11 @@ Architecture
 
 Supported Features
 ------------------
-1. Spyglass Excel Plugin: https://opendev.org/airship/spyglass-plugin-xls
+1. `Spyglass Excel Plugin <https://opendev.org/airship/spyglass-plugin-xls>`_
 
 Future Work
 -----------
-1) Schema based manifest generation instead of Jinja2 templates. It shall
+1. Schema based manifest generation instead of Jinja2 templates. It shall
 be possible to cleanly transition to this schema based generation keeping a
 unique mapping between schema and generated manifests. Currently this is
 managed by considering a mapping of j2 templates with schemas and site type.
@@ -120,16 +104,20 @@ Basic Usage
 Before using Spyglass you must:
 
 
-1. Clone the Spyglass repository:
+1. Clone the Spyglass repository::
 
-   .. code-block:: console
+    git clone https://opendev.org/airship/spyglass.git
 
-        git clone https://opendev.org/airship/spyglass.git
+2. Install the required packages in Spyglass::
 
-2. Install the required packages in Spyglass:
+    pip3 install pipenv && pipenv install
 
-   .. code-block:: console
+3. Launch the pipenv from your Spyglass directory::
 
-        pip3 install pipenv && pipenv install
+    pipenv shell
+
+4. Install Spyglass into the pipenv::
+
+    pip3 install .
 
 .. _airship-specs: https://airshipit.readthedocs.io/projects/specs/en/latest/specs/1.x/approved/data_config_generator.html
