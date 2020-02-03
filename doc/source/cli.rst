@@ -56,6 +56,11 @@ engineering Excel files. Must be a readable file in YAML format.
 
 Path to site specific configuration YAML. Must be a readable file.
 
+**-r / \\-\\-rule-configuration** (Optional).
+
+Path to rules configuration YAML file. This file defines the rules used for
+data manipulation. Default rules are used if no rules YAML is entered.
+
 **\\-\\-intermediary-schema** (Optional).
 
 Path to the intermediary schema to be used for validation.
@@ -106,6 +111,11 @@ engineering Excel files. Must be a readable file in YAML format.
 **-c / \\-\\-site-configuration** (Optional).
 
 Path to site specific configuration YAML. Must be a readable file.
+
+**-r / \\-\\-rule-configuration** (Optional).
+
+Path to rules configuration YAML file. This file defines the rules used for
+data manipulation. Default rules are used if no rules YAML is entered.
 
 **\\-\\-intermediary-schema** (Optional).
 

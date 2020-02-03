@@ -42,6 +42,14 @@ SITE_CONFIGURATION_FILE_OPTION = click.option(
     required=False,
     help='Path to site specific configuration details YAML file.')
 
+RULE_CONFIGURATION_FILE_OPTION = click.option(
+    '-r',
+    '--rule-configuration',
+    'rule_configuration',
+    type=click.Path(exists=True, readable=True, dir_okay=False),
+    required=False,
+    help='Path to data manipulation configuration rules YAML file.')
+
 INTERMEDIARY_DIR_OPTION = click.option(
     '-d',
     '--intermediary-dir',
@@ -151,6 +159,7 @@ def intermediary_processor(plugin_type, **kwargs):
     LOG.info("Apply design rules to the extracted data")
     process_input_ob = ProcessDataSource(
         kwargs['site_name'], data_extractor.data,
+        kwargs.get('rule_configuration', None),
         kwargs.get('intermediary_schema', None),
         kwargs.get('no_validation', False))
     return process_input_ob
